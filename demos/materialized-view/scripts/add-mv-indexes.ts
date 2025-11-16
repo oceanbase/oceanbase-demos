@@ -54,13 +54,8 @@ async function main() {
       const indexes = await sequelize.query<{
         Key_name: string;
         Column_name: string;
-      }>(
-        "SHOW INDEX FROM th_cluster_v3",
-        { type: QueryTypes.SELECT }
-      );
-      const existingIndexNames = new Set(
-        indexes.map((idx) => idx.Key_name)
-      );
+      }>("SHOW INDEX FROM th_cluster_v3", { type: QueryTypes.SELECT });
+      const existingIndexNames = new Set(indexes.map((idx) => idx.Key_name));
       console.log(
         `  - 现有索引: ${Array.from(existingIndexNames).join(", ") || "无"}\n`
       );
@@ -161,4 +156,3 @@ async function main() {
 }
 
 main();
-
