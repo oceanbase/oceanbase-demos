@@ -18,6 +18,7 @@
     "@ant-design/charts": "^2.6.6",
     "@ant-design/nextjs-registry": "^1.2.0",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@vercel/speed-insights": "^1.2.0",
     "antd": "^5.28.1",
     "copy-to-clipboard": "^3.3.3",
     "mysql2": "^3.15.3",
