@@ -44,12 +44,17 @@ async function testConnection() {
     
     // 测试简单查询
     const [results] = await sequelize.query('SELECT 1 as test', { type: 'SELECT' });
-    console.log('✅ 查询测试成功:', results);
+    if (Array.isArray(results) && results.length > 0) {
+      console.log('✅ 查询测试成功:', results);
+    }
     
     // 显示数据库版本
     try {
-      const [version] = await sequelize.query('SELECT VERSION() as version', { type: 'SELECT' });
-      console.log('📊 数据库版本:', (version as { version: string }).version);
+      const [versionResults] = await sequelize.query('SELECT VERSION() as version', { type: 'SELECT' });
+      if (Array.isArray(versionResults) && versionResults.length > 0) {
+        const version = versionResults[0] as { version: string };
+        console.log('📊 数据库版本:', version.version);
+      }
     } catch {
       // 忽略版本查询错误
     }
