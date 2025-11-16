@@ -1,0 +1,23 @@
+.container {
+  margin-bottom: 16px;
+}
+
+.tabs :global(.ant-tabs-tab) {
+  font-size: 14px;
+  padding: 8px 16px;
+  font-weight: 400;
+}
+
+.tabs :global(.ant-tabs-ink-bar) {
+  height: 2px;
+  background: #1890ff;
+}
+
+.tabs :global(.ant-tabs-tab-active) {
+  font-weight: 500;
+}
+
+.tabs :global(.ant-tabs-tab:hover) {
+  color: #1890ff;
+}
+

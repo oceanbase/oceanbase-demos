@@ -1,0 +1,22 @@
+.container {
+  margin-bottom: 16px;
+}
+
+.collapse :global(.ant-collapse-header) {
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 0 !important;
+  color: #333;
+}
+
+.collapse :global(.ant-collapse-content-box) {
+  padding: 12px 0 !important;
+}
+
+.description {
+  margin: 0;
+  color: #666;
+  line-height: 1.6;
+  font-size: 14px;
+}
+

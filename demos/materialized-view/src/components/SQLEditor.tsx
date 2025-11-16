@@ -1,152 +1,86 @@
-import { useState, useEffect } from "react";
-import { Copy, ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
+"use client";
+
+import { Card, Button } from "antd";
+import { PlayCircleOutlined, CopyOutlined, DownOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import { Input } from "antd";
+import styles from "./SQLEditor.module.css";
+
+const { TextArea } = Input;
+
+const defaultSQL = `SELECT (
+COUNT(CASE WHEN event_type = 'purchase' THEN 1 ELSE NULL END) /
+COUNT(CASE WHEN event_type = 'view' THEN 1 ELSE NULL END)
+) AS bought_rate
+FROM events
+WHERE event_time >= '2019-11-23 23:59:59'
+AND event_time <= '2019-11-30 23:59:59'`;
 
 interface SQLEditorProps {
-  code: string;
-  onChange: (code: string) => void;
-  expanded?: boolean;
+  onExecute: () => void;
+  loading?: boolean;
 }
 
-export function SQLEditor({ code, onChange, expanded }: SQLEditorProps) {
-  const [isExpanded, setIsExpanded] = useState(expanded ?? true);
-
-  // Sync internal state with external expanded prop if provided
-  useEffect(() => {
-    if (expanded !== undefined) {
-      setIsExpanded(expanded);
-    }
-  }, [expanded]);
+export default function SQLEditor({ onExecute, loading }: SQLEditorProps) {
+  const [sql, setSql] = useState(defaultSQL);
+  const [expanded, setExpanded] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-  };
-
-  // 语法高亮处理
-  const highlightSQL = (sql: string) => {
-    const keywords = [
-      "SELECT",
-      "FROM",
-      "WHERE",
-      "AND",
-      "AS",
-      "COUNT",
-      "CASE",
-      "WHEN",
-      "THEN",
-      "ELSE",
-      "END",
-      "NULL",
-      "OR",
-    ];
-
-    // 分割 SQL 语句，保留空格、括号、等号等
-    const lines = sql.split("\n");
-
-    return lines.map((line, lineIndex) => {
-      const parts = line.split(/(\s+|[(),=]|>=|<=)/);
-
-      const highlightedParts = parts.map((part, index) => {
-        const upperPart = part.toUpperCase();
-        if (keywords.includes(upperPart)) {
-          return (
-            <span key={`${lineIndex}-${index}`} style={{ color: "#1890ff" }}>
-              {part}
-            </span>
-          );
-        } else if (/^'[^']*'$/.test(part)) {
-          return (
-            <span key={`${lineIndex}-${index}`} style={{ color: "#52c41a" }}>
-              {part}
-            </span>
-          );
-        } else if (/^\d+$/.test(part)) {
-          return (
-            <span key={`${lineIndex}-${index}`} style={{ color: "#fa8c16" }}>
-              {part}
-            </span>
-          );
-        }
-        return <span key={`${lineIndex}-${index}`}>{part}</span>;
-      });
-
-      return <div key={lineIndex}>{highlightedParts}</div>;
-    });
+    navigator.clipboard.writeText(sql);
   };
 
   return (
     <Card
-      className="border-gray-300"
-      style={{
-        background: "#fafafa",
-        borderRadius: 2,
-      }}
-    >
-      <div
-        style={{
-          padding: "12px 16px",
-          borderBottom: "1px solid #d9d9d9",
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 8,
-        }}
-      >
+      className={styles.card}
+      bodyStyle={{ padding: 16 }}
+      extra={
         <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleCopy}
-          className="h-8 w-8 p-0"
+          type="primary"
+          icon={<PlayCircleOutlined />}
+          onClick={onExecute}
+          loading={loading}
+          className={styles.executeButton}
         >
-          <Copy className="h-4 w-4" />
+          执行 SQL
         </Button>
-      </div>
-      <div
-        style={{
-          padding: 16,
-          fontFamily:
-            'Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace',
-          fontSize: 13,
-          lineHeight: 1.8,
-          color: "#262626",
-          background: "#fff",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-          maxHeight: isExpanded ? "none" : 200,
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
-        {highlightSQL(code)}
-      </div>
-      {code.split("\n").length > 8 && (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "8px 0",
-            borderTop: "1px solid #f0f0f0",
-            cursor: "pointer",
-          }}
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          <span
-            style={{
-              color: "#1890ff",
-              fontSize: 12,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-            }}
+      }
+    >
+      <div className={styles.editorWrapper}>
+        <TextArea
+          value={sql}
+          onChange={(e) => setSql(e.target.value)}
+          rows={expanded ? 10 : 6}
+          className={styles.textarea}
+        />
+        <div className={styles.actions}>
+          <Button
+            type="link"
+            size="small"
+            icon={
+              <DownOutlined 
+                className={styles.expandIcon}
+                style={{ 
+                  transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                }} 
+              />
+            }
+            onClick={() => setExpanded(!expanded)}
+            className={styles.actionButton}
           >
-            展开{" "}
-            {isExpanded ? (
-              <ChevronUp className="h-3 w-3" />
-            ) : (
-              <ChevronDown className="h-3 w-3" />
-            )}
-          </span>
+            {expanded ? "收起" : "展开"}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<CopyOutlined />}
+            onClick={handleCopy}
+            className={styles.actionButton}
+          >
+            复制
+          </Button>
         </div>
-      )}
+      </div>
     </Card>
   );
 }
+
