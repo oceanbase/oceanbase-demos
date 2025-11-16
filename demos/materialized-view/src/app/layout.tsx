@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { App } from "antd";
 import "antd/dist/reset.css";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,6 +39,7 @@ export default function RootLayout({
           <App>{children}</App>
         </AntdRegistry>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
