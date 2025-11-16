@@ -225,6 +225,7 @@ pnpm start
 ### 优化物化视图性能
 
 1. **创建索引**：运行 `pnpm recreate:mv` 脚本会自动为物化视图创建以下索引：
+
    - `idx_pool_id`：优化按池子 ID 查询
    - `idx_ind_level1_id`：优化按类目查询
    - `idx_pool_ind`：优化按池子 ID 和类目的组合查询
@@ -233,11 +234,13 @@ pnpm start
    - `idx_grp_id`：优化按分组 ID 查询
 
 2. **刷新物化视图**：确保物化视图数据是最新的：
+
    ```bash
    pnpm refresh:mv
    ```
 
 3. **重新创建物化视图**（包含索引）：
+
    ```bash
    pnpm recreate:mv
    ```
