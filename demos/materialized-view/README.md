@@ -218,16 +218,19 @@ pnpm start
 基表查询速度快的原因：
 
 1. **良好的索引设计**：
+
    - `item_pool` 表的主键包含 `pool_id`，WHERE 条件 `pool_id = 'pool_001'` 可以直接利用主键索引
    - `item_pool` 表有 `idx_plat_item(market_code, item_id)` 索引，可以优化 JOIN 操作
    - `sku_base` 表的主键包含 `item_id` 和 `market_code`，可以快速定位 JOIN 数据
 
 2. **分区剪枝（Partition Pruning）**：
+
    - 基表都按 `item_id` 进行了 64 个分区
    - OceanBase 优化器可以利用分区剪枝快速定位到相关分区，减少扫描的数据量
 
 3. **查询相对简单**：
-   - 场景1只涉及 2 个表的 JOIN（`item_pool LEFT JOIN sku_base`）
+
+   - 场景 1 只涉及 2 个表的 JOIN（`item_pool LEFT JOIN sku_base`）
    - WHERE 条件使用了主键字段（`pool_id`），可以快速定位数据
    - OceanBase 的优化器可以生成高效的执行计划
 
@@ -244,7 +247,7 @@ pnpm start
 2. **分区策略**：物化视图的分区策略（按 `pool_id` 和 `item_id`）可能与查询模式不匹配
 3. **数据量**：当数据量较小时，物化视图的维护开销可能大于直接查询基础表的开销
 4. **数据新鲜度**：物化视图需要定期刷新以保持数据最新
-5. **查询复杂度**：对于简单的查询（如场景1的2表JOIN），物化视图的优势不明显；对于复杂的多表 JOIN 查询（如物化视图定义中的4-5个表JOIN），物化视图的优势更明显
+5. **查询复杂度**：对于简单的查询（如场景 1 的 2 表 JOIN），物化视图的优势不明显；对于复杂的多表 JOIN 查询（如物化视图定义中的 4-5 个表 JOIN），物化视图的优势更明显
 
 ### 优化物化视图性能
 
