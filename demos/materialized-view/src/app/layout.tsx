@@ -19,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Materialized View Demo",
   description: "OceanBase Materialized View Demo",
+  icons: {
+    icon: "/image/oceanbase.svg",
+  },
 };
 
 export default function RootLayout({
