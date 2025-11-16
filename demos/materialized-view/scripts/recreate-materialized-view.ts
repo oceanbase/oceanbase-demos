@@ -92,6 +92,32 @@ async function main() {
       process.exit(1);
     }
 
+    // 为物化视图添加索引以优化查询性能
+    console.log('🔍 为物化视图添加索引...');
+    const indexes = [
+      { name: 'idx_pool_id', sql: 'CREATE INDEX idx_pool_id ON th_cluster_v3(pool_id)' },
+      { name: 'idx_ind_level1_id', sql: 'CREATE INDEX idx_ind_level1_id ON th_cluster_v3(ind_level1_id)' },
+      { name: 'idx_pool_ind', sql: 'CREATE INDEX idx_pool_ind ON th_cluster_v3(pool_id, ind_level1_id)' },
+      { name: 'idx_brand_name', sql: 'CREATE INDEX idx_brand_name ON th_cluster_v3(brand_name)' },
+      { name: 'idx_market_code', sql: 'CREATE INDEX idx_market_code ON th_cluster_v3(market_code)' },
+      { name: 'idx_grp_id', sql: 'CREATE INDEX idx_grp_id ON th_cluster_v3(grp_id)' },
+    ];
+
+    for (const index of indexes) {
+      try {
+        await sequelize.query(index.sql, { type: QueryTypes.RAW });
+        console.log(`  ✅ 索引 ${index.name} 创建成功`);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        if (errorMsg.includes('Duplicate key') || errorMsg.includes('already exists')) {
+          console.log(`  ℹ️  索引 ${index.name} 已存在，跳过`);
+        } else {
+          console.log(`  ⚠️  索引 ${index.name} 创建失败: ${errorMsg}`);
+        }
+      }
+    }
+    console.log('');
+
     // 检查物化视图数据
     console.log('📊 检查物化视图数据:');
     try {
