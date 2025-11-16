@@ -1,36 +1,227 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OceanBase 物化视图性能对比演示
 
-## Getting Started
+这是一个基于 Next.js 的 OceanBase 物化视图性能对比演示应用，用于对比直接查询基础表、查询物化视图和优化器自动改写查询的性能差异。
 
-First, run the development server:
+## 功能特性
+
+- 🎯 **多维度查询场景**：5 个不同的多维度查询场景
+- 📊 **性能对比**：自动对比三种查询方式的执行时间
+- 🔄 **自动执行**：页面加载和切换场景时自动执行 SQL
+- 📈 **可视化展示**：图表展示性能差异，表格展示查询结果
+- 🗄️ **真实数据库**：使用 Sequelize 连接 OceanBase 数据库执行真实查询
+
+## 技术栈
+
+- **前端框架**：Next.js 16 + React 19
+- **UI 组件库**：Ant Design 5
+- **图表库**：@ant-design/charts
+- **数据库 ORM**：Sequelize
+- **数据库驱动**：mysql2（OceanBase 兼容 MySQL 协议）
+
+## 快速开始
+
+### 1. 安装依赖
+
+本项目使用 [pnpm](https://pnpm.io/) 管理依赖。如果还没有安装 pnpm，可以通过以下方式安装：
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install -g pnpm
+# 或
+curl -fsSL https://get.pnpm.io/install.sh | sh -
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+然后安装项目依赖：
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2. 配置数据库连接
 
-## Learn More
+复制 `.env.example` 文件为 `.env.local`（或 `.env`），并配置 OceanBase 数据库连接信息：
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+cp .env.example .env.local
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+编辑 `.env.local` 文件，填入你的数据库配置：
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+# OceanBase 数据库配置
+OCEANBASE_HOST=127.0.0.1
+OCEANBASE_PORT=2883
+OCEANBASE_DATABASE=test
+OCEANBASE_USERNAME=root
+OCEANBASE_PASSWORD=your_password
 
-## Deploy on Vercel
+# 环境变量
+NODE_ENV=development
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 3. 准备数据库
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+确保 OceanBase 数据库中已经创建了以下表：
+
+- `item_pool`：商品池表
+- `sku_base`：SKU 基础信息表
+- `sku_grp`：SKU 分组表
+- `th_cluster_v3`：物化视图
+
+表结构定义请参考 `sql/` 目录下的 SQL 文件。
+
+### 4. 生成测试数据
+
+使用测试数据生成脚本创建测试数据：
+
+```bash
+# 生成默认数量的测试数据（100 条）
+pnpm generate:data
+
+# 生成指定数量的测试数据（例如 500 条）
+pnpm generate:data 500
+```
+
+脚本会自动生成：
+
+- `item_pool` 数据（商品池）
+- `sku_base` 数据（SKU 基础信息，每个商品 1-3 个 SKU）
+- `sku_grp` 数据（同款分组）
+- 自动刷新物化视图 `th_cluster_v3`
+
+更多信息请参考 `scripts/README.md`。
+
+### 5. 启动开发服务器
+
+```bash
+pnpm dev
+```
+
+打开 [http://localhost:3000](http://localhost:3000) 查看应用。
+
+## 使用说明
+
+1. **选择场景**：在场景选择器中选择要测试的查询场景
+2. **选择查询类型**：选择要对比的查询方式（基础表/物化视图/查询改写）
+3. **查看 SQL**：在 SQL 编辑器中查看或编辑生成的 SQL
+4. **执行查询**：点击"执行 SQL"按钮或等待自动执行
+5. **查看结果**：
+   - 在"执行时间"标签页查看性能对比图表
+   - 在"执行结果"标签页查看查询返回的数据
+
+## 项目结构
+
+```
+.
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── query/
+│   │   │       └── route.ts          # API 路由：处理 SQL 查询
+│   │   ├── page.tsx                   # 主页面
+│   │   └── layout.tsx                 # 布局组件
+│   ├── components/                   # React 组件
+│   │   ├── ScenarioSelector.tsx      # 场景选择器
+│   │   ├── QueryTypeSelector.tsx     # 查询类型选择器
+│   │   ├── SQLEditor.tsx             # SQL 编辑器
+│   │   ├── ResultsPanel.tsx          # 结果展示面板
+│   │   └── ...
+│   ├── data/
+│   │   └── scenarios.ts              # 场景配置数据
+│   └── lib/
+│       └── db.ts                     # 数据库连接配置
+├── sql/                              # SQL 脚本
+│   ├── item_pool.sql
+│   ├── sku_base.sql
+│   ├── sku_grp.sql
+│   └── th_cluster_v3.sql
+└── package.json
+```
+
+## API 接口
+
+### POST /api/query
+
+执行 SQL 查询
+
+**请求体：**
+
+```json
+{
+  "sql": "SELECT * FROM item_pool LIMIT 10"
+}
+```
+
+**响应：**
+
+```json
+{
+  "success": true,
+  "data": [...],
+  "rowCount": 10,
+  "executionTime": 123
+}
+```
+
+### GET /api/query
+
+健康检查接口，检查数据库连接状态
+
+**响应：**
+
+```json
+{
+  "success": true,
+  "message": "数据库连接正常"
+}
+```
+
+## 查询场景
+
+### 场景 1：按池子 ID 和类目维度查询商品信息
+
+查询特定池子中某个一级类目的商品及其竞对信息。
+
+### 场景 2：按品牌和 GMV 排名维度统计
+
+统计不同品牌在不同 GMV 排名区间的商品数量。
+
+### 场景 3：按市场代码和同款分组维度查询
+
+查询特定市场的商品及其同款信息。
+
+### 场景 4：按类目和标签维度过滤查询
+
+查询特定类目和标签的商品信息。
+
+### 场景 5：多维度聚合统计
+
+按类目、品牌、市场等多维度进行聚合统计。
+
+## 开发
+
+### 构建生产版本
+
+```bash
+pnpm build
+```
+
+### 启动生产服务器
+
+```bash
+pnpm start
+```
+
+## 注意事项
+
+1. **数据库连接**：确保 OceanBase 数据库服务正在运行，并且网络可达
+2. **环境变量**：不要将包含密码的 `.env.local` 文件提交到版本控制系统
+3. **SQL 安全**：当前实现直接执行用户输入的 SQL，生产环境需要添加 SQL 注入防护
+4. **性能测试**：建议在数据量较大的环境中测试，以获得更准确的性能对比结果
+5. **构建配置**：
+   - 项目默认使用 **Turbopack**（Next.js 16 的默认打包器），已配置为支持 Sequelize
+   - 如需使用 webpack，可以使用 `pnpm dev:webpack` 或 `pnpm build:webpack`
+   - 通过 `dialectModule` 明确指定使用 mysql2，避免 Sequelize 加载其他数据库驱动
+
+## 许可证
+
+MIT

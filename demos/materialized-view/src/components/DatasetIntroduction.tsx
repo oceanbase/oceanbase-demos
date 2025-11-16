@@ -1,7 +1,12 @@
 "use client";
 
 import { Collapse } from "antd";
-import { CaretUpOutlined } from "@ant-design/icons";
+import {
+  ArrowRightOutlined,
+  CaretUpOutlined,
+  RightOutlined,
+  UpOutlined,
+} from "@ant-design/icons";
 import styles from "./DatasetIntroduction.module.css";
 
 const { Panel } = Collapse;
@@ -14,14 +19,14 @@ export default function DatasetIntroduction() {
       <Collapse
         ghost
         defaultActiveKey={["1"]}
+        expandIconPosition="right"
         expandIcon={({ isActive }) => (
-          <CaretUpOutlined 
-            rotate={isActive ? 0 : 180} 
-            style={{ 
+          <UpOutlined
+            rotate={isActive ? 0 : 180}
+            style={{
               fontSize: 12,
-              color: "#666",
-              transition: "transform 0.3s"
-            }} 
+              transition: "transform 0.3s",
+            }}
           />
         )}
         className={styles.collapse}
@@ -33,4 +38,3 @@ export default function DatasetIntroduction() {
     </div>
   );
 }
-

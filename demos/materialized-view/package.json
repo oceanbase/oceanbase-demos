@@ -4,27 +4,41 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:webpack": "next dev --webpack",
     "build": "next build",
+    "build:webpack": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate:data": "tsx scripts/generate-test-data.ts",
+    "test:db": "tsx scripts/test-connection.ts",
+    "refresh:mv": "tsx scripts/refresh-materialized-view.ts",
+    "recreate:mv": "tsx scripts/recreate-materialized-view.ts"
   },
   "dependencies": {
     "@ant-design/charts": "^2.6.6",
     "@ant-design/nextjs-registry": "^1.2.0",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "antd": "^5.28.1",
+    "copy-to-clipboard": "^3.3.3",
+    "mysql2": "^3.15.3",
     "next": "16.0.3",
     "react": "19.2.0",
     "react-data-grid": "^7.0.0-beta.58",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "react-syntax-highlighter": "^16.1.0",
+    "sequelize": "^6.37.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sequelize": "^4.28.20",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
     "tailwindcss": "^4",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

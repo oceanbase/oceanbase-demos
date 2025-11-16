@@ -2,27 +2,12 @@
   margin-top: 16px;
 }
 
-.tabs :global(.ant-tabs-tab) {
-  font-size: 14px;
-  padding: 8px 16px;
-  font-weight: 400;
+.tabSelector {
+  margin-bottom: 16px;
 }
 
-.tabs :global(.ant-tabs-ink-bar) {
-  height: 2px;
-  background: #1890ff;
-}
-
-.tabs :global(.ant-tabs-tab-active) {
-  font-weight: 500;
-}
-
-.tabs :global(.ant-tabs-tab:hover) {
-  color: #1890ff;
-}
-
-.tabs :global(.ant-tabs-content-holder) {
-  padding-top: 16px;
+.content {
+  padding-top: 0;
 }
 
 .chartContainer {
@@ -31,24 +16,3 @@
   border-radius: 4px;
   width: 100%;
 }
-
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 300px;
-  color: #999;
-}
-
-.emptyIcon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  opacity: 0.5;
-}
-
-.emptyText {
-  font-size: 14px;
-  color: #999;
-}
-

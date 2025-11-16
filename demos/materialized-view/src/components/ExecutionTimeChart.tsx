@@ -1,73 +1,60 @@
 "use client";
 
 import { Column } from "@ant-design/charts";
+import { Spin } from "antd";
 
 interface ExecutionTimeChartProps {
   data: Array<{
     type: string;
     time: number;
   }>;
+  loading?: boolean;
 }
 
 export default function ExecutionTimeChart({
   data,
+  loading = false,
 }: ExecutionTimeChartProps) {
-  const config = {
-    data,
+  // 确保数据格式正确
+  const chartData = Array.isArray(data)
+    ? data.map((item) => ({
+        type: item.type || "",
+        time: typeof item.time === "number" ? item.time : 0,
+      }))
+    : [];
+
+  // 获取所有唯一的类型，用于设置颜色映射
+  const uniqueTypes = Array.from(new Set(chartData.map((item) => item.type)));
+
+  // 根据 type 获取颜色
+  const getColorByType = (type: string) => {
+    if (type.includes("基本表")) {
+      return "#057cf2"; // 查询基本表 - 蓝色
+    } else if (type.includes("物化视图")) {
+      return "#52c41a"; // 查询物化视图 - 绿色
+    } else if (type.includes("改写")) {
+      return "#fa8c16"; // 查询改写 - 橙色
+    }
+    return "#057cf2"; // 默认颜色
+  };
+
+  // 生成颜色数组，按照 uniqueTypes 的顺序
+  const colorRange = uniqueTypes.map((type) => getColorByType(type));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const config: any = {
+    height: 250,
+    padding: 24,
+    data: chartData,
     xField: "type",
     yField: "time",
-    color: "#1890ff",
-    columnStyle: {
-      radius: [4, 4, 0, 0],
-    },
-    label: {
-      position: "top" as const,
-      formatter: (datum: { time: number }) => `${datum.time}ms`,
-      style: {
-        fill: "#333",
-        fontSize: 12,
-        fontWeight: 500,
+    colorField: "type",
+    scale: {
+      color: {
+        type: "ordinal" as const,
+        domain: uniqueTypes,
+        range: colorRange,
       },
-    },
-    xAxis: {
-      label: {
-        autoRotate: false,
-        style: {
-          fill: "#666",
-          fontSize: 12,
-        },
-      },
-      line: {
-        style: {
-          stroke: "#e8e8e8",
-          lineWidth: 1,
-        },
-      },
-    },
-    yAxis: {
-      label: {
-        formatter: (text: string) => `${text}ms`,
-        style: {
-          fill: "#666",
-          fontSize: 12,
-        },
-      },
-      grid: {
-        line: {
-          style: {
-            stroke: "#e8e8e8",
-            lineWidth: 1,
-          },
-        },
-      },
-      line: {
-        style: {
-          stroke: "#e8e8e8",
-          lineWidth: 1,
-        },
-      },
-    },
-    meta: {
       time: {
         alias: "执行时间",
       },
@@ -75,25 +62,79 @@ export default function ExecutionTimeChart({
         alias: "查询类型",
       },
     },
-    height: 300,
-    padding: [16, 24, 24, 24],
-    animation: {
-      appear: {
-        animation: "fade-in",
-        duration: 1000,
+    tooltip: {
+      items: [
+        (d: Record<string, unknown>) => ({
+          name: "执行时间",
+          value: `${(d.time as number) || 0}ms`,
+        }),
+      ],
+    },
+    style: {
+      maxWidth: 88,
+    },
+    labels: [
+      {
+        text: (d: Record<string, unknown>) => {
+          const time = d?.time;
+          if (typeof time === "number" && time > 0) {
+            return `${time}ms`;
+          }
+          return "";
+        },
+        style: {
+          fontSize: 12,
+          fontWeight: 500,
+          dy: -20, // 向上偏移，将标签移到柱子正上方
+        },
+      },
+    ],
+    axis: {
+      y: {
+        labelFormatter: (text: string) => `${text}ms`,
+        labelFontSize: 12,
+        labelFill: "#666",
+        grid: true,
+        gridLineWidth: 1,
+        gridStroke: "#000000",
+        gridLineType: "solid",
+        gridLineDash: [0, 0],
+        gridOpacity: 0.6,
+        tick: false,
+        tickCount: 3,
       },
     },
   };
 
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: 300,
+          padding: "16px",
+          background: "#fff",
+          borderRadius: "4px",
+          width: "100%",
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
-    <div style={{ 
-      padding: "16px", 
-      background: "#fff", 
-      borderRadius: "4px",
-      width: "100%"
-    }}>
+    <div
+      style={{
+        padding: "16px",
+        background: "#fff",
+        borderRadius: "4px",
+        width: "100%",
+      }}
+    >
       <Column {...config} />
     </div>
   );
 }
-

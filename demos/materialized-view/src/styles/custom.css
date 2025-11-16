@@ -79,7 +79,8 @@
 }
 
 .sql-textarea {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro",
+    monospace;
   font-size: 14px;
   line-height: 1.6;
   background: #fafafa;
@@ -176,8 +177,7 @@
 }
 
 .main-content {
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
   width: 100%;
 }
-
