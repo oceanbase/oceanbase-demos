@@ -78,6 +78,10 @@ export default function MovieSearchPage({}: MovieSearchPageProps) {
     // '莱昂纳多',
     defaultQuery,
     '周星弛的动作电影',
+    '有情感纠葛的悲剧爱情电影',
+    '诈骗题材具有喜剧色彩的国产电影',
+    '王宝强陈思诚合作的电影，充满悬疑喜剧色彩的',
+    '主角是律师，但焦点不在法庭而在人性的电影',
     // '家庭关系修复的温暖治愈的电影',
     // '诺兰执导的科幻电影推荐',
     // '讲女性成长的电影',
@@ -345,7 +349,6 @@ export default function MovieSearchPage({}: MovieSearchPageProps) {
             <Title level={1} className={styles.mainTitle}>
               基于混合搜索的影搜小助手
             </Title>
-            <Text className={styles.subtitle}>电影混合搜索</Text>
           </div>
           <Button
             onClick={() => {
