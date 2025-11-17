@@ -131,7 +131,6 @@ export default function ExecutionTimeChart({
   return (
     <div
       style={{
-        padding: "16px",
         background: "#fff",
         borderRadius: "4px",
         width: "100%",
