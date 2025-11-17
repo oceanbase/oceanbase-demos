@@ -4,16 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:webpack": "next dev --webpack",
     "build": "next build",
-    "build:webpack": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "generate:data": "tsx scripts/generate-test-data.ts",
-    "test:db": "tsx scripts/test-connection.ts",
-    "refresh:mv": "tsx scripts/refresh-materialized-view.ts",
-    "recreate:mv": "tsx scripts/recreate-materialized-view.ts",
-    "add:mv-indexes": "tsx scripts/add-mv-indexes.ts"
+    "generate:data": "tsx scripts/generate-data.ts",
+    "setup:schema": "tsx scripts/setup-schema.ts"
   },
   "dependencies": {
     "@ant-design/charts": "^2.6.6",
@@ -29,6 +24,7 @@
     "react": "19.2.0",
     "react-data-grid": "^7.0.0-beta.58",
     "react-dom": "19.2.0",
+    "react-markdown": "^10.1.0",
     "react-syntax-highlighter": "^16.1.0",
     "sequelize": "^6.37.7"
   },

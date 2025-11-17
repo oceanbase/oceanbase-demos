@@ -52,6 +52,14 @@ export default function Home() {
   const [activeQueryType, setActiveQueryType] = useState<QueryType>("base");
   const [hasExecuted, setHasExecuted] = useState(false);
   const [loading, setLoading] = useState(false);
+  // 跟踪每个查询类型的 loading 状态
+  const [queryLoadingStates, setQueryLoadingStates] = useState<
+    Record<QueryType, boolean>
+  >({
+    base: false,
+    materialized: false,
+    rewrite: false,
+  });
   const [executionTimes, setExecutionTimes] = useState<
     Array<{ type: string; time: number }>
   >([]);
@@ -74,86 +82,162 @@ export default function Home() {
 
       setLoading(true);
       setError("");
+      setHasExecuted(true);
+      // 初始化所有查询类型的 loading 状态为 true
+      setQueryLoadingStates({
+        base: true,
+        materialized: true,
+        rewrite: true,
+      });
+      // 初始化执行时间数组，所有查询类型都显示为 0
+      setExecutionTimes(
+        queryTypes.map((q) => ({
+          type: q.label,
+          time: 0,
+        }))
+      );
+      setExecutionResults([]);
+
+      // 用于存储所有查询结果
+      const queryResults: {
+        base?: Awaited<ReturnType<typeof executeSQLQuery>>;
+        materialized?: Awaited<ReturnType<typeof executeSQLQuery>>;
+        rewrite?: Awaited<ReturnType<typeof executeSQLQuery>>;
+      } = {};
+
+      const errors: string[] = [];
+      let loadingEnded = false; // 标记是否已经结束 loading
+
+      // 处理单个查询结果的函数
+      const handleQueryResult = (
+        queryType: QueryType,
+        result: Awaited<ReturnType<typeof executeSQLQuery>>
+      ) => {
+        queryResults[queryType] = result;
+
+        // 更新对应查询类型的 loading 状态为 false
+        setQueryLoadingStates((prev) => ({
+          ...prev,
+          [queryType]: false,
+        }));
+
+        // 第一个查询返回后立即结束 loading
+        if (!loadingEnded) {
+          loadingEnded = true;
+          setLoading(false);
+        }
+
+        // 更新执行时间（立即更新，不等待其他查询）
+        setExecutionTimes((prevTimes) => {
+          // 创建一个 Map 来存储当前的执行时间数据
+          const timesMap = new Map<string, number>();
+
+          // 将现有数据放入 Map（排除当前更新的查询类型）
+          const currentLabel =
+            queryTypes.find((q) => q.key === queryType)?.label || "";
+          prevTimes.forEach((item) => {
+            if (item.type !== currentLabel) {
+              timesMap.set(item.type, item.time);
+            }
+          });
+
+          // 如果查询成功，添加新的执行时间；否则保持为 0
+          if (result.success && result.executionTime !== undefined) {
+            timesMap.set(currentLabel, result.executionTime);
+          } else {
+            // 查询失败或未完成，设置为 0
+            timesMap.set(currentLabel, 0);
+          }
+
+          // 按照 queryTypes 的顺序重新排列，确保固定顺序，未返回的查询显示为 0
+          const orderedTimes: Array<{ type: string; time: number }> = [];
+          queryTypes.forEach((q) => {
+            const time = timesMap.get(q.label);
+            orderedTimes.push({
+              type: q.label,
+              time: time !== undefined ? time : 0,
+            });
+          });
+
+          return orderedTimes;
+        });
+
+        // 如果是当前选中的查询类型，立即更新结果
+        if (queryType === activeQueryType && result.success) {
+          setExecutionResults(Array.isArray(result.data) ? result.data : []);
+        }
+
+        // 处理错误
+        if (!result.success) {
+          const queryLabel =
+            queryTypes.find((q) => q.key === queryType)?.label || queryType;
+          const errorMsg = `查询${queryLabel}失败: ${
+            result.error || "未知错误"
+          }`;
+          errors.push(errorMsg);
+          setError((prevError) => {
+            const newErrors = prevError
+              ? prevError
+                  .split("; ")
+                  .filter((e) => !e.startsWith(`查询${queryLabel}`))
+              : [];
+            newErrors.push(errorMsg);
+            return newErrors.join("; ");
+          });
+          message.error(errorMsg, 3);
+        }
+      };
 
       try {
-        // 并行执行三种查询类型
-        const [baseResult, materializedResult, rewriteResult] =
-          await Promise.all([
-            executeSQLQuery(currentScenario.sql.base),
-            executeSQLQuery(currentScenario.sql.materialized),
-            executeSQLQuery(currentScenario.sql.rewrite),
-          ]);
+        // 并行执行三种查询类型，但每个查询完成后立即更新图表
+        const promises = [
+          executeSQLQuery(currentScenario.sql.base).then((result) => {
+            handleQueryResult("base", result);
+            return result;
+          }),
+          executeSQLQuery(currentScenario.sql.materialized).then((result) => {
+            handleQueryResult("materialized", result);
+            return result;
+          }),
+          executeSQLQuery(currentScenario.sql.rewrite).then((result) => {
+            handleQueryResult("rewrite", result);
+            return result;
+          }),
+        ];
 
-        // 检查是否有查询失败
-        const errors: string[] = [];
-        if (!baseResult.success) {
-          errors.push(`查询基本表失败: ${baseResult.error || "未知错误"}`);
-        }
-        if (!materializedResult.success) {
-          errors.push(
-            `查询物化视图失败: ${materializedResult.error || "未知错误"}`
-          );
-        }
-        if (!rewriteResult.success) {
-          errors.push(`查询改写失败: ${rewriteResult.error || "未知错误"}`);
-        }
+        // 等待所有查询完成（用于最终结果保存）
+        await Promise.all(promises);
 
-        // 如果有错误，显示错误信息
-        if (errors.length > 0) {
-          const errorMessage = errors.join("; ");
-          setError(errorMessage);
-          message.error(`部分查询执行失败: ${errorMessage}`, 5);
-        } else {
-          setError("");
-        }
-
-        // 构建执行时间数据（只包含成功的查询）
-        const times = [];
-        if (baseResult.success && baseResult.executionTime !== undefined) {
-          times.push({
-            type:
-              queryTypes.find((q) => q.key === "base")?.label || "查询基本表",
-            time: baseResult.executionTime,
+        // 所有查询完成后，保存完整结果（按照 queryTypes 的顺序，未返回的显示为 0）
+        const executionTimes: Array<{ type: string; time: number }> = [];
+        queryTypes.forEach((q) => {
+          const result = queryResults[q.key as QueryType];
+          executionTimes.push({
+            type: q.label,
+            time:
+              result?.success && result.executionTime !== undefined
+                ? result.executionTime
+                : 0,
           });
-        }
-        if (
-          materializedResult.success &&
-          materializedResult.executionTime !== undefined
-        ) {
-          times.push({
-            type:
-              queryTypes.find((q) => q.key === "materialized")?.label ||
-              "查询物化视图",
-            time: materializedResult.executionTime,
-          });
-        }
-        if (
-          rewriteResult.success &&
-          rewriteResult.executionTime !== undefined
-        ) {
-          times.push({
-            type:
-              queryTypes.find((q) => q.key === "rewrite")?.label || "查询改写",
-            time: rewriteResult.executionTime,
-          });
-        }
+        });
 
-        // 保存结果
         const results: ScenarioResults = {
-          executionTimes: times,
+          executionTimes,
           results: {
             base:
-              baseResult.success && Array.isArray(baseResult.data)
-                ? baseResult.data
+              queryResults.base?.success &&
+              Array.isArray(queryResults.base.data)
+                ? queryResults.base.data
                 : [],
             materialized:
-              materializedResult.success &&
-              Array.isArray(materializedResult.data)
-                ? materializedResult.data
+              queryResults.materialized?.success &&
+              Array.isArray(queryResults.materialized.data)
+                ? queryResults.materialized.data
                 : [],
             rewrite:
-              rewriteResult.success && Array.isArray(rewriteResult.data)
-                ? rewriteResult.data
+              queryResults.rewrite?.success &&
+              Array.isArray(queryResults.rewrite.data)
+                ? queryResults.rewrite.data
                 : [],
           },
         };
@@ -164,11 +248,9 @@ export default function Home() {
           return newMap;
         });
 
-        // 更新当前显示的数据
-        setExecutionTimes(times);
+        // 确保当前查询类型的结果已显示
         const currentResult = results.results[activeQueryType];
         setExecutionResults(currentResult);
-        setHasExecuted(true);
 
         // 只有所有查询都成功时才显示成功消息
         if (errors.length === 0) {
@@ -184,6 +266,12 @@ export default function Home() {
         setHasExecuted(false);
       } finally {
         setLoading(false);
+        // 重置所有查询类型的 loading 状态
+        setQueryLoadingStates({
+          base: false,
+          materialized: false,
+          rewrite: false,
+        });
       }
     },
     [activeQueryType]
@@ -200,6 +288,12 @@ export default function Home() {
   // 当场景改变时，检查是否需要执行查询
   const handleScenarioChange = (scenarioId: number) => {
     setActiveScenario(scenarioId);
+    // 重置所有查询类型的 loading 状态
+    setQueryLoadingStates({
+      base: false,
+      materialized: false,
+      rewrite: false,
+    });
     // 如果该场景已有结果，直接使用；否则会在 useEffect 中执行查询
   };
 
@@ -254,6 +348,7 @@ export default function Home() {
         token: {
           borderRadius: 4,
           colorPrimary: "#057cf2",
+          colorLink: "#057cf2",
         },
       }}
     >
@@ -287,6 +382,7 @@ export default function Home() {
                 <SQLEditor
                   onExecute={() => handleExecuteSQL()}
                   loading={loading}
+                  queryLoadingStates={queryLoadingStates}
                   sql={
                     currentScenario ? currentScenario.sql[activeQueryType] : ""
                   }

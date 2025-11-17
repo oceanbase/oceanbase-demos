@@ -43,7 +43,7 @@
 }
 
 .scenario-description .anticon {
-  color: #1890ff;
+  color: #057cf2;
   margin-right: 8px;
 }
 
@@ -108,7 +108,7 @@
 }
 
 .sql-actions .ant-btn-link:hover {
-  color: #1890ff;
+  color: #057cf2;
 }
 
 /* 执行按钮 */

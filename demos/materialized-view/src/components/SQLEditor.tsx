@@ -5,6 +5,7 @@ import {
   PlayCircleOutlined,
   CopyOutlined,
   DownOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import copy from "copy-to-clipboard";
@@ -21,6 +22,7 @@ interface QueryType {
 interface SQLEditorProps {
   onExecute: () => void;
   loading?: boolean;
+  queryLoadingStates?: Record<string, boolean>;
   sql?: string;
   activeQueryType?: string;
   onQueryTypeChange?: (type: string) => void;
@@ -30,6 +32,7 @@ interface SQLEditorProps {
 export default function SQLEditor({
   onExecute,
   loading,
+  queryLoadingStates = {},
   sql = "",
   activeQueryType,
   onQueryTypeChange,
@@ -72,21 +75,39 @@ export default function SQLEditor({
               className={styles.radioGroup}
               optionType="button"
             >
-              {queryTypes.map((queryType) => (
-                <Radio.Button
-                  key={queryType.key}
-                  value={queryType.key}
-                  className={styles.radioButton}
-                >
-                  {queryType.description ? (
-                    <Tooltip title={queryType.description} placement="top">
-                      {queryType.label}
-                    </Tooltip>
-                  ) : (
-                    queryType.label
-                  )}
-                </Radio.Button>
-              ))}
+              {queryTypes.map((queryType) => {
+                const isLoading = queryLoadingStates[queryType.key] || false;
+                return (
+                  <Radio.Button
+                    key={queryType.key}
+                    value={queryType.key}
+                    className={styles.radioButton}
+                  >
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      {isLoading && (
+                        <LoadingOutlined
+                          style={{
+                            display: "inline-block",
+                          }}
+                        />
+                      )}
+                      {queryType.description ? (
+                        <Tooltip title={queryType.description} placement="top">
+                          <span>{queryType.label}</span>
+                        </Tooltip>
+                      ) : (
+                        <span>{queryType.label}</span>
+                      )}
+                    </span>
+                  </Radio.Button>
+                );
+              })}
             </Radio.Group>
           </div>
         ) : null

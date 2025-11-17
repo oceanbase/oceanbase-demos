@@ -27,7 +27,7 @@ if (existsSync(envLocalPath)) {
   console.log("⚠️  未找到 .env.local 或 .env 文件，使用系统环境变量或默认配置");
 }
 
-import { sequelize } from "../src/lib/db";
+import { sequelize } from "../../src/lib/db";
 import { QueryTypes } from "sequelize";
 
 // 配置

@@ -2,6 +2,7 @@
 
 import { Column } from "@ant-design/charts";
 import { Spin } from "antd";
+import { queryTypes } from "@/data/scenarios";
 
 interface ExecutionTimeChartProps {
   data: Array<{
@@ -24,7 +25,8 @@ export default function ExecutionTimeChart({
     : [];
 
   // 获取所有唯一的类型，用于设置颜色映射
-  const uniqueTypes = Array.from(new Set(chartData.map((item) => item.type)));
+  // 使用 queryTypes 的顺序，确保所有类型都有颜色映射（即使值为 0）
+  const allTypes = queryTypes.map((q) => q.label);
 
   // 根据 type 获取颜色
   const getColorByType = (type: string) => {
@@ -38,13 +40,13 @@ export default function ExecutionTimeChart({
     return "#057cf2"; // 默认颜色
   };
 
-  // 生成颜色数组，按照 uniqueTypes 的顺序
-  const colorRange = uniqueTypes.map((type) => getColorByType(type));
+  // 生成颜色数组，按照 queryTypes 的顺序
+  const colorRange = allTypes.map((type) => getColorByType(type));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const config: any = {
     height: 250,
-    padding: 24,
+    padding: 32,
     data: chartData,
     xField: "type",
     yField: "time",
@@ -52,7 +54,7 @@ export default function ExecutionTimeChart({
     scale: {
       color: {
         type: "ordinal" as const,
-        domain: uniqueTypes,
+        domain: allTypes, // 使用固定顺序，确保所有类型都有颜色映射
         range: colorRange,
       },
       time: {
@@ -60,6 +62,8 @@ export default function ExecutionTimeChart({
       },
       type: {
         alias: "查询类型",
+        // 确保按照 queryTypes 的顺序显示
+        domain: queryTypes.map((q) => q.label),
       },
     },
     tooltip: {

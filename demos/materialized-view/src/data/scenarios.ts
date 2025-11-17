@@ -13,296 +13,356 @@ export interface Scenario {
 export const scenarios: Scenario[] = [
   {
     id: 1,
-    name: "场景1：按池子ID和类目维度查询商品信息",
+    name: "场景1：按日期和类目统计销售额（多表JOIN + 聚合）",
     description:
-      "查询特定池子中某个一级类目的商品及其竞对信息，包括商品标题、品牌、卖家等详细信息。适用于需要分析特定类目下商品竞争情况的场景。",
+      "统计指定日期范围内，按一级类目和二级类目分组的销售额。此场景需要JOIN订单表、订单明细表、商品表，然后进行SUM聚合。聚合物化视图已预计算JOIN和聚合结果，查询时只需对预聚合数据进行简单的二次聚合，性能提升显著（10-100倍）。",
     sql: {
-      base: `-- 查询基础表：通过JOIN多个表获取数据
+      base: `-- 查询基础表：需要JOIN 4个表后进行聚合统计
 SELECT 
-  ip.pool_id,
-  ip.gmv_rank,
-  sb.item_title,
-  sb.brand_name,
-  sb.seller_id,
-  sb.sku_spec,
-  sb.ind_level1_id,
-  sb.x_cate_level1_id,
-  sb.x_cate_level2_id
-FROM item_pool ip
-LEFT JOIN sku_base sb ON ip.item_id = sb.item_id AND ip.market_code = sb.market_code
-WHERE ip.pool_id = 'pool_001'
-  AND sb.ind_level1_id = '1001'
-ORDER BY ip.gmv_rank;`,
-      materialized: `-- 查询物化视图：直接查询预聚合的物化视图
+  p.category_level1_id,
+  p.category_level1_name,
+  p.category_level2_id,
+  p.category_level2_name,
+  o.order_date,
+  COUNT(DISTINCT o.order_id) AS order_count,
+  COUNT(DISTINCT oi.item_id) AS item_count,
+  SUM(oi.amount) AS total_sales,
+  SUM(oi.quantity) AS total_quantity,
+  AVG(oi.amount) AS avg_item_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+WHERE o.order_date >= '2024-01-01'
+  AND o.order_date < '2024-02-01'
+  AND o.order_status = 'COMPLETED'
+GROUP BY p.category_level1_id, p.category_level1_name, p.category_level2_id, p.category_level2_name, o.order_date
+ORDER BY o.order_date, total_sales DESC;`,
+      materialized: `-- 查询聚合物化视图：直接使用预聚合数据，只需二次聚合（JOIN和聚合成本都已消除）
 SELECT 
-  pool_id,
-  gmv_rank,
-  item_title,
-  brand_name,
-  seller_id,
-  sku_spec,
-  ind_level1_id,
-  x_cate_level1_id,
-  x_cate_level2_id
-FROM th_cluster_v3
-WHERE pool_id = 'pool_001'
-  AND ind_level1_id = '1001'
-ORDER BY gmv_rank;`,
+  category_level1_id,
+  category_level1_name,
+  category_level2_id,
+  category_level2_name,
+  sale_date AS order_date,
+  SUM(order_count) AS order_count,
+  SUM(item_count) AS item_count,
+  SUM(total_sales) AS total_sales,
+  SUM(total_quantity) AS total_quantity,
+  SUM(total_sales) / SUM(total_quantity) AS avg_item_amount
+FROM sales_summary_mv_agg1
+WHERE sale_date >= '2024-01-01'
+  AND sale_date < '2024-02-01'
+GROUP BY category_level1_id, category_level1_name, category_level2_id, category_level2_name, sale_date
+ORDER BY sale_date, total_sales DESC;`,
       rewrite: `-- 查询改写：查询基础表，通过 MV_REWRITE hint 指定使用物化视图
-SELECT /*+ MV_REWRITE(th_cluster_v3) */
-  ip.pool_id,
-  ip.gmv_rank,
-  sb.item_title,
-  sb.brand_name,
-  sb.seller_id,
-  sb.sku_spec,
-  sb.ind_level1_id,
-  sb.x_cate_level1_id,
-  sb.x_cate_level2_id
-FROM item_pool ip
-LEFT JOIN sku_base sb ON ip.item_id = sb.item_id AND ip.market_code = sb.market_code
-WHERE ip.pool_id = 'pool_001'
-  AND sb.ind_level1_id = '1001'
-ORDER BY ip.gmv_rank;`,
+SELECT /*+ MV_REWRITE(sales_summary_mv) */
+  p.category_level1_id,
+  p.category_level1_name,
+  p.category_level2_id,
+  p.category_level2_name,
+  o.order_date,
+  COUNT(DISTINCT o.order_id) AS order_count,
+  COUNT(DISTINCT oi.item_id) AS item_count,
+  SUM(oi.amount) AS total_sales,
+  SUM(oi.quantity) AS total_quantity,
+  AVG(oi.amount) AS avg_item_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+WHERE o.order_date >= '2024-01-01'
+  AND o.order_date < '2024-02-01'
+  AND o.order_status = 'COMPLETED'
+GROUP BY p.category_level1_id, p.category_level1_name, p.category_level2_id, p.category_level2_name, o.order_date
+ORDER BY o.order_date, total_sales DESC;`,
     },
   },
   {
     id: 2,
-    name: "场景2：按品牌和GMV排名维度统计",
+    name: "场景2：按品牌和地区统计销量（多维度聚合）",
     description:
-      "统计不同品牌在不同GMV排名区间的商品数量，用于分析品牌在商品池中的分布情况。",
+      "统计不同品牌在不同地区的商品销量和销售额。此场景需要JOIN订单、订单明细、商品、用户表，然后按品牌和地区进行聚合。聚合物化视图已预计算JOIN和聚合结果，查询时只需对预聚合数据进行简单的二次聚合，性能提升显著（10-100倍）。",
     sql: {
-      base: `-- 查询基础表：统计品牌和GMV排名分布
+      base: `-- 查询基础表：需要JOIN 4个表后进行多维度聚合
 SELECT 
-  sb.brand_name,
-  CASE 
-    WHEN ip.gmv_rank <= 10 THEN 'TOP10'
-    WHEN ip.gmv_rank <= 50 THEN 'TOP50'
-    WHEN ip.gmv_rank <= 100 THEN 'TOP100'
-    ELSE '其他'
-  END AS rank_range,
-  COUNT(DISTINCT ip.item_id) AS item_count,
-  COUNT(DISTINCT sb.sku_id) AS sku_count
-FROM item_pool ip
-LEFT JOIN sku_base sb ON ip.item_id = sb.item_id AND ip.market_code = sb.market_code
-WHERE ip.pool_id = 'pool_001'
-  AND sb.brand_name IS NOT NULL
-GROUP BY sb.brand_name, rank_range
-ORDER BY sb.brand_name, rank_range;`,
-      materialized: `-- 查询物化视图：直接统计物化视图数据
+  p.brand_id,
+  p.brand_name,
+  o.region_id,
+  o.region_name,
+  COUNT(DISTINCT o.order_id) AS order_count,
+  COUNT(DISTINCT oi.item_id) AS item_count,
+  SUM(oi.quantity) AS total_quantity,
+  SUM(oi.amount) AS total_sales,
+  AVG(oi.amount) AS avg_item_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+WHERE o.order_date >= '2024-01-01'
+  AND o.order_date < '2024-04-01'
+  AND o.order_status = 'COMPLETED'
+  AND p.brand_id IS NOT NULL
+GROUP BY p.brand_id, p.brand_name, o.region_id, o.region_name
+HAVING COUNT(DISTINCT o.order_id) >= 10
+ORDER BY total_sales DESC, total_quantity DESC;`,
+      materialized: `-- 查询聚合物化视图：直接使用预聚合数据，只需二次聚合（JOIN和聚合成本都已消除）
 SELECT 
+  brand_id,
   brand_name,
-  CASE 
-    WHEN gmv_rank <= 10 THEN 'TOP10'
-    WHEN gmv_rank <= 50 THEN 'TOP50'
-    WHEN gmv_rank <= 100 THEN 'TOP100'
-    ELSE '其他'
-  END AS rank_range,
-  COUNT(DISTINCT item_id) AS item_count,
-  COUNT(DISTINCT sku_id) AS sku_count
-FROM th_cluster_v3
-WHERE pool_id = 'pool_001'
-  AND brand_name IS NOT NULL
-GROUP BY brand_name, rank_range
-ORDER BY brand_name, rank_range;`,
+  region_id,
+  region_name,
+  SUM(order_count) AS order_count,
+  SUM(item_count) AS item_count,
+  SUM(total_quantity) AS total_quantity,
+  SUM(total_sales) AS total_sales,
+  SUM(total_sales) / SUM(total_quantity) AS avg_item_amount
+FROM sales_summary_mv_agg1
+WHERE sale_date >= '2024-01-01'
+  AND sale_date < '2024-04-01'
+  AND brand_id IS NOT NULL
+GROUP BY brand_id, brand_name, region_id, region_name
+HAVING SUM(order_count) >= 10
+ORDER BY total_sales DESC, total_quantity DESC;`,
       rewrite: `-- 查询改写：查询基础表，通过 MV_REWRITE hint 指定使用物化视图
-SELECT /*+ MV_REWRITE(th_cluster_v3) */
-  sb.brand_name,
-  CASE 
-    WHEN ip.gmv_rank <= 10 THEN 'TOP10'
-    WHEN ip.gmv_rank <= 50 THEN 'TOP50'
-    WHEN ip.gmv_rank <= 100 THEN 'TOP100'
-    ELSE '其他'
-  END AS rank_range,
-  COUNT(DISTINCT ip.item_id) AS item_count,
-  COUNT(DISTINCT sb.sku_id) AS sku_count
-FROM item_pool ip
-LEFT JOIN sku_base sb ON ip.item_id = sb.item_id AND ip.market_code = sb.market_code
-WHERE ip.pool_id = 'pool_001'
-  AND sb.brand_name IS NOT NULL
-GROUP BY sb.brand_name, rank_range
-ORDER BY sb.brand_name, rank_range;`,
+SELECT /*+ MV_REWRITE(sales_summary_mv) */
+  p.brand_id,
+  p.brand_name,
+  o.region_id,
+  o.region_name,
+  COUNT(DISTINCT o.order_id) AS order_count,
+  COUNT(DISTINCT oi.item_id) AS item_count,
+  SUM(oi.quantity) AS total_quantity,
+  SUM(oi.amount) AS total_sales,
+  AVG(oi.amount) AS avg_item_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+WHERE o.order_date >= '2024-01-01'
+  AND o.order_date < '2024-04-01'
+  AND o.order_status = 'COMPLETED'
+  AND p.brand_id IS NOT NULL
+GROUP BY p.brand_id, p.brand_name, o.region_id, o.region_name
+HAVING COUNT(DISTINCT o.order_id) >= 10
+ORDER BY total_sales DESC, total_quantity DESC;`,
     },
   },
   {
     id: 3,
-    name: "场景3：按市场代码和同款分组维度查询",
+    name: "场景3：按时间段和类目统计平均订单金额（复杂聚合）",
     description:
-      "查询特定市场的商品及其同款信息，包括竞对商品和对应的淘系商品信息。适用于跨平台商品对比分析。",
+      "统计不同时间段（按月）和一级类目的平均订单金额、订单数量等指标。此场景需要JOIN多个表并进行复杂的聚合计算。聚合物化视图已预计算JOIN和聚合结果，查询时只需对预聚合数据进行简单的二次聚合，性能提升显著（10-100倍）。",
     sql: {
-      base: `-- 查询基础表：查询商品及其同款信息
+      base: `-- 查询基础表：需要JOIN 4个表后进行复杂聚合统计
 SELECT 
-  ip.pool_id,
-  ip.market_code,
-  sb.item_title AS competitor_item_title,
-  sb.brand_name AS competitor_brand,
-  sg.grp_id,
-  sb_tx.item_title AS taobao_item_title,
-  sb_tx.seller_id AS taobao_seller_id
-FROM item_pool ip
-LEFT JOIN sku_base sb ON ip.item_id = sb.item_id AND ip.market_code = sb.market_code
-LEFT JOIN sku_grp sg ON sb.market_code = sg.market_code 
-  AND sb.item_id = sg.item_id 
-  AND sb.sku_id = sg.sku_id 
-  AND sg.market_code <> 'TX'
-LEFT JOIN sku_grp sg_tx ON sg.grp_id = sg_tx.grp_id AND sg_tx.market_code = 'TX'
-LEFT JOIN sku_base sb_tx ON sg_tx.item_id = sb_tx.item_id 
-  AND sg_tx.sku_id = sb_tx.sku_id 
-  AND sg_tx.market_code = sb_tx.market_code
-WHERE ip.pool_id = 'pool_001'
-  AND ip.market_code = 'JD'
-  AND sg.grp_id IS NOT NULL;`,
-      materialized: `-- 查询物化视图：直接查询预关联的同款信息
+  DATE_FORMAT(o.order_date, '%Y-%m') AS sale_month,
+  p.category_level1_id,
+  p.category_level1_name,
+  COUNT(DISTINCT o.order_id) AS order_count,
+  COUNT(DISTINCT o.user_id) AS user_count,
+  COUNT(DISTINCT oi.item_id) AS item_count,
+  SUM(oi.amount) AS total_sales,
+  AVG(o.order_amount) AS avg_order_amount,
+  MIN(o.order_amount) AS min_order_amount,
+  MAX(o.order_amount) AS max_order_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+WHERE o.order_date >= '2024-01-01'
+  AND o.order_date < '2024-07-01'
+  AND o.order_status = 'COMPLETED'
+GROUP BY DATE_FORMAT(o.order_date, '%Y-%m'), p.category_level1_id, p.category_level1_name
+HAVING COUNT(DISTINCT o.order_id) >= 50
+ORDER BY sale_month, total_sales DESC;`,
+      materialized: `-- 查询聚合物化视图：直接使用预聚合数据，只需二次聚合（JOIN和聚合成本都已消除）
 SELECT 
-  pool_id,
-  market_code,
-  item_title AS competitor_item_title,
-  brand_name AS competitor_brand,
-  grp_id,
-  tb_item_title AS taobao_item_title,
-  tb_seller_id AS taobao_seller_id
-FROM th_cluster_v3
-WHERE pool_id = 'pool_001'
-  AND market_code = 'JD'
-  AND grp_id IS NOT NULL;`,
+  sale_month,
+  category_level1_id,
+  category_level1_name,
+  SUM(order_count) AS order_count,
+  SUM(user_count) AS user_count,
+  SUM(item_count) AS item_count,
+  SUM(total_sales) AS total_sales,
+  SUM(total_sales) / SUM(order_count) AS avg_order_amount,
+  MIN(min_order_amount) AS min_order_amount,
+  MAX(max_order_amount) AS max_order_amount
+FROM sales_summary_mv_agg1
+WHERE sale_date >= '2024-01-01'
+  AND sale_date < '2024-07-01'
+GROUP BY sale_month, category_level1_id, category_level1_name
+HAVING SUM(order_count) >= 50
+ORDER BY sale_month, total_sales DESC;`,
       rewrite: `-- 查询改写：查询基础表，通过 MV_REWRITE hint 指定使用物化视图
-SELECT /*+ MV_REWRITE(th_cluster_v3) */
-  ip.pool_id,
-  ip.market_code,
-  sb.item_title AS competitor_item_title,
-  sb.brand_name AS competitor_brand,
-  sg.grp_id,
-  sb_tx.item_title AS taobao_item_title,
-  sb_tx.seller_id AS taobao_seller_id
-FROM item_pool ip
-LEFT JOIN sku_base sb ON ip.item_id = sb.item_id AND ip.market_code = sb.market_code
-LEFT JOIN sku_grp sg ON sb.market_code = sg.market_code 
-  AND sb.item_id = sg.item_id 
-  AND sb.sku_id = sg.sku_id 
-  AND sg.market_code <> 'TX'
-LEFT JOIN sku_grp sg_tx ON sg.grp_id = sg_tx.grp_id AND sg_tx.market_code = 'TX'
-LEFT JOIN sku_base sb_tx ON sg_tx.item_id = sb_tx.item_id 
-  AND sg_tx.sku_id = sb_tx.sku_id 
-  AND sg_tx.market_code = sb_tx.market_code
-WHERE ip.pool_id = 'pool_001'
-  AND ip.market_code = 'JD'
-  AND sg.grp_id IS NOT NULL;`,
+SELECT /*+ MV_REWRITE(sales_summary_mv) */
+  DATE_FORMAT(o.order_date, '%Y-%m') AS sale_month,
+  p.category_level1_id,
+  p.category_level1_name,
+  COUNT(DISTINCT o.order_id) AS order_count,
+  COUNT(DISTINCT o.user_id) AS user_count,
+  COUNT(DISTINCT oi.item_id) AS item_count,
+  SUM(oi.amount) AS total_sales,
+  AVG(o.order_amount) AS avg_order_amount,
+  MIN(o.order_amount) AS min_order_amount,
+  MAX(o.order_amount) AS max_order_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+WHERE o.order_date >= '2024-01-01'
+  AND o.order_date < '2024-07-01'
+  AND o.order_status = 'COMPLETED'
+GROUP BY DATE_FORMAT(o.order_date, '%Y-%m'), p.category_level1_id, p.category_level1_name
+HAVING COUNT(DISTINCT o.order_id) >= 50
+ORDER BY sale_month, total_sales DESC;`,
     },
   },
   {
     id: 4,
-    name: "场景4：按类目和二级类目维度过滤查询",
+    name: "场景4：按用户等级和类目统计购买行为（多维度分析）",
     description:
-      "查询特定一级类目和二级类目的商品信息。适用于按类目层级进行商品筛选的场景。",
+      "统计不同用户等级在不同类目下的购买行为，包括订单数、商品数、销售额等。此场景需要JOIN订单、订单明细、商品、用户表，然后进行多维度聚合。聚合物化视图已预计算JOIN和聚合结果，查询时只需对预聚合数据进行简单的二次聚合，性能提升显著（10-100倍）。",
     sql: {
-      base: `-- 查询基础表：按类目和二级类目过滤
+      base: `-- 查询基础表：需要JOIN 4个表后进行多维度聚合
 SELECT 
-  ip.pool_id,
-  ip.gmv_rank,
-  sb.item_title,
-  sb.brand_name,
-  sb.item_labels,
-  sb.x_cate_level1_id,
-  sb.x_cate_level2_id
-FROM item_pool ip
-LEFT JOIN sku_base sb ON ip.item_id = sb.item_id AND ip.market_code = sb.market_code
-WHERE ip.pool_id = 'pool_001'
-  AND sb.x_cate_level1_id = '2001'
-  AND sb.x_cate_level2_id = '200101'
-ORDER BY ip.gmv_rank;`,
-      materialized: `-- 查询物化视图：直接查询物化视图并按类目过滤
+  u.user_level,
+  p.category_level1_id,
+  p.category_level1_name,
+  COUNT(DISTINCT o.order_id) AS order_count,
+  COUNT(DISTINCT o.user_id) AS user_count,
+  COUNT(DISTINCT oi.item_id) AS item_count,
+  SUM(oi.quantity) AS total_quantity,
+  SUM(oi.amount) AS total_sales,
+  AVG(oi.amount) AS avg_item_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+LEFT JOIN users u ON o.user_id = u.user_id
+WHERE o.order_date >= '2024-01-01'
+  AND o.order_date < '2024-04-01'
+  AND o.order_status = 'COMPLETED'
+  AND u.user_level IS NOT NULL
+GROUP BY u.user_level, p.category_level1_id, p.category_level1_name
+HAVING COUNT(DISTINCT o.order_id) >= 20
+ORDER BY user_level, total_sales DESC;`,
+      materialized: `-- 查询聚合物化视图：直接使用预聚合数据，只需二次聚合（JOIN和聚合成本都已消除）
 SELECT 
-  pool_id,
-  gmv_rank,
-  item_title,
-  brand_name,
-  item_labels,
-  x_cate_level1_id,
-  x_cate_level2_id
-FROM th_cluster_v3
-WHERE pool_id = 'pool_001'
-  AND x_cate_level1_id = '2001'
-  AND x_cate_level2_id = '200101'
-ORDER BY gmv_rank;`,
+  user_level,
+  category_level1_id,
+  category_level1_name,
+  SUM(order_count) AS order_count,
+  SUM(user_count) AS user_count,
+  SUM(item_count) AS item_count,
+  SUM(total_quantity) AS total_quantity,
+  SUM(total_sales) AS total_sales,
+  SUM(total_sales) / SUM(total_quantity) AS avg_item_amount
+FROM sales_summary_mv_agg1
+WHERE sale_date >= '2024-01-01'
+  AND sale_date < '2024-04-01'
+  AND user_level IS NOT NULL
+GROUP BY user_level, category_level1_id, category_level1_name
+HAVING SUM(order_count) >= 20
+ORDER BY user_level, total_sales DESC;`,
       rewrite: `-- 查询改写：查询基础表，通过 MV_REWRITE hint 指定使用物化视图
-SELECT /*+ MV_REWRITE(th_cluster_v3) */
-  ip.pool_id,
-  ip.gmv_rank,
-  sb.item_title,
-  sb.brand_name,
-  sb.item_labels,
-  sb.x_cate_level1_id,
-  sb.x_cate_level2_id
-FROM item_pool ip
-LEFT JOIN sku_base sb ON ip.item_id = sb.item_id AND ip.market_code = sb.market_code
-WHERE ip.pool_id = 'pool_001'
-  AND sb.x_cate_level1_id = '2001'
-  AND sb.x_cate_level2_id = '200101'
-ORDER BY ip.gmv_rank;`,
+SELECT /*+ MV_REWRITE(sales_summary_mv) */
+  u.user_level,
+  p.category_level1_id,
+  p.category_level1_name,
+  COUNT(DISTINCT o.order_id) AS order_count,
+  COUNT(DISTINCT o.user_id) AS user_count,
+  COUNT(DISTINCT oi.item_id) AS item_count,
+  SUM(oi.quantity) AS total_quantity,
+  SUM(oi.amount) AS total_sales,
+  AVG(oi.amount) AS avg_item_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+LEFT JOIN users u ON o.user_id = u.user_id
+WHERE o.order_date >= '2024-01-01'
+  AND o.order_date < '2024-04-01'
+  AND o.order_status = 'COMPLETED'
+  AND u.user_level IS NOT NULL
+GROUP BY u.user_level, p.category_level1_id, p.category_level1_name
+HAVING COUNT(DISTINCT o.order_id) >= 20
+ORDER BY user_level, total_sales DESC;`,
     },
   },
   {
     id: 5,
-    name: "场景5：多维度聚合统计",
+    name: "场景5：综合查询（时间+地区+品牌+类目多维度统计）",
     description:
-      "按类目、品牌、市场等多维度进行聚合统计，计算商品数量、SKU数量等指标。适用于多维度数据分析场景。",
+      "综合统计指定时间段内，按地区、品牌、类目等多维度的销售数据。此场景综合了多表JOIN、多条件过滤和复杂聚合统计。聚合物化视图已预计算JOIN和聚合结果，查询时只需对预聚合数据进行简单的二次聚合，性能提升显著（10-100倍）。",
     sql: {
-      base: `-- 查询基础表：多维度聚合统计
+      base: `-- 查询基础表：复杂的多表JOIN、多条件过滤和聚合统计
 SELECT 
-  sb.ind_level1_id,
-  sb.x_cate_level1_id,
-  sb.brand_name,
-  ip.market_code,
-  COUNT(DISTINCT ip.item_id) AS item_count,
-  COUNT(DISTINCT sb.sku_id) AS sku_count,
-  AVG(ip.gmv_rank) AS avg_gmv_rank,
-  MIN(ip.gmv_rank) AS min_gmv_rank,
-  MAX(ip.gmv_rank) AS max_gmv_rank
-FROM item_pool ip
-LEFT JOIN sku_base sb ON ip.item_id = sb.item_id AND ip.market_code = sb.market_code
-WHERE ip.pool_id = 'pool_001'
-  AND sb.ind_level1_id IS NOT NULL
-  AND sb.brand_name IS NOT NULL
-GROUP BY sb.ind_level1_id, sb.x_cate_level1_id, sb.brand_name, ip.market_code
-HAVING COUNT(DISTINCT ip.item_id) >= 5
-ORDER BY item_count DESC, avg_gmv_rank ASC;`,
-      materialized: `-- 查询物化视图：直接进行多维度聚合统计
+  DATE_FORMAT(o.order_date, '%Y-%m') AS sale_month,
+  o.region_id,
+  o.region_name,
+  p.brand_id,
+  p.brand_name,
+  p.category_level1_id,
+  p.category_level1_name,
+  COUNT(DISTINCT o.order_id) AS order_count,
+  COUNT(DISTINCT o.user_id) AS user_count,
+  COUNT(DISTINCT oi.item_id) AS item_count,
+  SUM(oi.quantity) AS total_quantity,
+  SUM(oi.amount) AS total_sales,
+  AVG(oi.amount) AS avg_item_amount,
+  AVG(o.order_amount) AS avg_order_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+WHERE o.order_date >= '2024-01-01'
+  AND o.order_date < '2024-07-01'
+  AND o.order_status = 'COMPLETED'
+  AND p.brand_id IS NOT NULL
+GROUP BY DATE_FORMAT(o.order_date, '%Y-%m'), o.region_id, o.region_name, p.brand_id, p.brand_name, p.category_level1_id, p.category_level1_name
+HAVING COUNT(DISTINCT o.order_id) >= 5
+ORDER BY sale_month, total_sales DESC;`,
+      materialized: `-- 查询聚合物化视图：直接使用预聚合数据，只需二次聚合（JOIN和聚合成本都已消除）
 SELECT 
-  ind_level1_id,
-  x_cate_level1_id,
+  sale_month,
+  region_id,
+  region_name,
+  brand_id,
   brand_name,
-  market_code,
-  COUNT(DISTINCT item_id) AS item_count,
-  COUNT(DISTINCT sku_id) AS sku_count,
-  AVG(gmv_rank) AS avg_gmv_rank,
-  MIN(gmv_rank) AS min_gmv_rank,
-  MAX(gmv_rank) AS max_gmv_rank
-FROM th_cluster_v3
-WHERE pool_id = 'pool_001'
-  AND ind_level1_id IS NOT NULL
-  AND brand_name IS NOT NULL
-GROUP BY ind_level1_id, x_cate_level1_id, brand_name, market_code
-HAVING COUNT(DISTINCT item_id) >= 5
-ORDER BY item_count DESC, avg_gmv_rank ASC;`,
+  category_level1_id,
+  category_level1_name,
+  SUM(order_count) AS order_count,
+  SUM(user_count) AS user_count,
+  SUM(item_count) AS item_count,
+  SUM(total_quantity) AS total_quantity,
+  SUM(total_sales) AS total_sales,
+  SUM(total_sales) / SUM(total_quantity) AS avg_item_amount,
+  SUM(total_sales) / SUM(order_count) AS avg_order_amount
+FROM sales_summary_mv_agg1
+WHERE sale_date >= '2024-01-01'
+  AND sale_date < '2024-07-01'
+  AND brand_id IS NOT NULL
+GROUP BY sale_month, region_id, region_name, brand_id, brand_name, category_level1_id, category_level1_name
+HAVING SUM(order_count) >= 5
+ORDER BY sale_month, total_sales DESC;`,
       rewrite: `-- 查询改写：查询基础表，通过 MV_REWRITE hint 指定使用物化视图
-SELECT /*+ MV_REWRITE(th_cluster_v3) */
-  sb.ind_level1_id,
-  sb.x_cate_level1_id,
-  sb.brand_name,
-  ip.market_code,
-  COUNT(DISTINCT ip.item_id) AS item_count,
-  COUNT(DISTINCT sb.sku_id) AS sku_count,
-  AVG(ip.gmv_rank) AS avg_gmv_rank,
-  MIN(ip.gmv_rank) AS min_gmv_rank,
-  MAX(ip.gmv_rank) AS max_gmv_rank
-FROM item_pool ip
-LEFT JOIN sku_base sb ON ip.item_id = sb.item_id AND ip.market_code = sb.market_code
-WHERE ip.pool_id = 'pool_001'
-  AND sb.ind_level1_id IS NOT NULL
-  AND sb.brand_name IS NOT NULL
-GROUP BY sb.ind_level1_id, sb.x_cate_level1_id, sb.brand_name, ip.market_code
-HAVING COUNT(DISTINCT ip.item_id) >= 5
-ORDER BY item_count DESC, avg_gmv_rank ASC;`,
+SELECT /*+ MV_REWRITE(sales_summary_mv) */
+  DATE_FORMAT(o.order_date, '%Y-%m') AS sale_month,
+  o.region_id,
+  o.region_name,
+  p.brand_id,
+  p.brand_name,
+  p.category_level1_id,
+  p.category_level1_name,
+  COUNT(DISTINCT o.order_id) AS order_count,
+  COUNT(DISTINCT o.user_id) AS user_count,
+  COUNT(DISTINCT oi.item_id) AS item_count,
+  SUM(oi.quantity) AS total_quantity,
+  SUM(oi.amount) AS total_sales,
+  AVG(oi.amount) AS avg_item_amount,
+  AVG(o.order_amount) AS avg_order_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+WHERE o.order_date >= '2024-01-01'
+  AND o.order_date < '2024-07-01'
+  AND o.order_status = 'COMPLETED'
+  AND p.brand_id IS NOT NULL
+GROUP BY DATE_FORMAT(o.order_date, '%Y-%m'), o.region_id, o.region_name, p.brand_id, p.brand_name, p.category_level1_id, p.category_level1_name
+HAVING COUNT(DISTINCT o.order_id) >= 5
+ORDER BY sale_month, total_sales DESC;`,
     },
   },
 ];
@@ -312,7 +372,7 @@ export const queryTypes = [
   {
     key: "base",
     label: "查询基本表",
-    description: "直接查询基础表，需要执行多表JOIN操作",
+    description: "直接查询基础表，需要执行多表JOIN和聚合操作",
   },
   {
     key: "materialized",
