@@ -25,6 +25,14 @@ export async function POST(request: NextRequest) {
     // 执行 SQL 查询
     const result = await executeQueryWithTiming(sql);
 
+    // 打印执行时间
+    console.log(`\n[API] SQL 执行时间: ${result.executionTime}ms`);
+    if (result.success) {
+      console.log(`[API] 查询成功，返回 ${result.rowCount} 行数据`);
+    } else {
+      console.log(`[API] 查询失败: ${result.error}`);
+    }
+
     if (result.success) {
       return NextResponse.json({
         success: true,
@@ -37,7 +45,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: result.error,
-          // 查询失败时不返回执行时间
+          executionTime: result.executionTime, // 即使失败也返回执行时间
         },
         { status: 500 }
       );
