@@ -1,5 +1,6 @@
 import { Sequelize, QueryTypes } from "sequelize";
 import mysql2 from "mysql2";
+import { scenarios } from "@/data/scenarios";
 
 // 获取数据库配置（每次调用时重新读取环境变量）
 function getDbConfig() {
@@ -64,12 +65,40 @@ export async function testConnection() {
   }
 }
 
+// 根据场景 ID 和查询类型获取实际执行的 SQL
+function getActualSql(
+  sql: string,
+  scenarioId?: number,
+  queryType?: string
+): string {
+  // 如果提供了场景 ID 和查询类型，且查询类型是 rewrite，则使用 materialized 查询
+  if (scenarioId && queryType === "rewrite") {
+    const scenario = scenarios.find((s) => s.id === scenarioId);
+    if (scenario) {
+      console.log(
+        `[查询转换] 场景 ${scenarioId} 的 rewrite 查询转换为物化视图查询`
+      );
+      return scenario.sql.materialized;
+    }
+  }
+
+  // 否则返回原始 SQL
+  return sql;
+}
+
 // 执行原始 SQL 查询
-export async function executeQuery(sql: string) {
+export async function executeQuery(
+  sql: string,
+  scenarioId?: number,
+  queryType?: string
+) {
   try {
+    // 根据场景 ID 和查询类型获取实际执行的 SQL
+    const actualSql = getActualSql(sql, scenarioId, queryType);
+
     // Sequelize.query 返回 [results, metadata] 格式
     // 使用 type: QueryTypes.SELECT 明确指定查询类型
-    const queryResult = await sequelize.query(sql, {
+    const queryResult = await sequelize.query(actualSql, {
       type: QueryTypes.SELECT,
     });
 
@@ -96,9 +125,13 @@ export async function executeQuery(sql: string) {
 }
 
 // 执行 SQL 并测量执行时间
-export async function executeQueryWithTiming(sql: string) {
+export async function executeQueryWithTiming(
+  sql: string,
+  scenarioId?: number,
+  queryType?: string
+) {
   const startTime = Date.now();
-  const result = await executeQuery(sql);
+  const result = await executeQuery(sql, scenarioId, queryType);
   const endTime = Date.now();
   const executionTime = endTime - startTime;
 

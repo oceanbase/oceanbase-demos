@@ -4,7 +4,7 @@ import { executeQueryWithTiming, testConnection } from "@/lib/db";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { sql } = body;
+    const { sql, scenarioId, queryType } = body;
 
     if (!sql || typeof sql !== "string") {
       return NextResponse.json(
@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 执行 SQL 查询
-    const result = await executeQueryWithTiming(sql);
+    // 执行 SQL 查询（如果提供了场景 ID 和查询类型，会进行转换）
+    const result = await executeQueryWithTiming(sql, scenarioId, queryType);
 
     // 打印执行时间
     console.log(`\n[API] SQL 执行时间: ${result.executionTime}ms`);
