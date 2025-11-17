@@ -5,7 +5,6 @@ import Group332 from "../imports/Group332";
 import Group333 from "../imports/Group333";
 import Group334 from "../imports/Group334";
 import Group338 from "../imports/Group338";
-import Group339 from "../imports/Group339";
 import Group340 from "../imports/Group340";
 import RegionFailure from "./RegionFailure";
 
@@ -29,7 +28,7 @@ export default function DisasterRecovery() {
     if (state === "state2") {
       const timer = setTimeout(() => {
         console.log(
-          "容灾切换 - 云厂商 - Auto transitioning from state2 to state3 after 2 seconds"
+          "容灾切换 - 云服务商 - Auto transitioning from state2 to state3 after 2 seconds"
         );
         setState("state3");
       }, 2000);
@@ -38,7 +37,7 @@ export default function DisasterRecovery() {
     }
   }, [state]);
 
-  // 处理点击事件（仅用于云厂商故障场景）
+  // 处理点击事件（仅用于云服务商故障场景）
   const handleStateChange = (event: React.MouseEvent) => {
     const target = event.target as HTMLElement;
 
@@ -52,7 +51,9 @@ export default function DisasterRecovery() {
         (classList.includes("bg-[#f3f6fc]") ||
           classList.includes("cursor-not-allowed"))
       ) {
-        console.log("容灾切换 - 云厂商 - Clicked on disabled button, ignoring");
+        console.log(
+          "容灾切换 - 云服务商 - Clicked on disabled button, ignoring"
+        );
         return;
       }
       element = element.parentElement;
@@ -72,7 +73,7 @@ export default function DisasterRecovery() {
 
     const text = target.textContent || "";
     console.log(
-      "容灾切换 - 云厂商 - Clicked:",
+      "容灾切换 - 云服务商 - Clicked:",
       text,
       "Button ID:",
       buttonId,
@@ -82,7 +83,7 @@ export default function DisasterRecovery() {
 
     // 状态1: 点击"切换为主实例"按钮 → 状态2
     if (state === "state1" && buttonId === "vendor-state1-button1") {
-      console.log("容灾切换 - 云厂商 - State1 → State2");
+      console.log("容灾切换 - 云服务商 - State1 → State2");
       setState("state2");
       return;
     }
@@ -92,7 +93,7 @@ export default function DisasterRecovery() {
 
     // 状态3: 点击"创建跨云主备库"按钮 → 状态4
     if (state === "state3" && buttonId === "vendor-state3-button1") {
-      console.log("容灾切换 - 云厂商 - State3 → State4");
+      console.log("容灾切换 - 云服务商 - State3 → State4");
       setState("state4");
       return;
     }
@@ -103,7 +104,7 @@ export default function DisasterRecovery() {
       (buttonId === "vendor-state3-button2" ||
         buttonId === "vendor-state3-button3")
     ) {
-      console.log("容灾切换 - 云厂商 - State3 → State6 (释放实例)");
+      console.log("容灾切换 - 云服务商 - State3 → State6 (释放实例)");
       setState("state6");
       return;
     }
@@ -114,14 +115,14 @@ export default function DisasterRecovery() {
       (buttonId === "vendor-state3-alt-button1" ||
         buttonId === "vendor-state3-alt-button2")
     ) {
-      console.log("容灾切换 - 云厂商 - State3-alt → State6 (释放实例)");
+      console.log("容灾切换 - 云服务商 - State3-alt → State6 (释放实例)");
       setState("state6");
       return;
     }
 
-    // 状态6: 点击"创建跨云主备库"按钮 → 状态5（Group339）
+    // 状态6: 点击"创建跨云主备库"按钮 → 状态5（Group329）
     if (state === "state6" && buttonId === "vendor-state6-button1") {
-      console.log("容灾切换 - 云厂商 - State6 → State5 (创建跨云主备库)");
+      console.log("容灾切换 - 云服务商 - State6 → State5 (创建跨云主备库)");
       setState("state5");
       return;
     }
@@ -132,7 +133,7 @@ export default function DisasterRecovery() {
       (buttonId === "vendor-state4-button1" ||
         buttonId === "vendor-state4-button2")
     ) {
-      console.log("容灾切换 - 云厂商 - State4 → State5 (释放实例)");
+      console.log("容灾切换 - 云服务商 - State4 → State5 (释放实例)");
       setState("state5");
       return;
     }
@@ -154,7 +155,7 @@ export default function DisasterRecovery() {
             }}
             className="w-4 h-4 text-[#0958D9] focus:ring-[#0958D9]"
           />
-          <span className="text-sm text-[#262626]">云厂商故障</span>
+          <span className="text-sm text-[#262626]">云服务商故障</span>
         </label>
         <label className="flex items-center gap-2 cursor-pointer">
           <input
@@ -212,7 +213,7 @@ export default function DisasterRecovery() {
                 {state === "state3" && <Group332 />}
                 {state === "state3-alt" && <Group338 />}
                 {state === "state4" && <Group333 />}
-                {state === "state5" && <Group339 />}
+                {state === "state5" && <Group334 />}
                 {state === "state6" && <Group340 />}
               </div>
             </div>

@@ -882,7 +882,7 @@ function Alert() {
       <div className="flex flex-col font-['PingFang_SC:Regular',sans-serif] justify-end leading-[0] not-italic relative shrink-0 text-[#b52727] text-[12px] text-nowrap">
         <p className="leading-[20px] whitespace-pre">
           <span className="font-['PingFang_SC:Regular',sans-serif] not-italic">
-            云厂商 A
+            云服务商 A
           </span>
           <span>{` 出现故障`}</span>
         </p>
@@ -1044,7 +1044,7 @@ function Component03Comment() {
         </div>
       </div>
       <p className="absolute font-['PingFang_SC:Regular',sans-serif] leading-[20px] left-[8px] not-italic text-[#6e472f] text-[12px] text-nowrap top-[10px] whitespace-pre">
-        停留2秒后云厂商 A 恢复正常，变为页面2.3样式
+        停留2秒后云服务商 A 恢复正常，变为页面2.3样式
       </p>
     </div>
   );
@@ -1418,7 +1418,7 @@ function Radiobutton1() {
         className="absolute border border-[#006aff] border-solid inset-0 pointer-events-none rounded-bl-[8px] rounded-tl-[8px]"
       />
       <p className="font-['PingFang_SC:Medium',sans-serif] leading-[22px] not-italic relative shrink-0 text-[#006aff] text-[14px] text-nowrap whitespace-pre">
-        云厂商故障
+        云服务商故障
       </p>
     </div>
   );
@@ -1524,13 +1524,13 @@ export default function Group39() {
         />
       </div>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[644px] not-italic text-[#191919] text-[12px] text-nowrap top-[432px] whitespace-pre">
-        云厂商 B
+        云服务商 B
       </p>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[24px] left-[24px] not-italic text-[#191919] text-[16px] text-nowrap top-[376px] whitespace-pre">
         数据层
       </p>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[40px] not-italic text-[#191919] text-[12px] text-nowrap top-[432px] whitespace-pre">
-        云厂商 A
+        云服务商 A
       </p>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[24px] left-[24px] not-italic text-[#191919] text-[16px] text-nowrap top-[254px] whitespace-pre">
         连接层
@@ -1551,7 +1551,7 @@ export default function Group39() {
         />
       </div>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[644px] not-italic text-[#191919] text-[12px] text-nowrap top-[132px] whitespace-pre">
-        云厂商 B
+        云服务商 B
       </p>
       <Group21 />
       <Group36 />
@@ -1561,7 +1561,7 @@ export default function Group39() {
       <Frame9 />
       <Alert />
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[40px] not-italic text-[#191919] text-[12px] text-nowrap top-[132px] whitespace-pre">
-        云厂商 A
+        云服务商 A
       </p>
       <div className="absolute flex h-[215px] items-center justify-center left-[470px] top-[336px] w-[364px]">
         <div className="flex-none rotate-[180deg] scale-y-[-100%]">

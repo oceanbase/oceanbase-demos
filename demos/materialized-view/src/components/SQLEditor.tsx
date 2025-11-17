@@ -1,152 +1,190 @@
-import { useState, useEffect } from "react";
-import { Copy, ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
+"use client";
 
-interface SQLEditorProps {
-  code: string;
-  onChange: (code: string) => void;
-  expanded?: boolean;
+import { Card, Button, Radio, Tooltip, App } from "antd";
+import {
+  PlayCircleOutlined,
+  CopyOutlined,
+  DownOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
+import { useState, useEffect } from "react";
+import copy from "copy-to-clipboard";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { prism } from "react-syntax-highlighter/dist/esm/styles/prism";
+import styles from "./SQLEditor.module.css";
+
+interface QueryType {
+  key: string;
+  label: string;
+  description?: string;
 }
 
-export function SQLEditor({ code, onChange, expanded }: SQLEditorProps) {
-  const [isExpanded, setIsExpanded] = useState(expanded ?? true);
+interface SQLEditorProps {
+  onExecute: () => void;
+  loading?: boolean;
+  queryLoadingStates?: Record<string, boolean>;
+  sql?: string;
+  activeQueryType?: string;
+  onQueryTypeChange?: (type: string) => void;
+  queryTypes?: readonly QueryType[];
+}
 
-  // Sync internal state with external expanded prop if provided
+export default function SQLEditor({
+  onExecute,
+  loading,
+  queryLoadingStates = {},
+  sql = "",
+  activeQueryType,
+  onQueryTypeChange,
+  queryTypes = [],
+}: SQLEditorProps) {
+  const { message: messageApi } = App.useApp();
+  const [sqlValue, setSqlValue] = useState(sql);
+  const [expanded, setExpanded] = useState(false);
+
+  // 当外部传入的sql改变时，更新编辑器内容
   useEffect(() => {
-    if (expanded !== undefined) {
-      setIsExpanded(expanded);
-    }
-  }, [expanded]);
+    setSqlValue(sql);
+  }, [sql]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-  };
-
-  // 语法高亮处理
-  const highlightSQL = (sql: string) => {
-    const keywords = [
-      "SELECT",
-      "FROM",
-      "WHERE",
-      "AND",
-      "AS",
-      "COUNT",
-      "CASE",
-      "WHEN",
-      "THEN",
-      "ELSE",
-      "END",
-      "NULL",
-      "OR",
-    ];
-
-    // 分割 SQL 语句，保留空格、括号、等号等
-    const lines = sql.split("\n");
-
-    return lines.map((line, lineIndex) => {
-      const parts = line.split(/(\s+|[(),=]|>=|<=)/);
-
-      const highlightedParts = parts.map((part, index) => {
-        const upperPart = part.toUpperCase();
-        if (keywords.includes(upperPart)) {
-          return (
-            <span key={`${lineIndex}-${index}`} style={{ color: "#1890ff" }}>
-              {part}
-            </span>
-          );
-        } else if (/^'[^']*'$/.test(part)) {
-          return (
-            <span key={`${lineIndex}-${index}`} style={{ color: "#52c41a" }}>
-              {part}
-            </span>
-          );
-        } else if (/^\d+$/.test(part)) {
-          return (
-            <span key={`${lineIndex}-${index}`} style={{ color: "#fa8c16" }}>
-              {part}
-            </span>
-          );
-        }
-        return <span key={`${lineIndex}-${index}`}>{part}</span>;
-      });
-
-      return <div key={lineIndex}>{highlightedParts}</div>;
+    const success = copy(sqlValue, {
+      debug: false,
+      message: "按 #{key} 复制",
     });
+
+    if (success) {
+      messageApi.success("复制成功");
+    } else {
+      messageApi.error("复制失败");
+    }
   };
 
   return (
     <Card
-      className="border-gray-300"
-      style={{
-        background: "#fafafa",
-        borderRadius: 2,
-      }}
-    >
-      <div
-        style={{
-          padding: "12px 16px",
-          borderBottom: "1px solid #d9d9d9",
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 8,
-        }}
-      >
+      className={styles.card}
+      bordered={false}
+      headStyle={{ borderBottom: "none", padding: 0 }}
+      bodyStyle={{ padding: 0 }}
+      title={
+        queryTypes.length > 0 && activeQueryType && onQueryTypeChange ? (
+          <div className={styles.queryTypeSelector}>
+            <Radio.Group
+              value={activeQueryType}
+              onChange={(e) => onQueryTypeChange(e.target.value)}
+              className={styles.radioGroup}
+              optionType="button"
+            >
+              {queryTypes.map((queryType) => {
+                const isLoading = queryLoadingStates[queryType.key] || false;
+                return (
+                  <Radio.Button
+                    key={queryType.key}
+                    value={queryType.key}
+                    className={styles.radioButton}
+                  >
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      {isLoading && (
+                        <LoadingOutlined
+                          style={{
+                            display: "inline-block",
+                          }}
+                        />
+                      )}
+                      {queryType.description ? (
+                        <Tooltip title={queryType.description} placement="top">
+                          <span>{queryType.label}</span>
+                        </Tooltip>
+                      ) : (
+                        <span>{queryType.label}</span>
+                      )}
+                    </span>
+                  </Radio.Button>
+                );
+              })}
+            </Radio.Group>
+          </div>
+        ) : null
+      }
+      extra={
         <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleCopy}
-          className="h-8 w-8 p-0"
+          type="primary"
+          icon={<PlayCircleOutlined />}
+          onClick={onExecute}
+          loading={loading}
+          className={styles.executeButton}
         >
-          <Copy className="h-4 w-4" />
+          执行 SQL
         </Button>
-      </div>
-      <div
-        style={{
-          padding: 16,
-          fontFamily:
-            'Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace',
-          fontSize: 13,
-          lineHeight: 1.8,
-          color: "#262626",
-          background: "#fff",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-          maxHeight: isExpanded ? "none" : 200,
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
-        {highlightSQL(code)}
-      </div>
-      {code.split("\n").length > 8 && (
+      }
+    >
+      <div className={styles.editorWrapper}>
         <div
-          style={{
-            textAlign: "center",
-            padding: "8px 0",
-            borderTop: "1px solid #f0f0f0",
-            cursor: "pointer",
-          }}
-          onClick={() => setIsExpanded(!isExpanded)}
+          className={`${styles.sqlDisplay} ${expanded ? styles.expanded : ""}`}
         >
-          <span
-            style={{
-              color: "#1890ff",
-              fontSize: 12,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
+          <SyntaxHighlighter
+            language="sql"
+            style={prism}
+            customStyle={{
+              margin: 0,
+              padding: 0,
+              background: "transparent",
+              fontSize: "14px",
+              lineHeight: "1.6",
+              fontFamily:
+                '"Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro", monospace',
             }}
+            codeTagProps={{
+              style: {
+                fontFamily: "inherit",
+                fontSize: "inherit",
+              },
+            }}
+            PreTag="div"
           >
-            展开{" "}
-            {isExpanded ? (
-              <ChevronUp className="h-3 w-3" />
-            ) : (
-              <ChevronDown className="h-3 w-3" />
-            )}
-          </span>
+            {sqlValue || "SQL 查询语句"}
+          </SyntaxHighlighter>
         </div>
-      )}
+        <Button
+          type="text"
+          size="small"
+          icon={<CopyOutlined />}
+          onClick={handleCopy}
+          className={styles.copyButton}
+          style={{ position: "absolute", top: 8, right: 8 }}
+          title="复制"
+        />
+        <div
+          className={styles.actions}
+          style={{
+            background: "linear-gradient(180deg, #ffffff00 0%, #ffffff 100%)",
+          }}
+        >
+          <Button
+            type="link"
+            size="small"
+            iconPosition="end"
+            icon={
+              <DownOutlined
+                className={styles.expandIcon}
+                style={{
+                  transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              />
+            }
+            onClick={() => setExpanded(!expanded)}
+            className={styles.expandButton}
+          >
+            {expanded ? "收起" : "展开"}
+          </Button>
+        </div>
+      </div>
     </Card>
   );
 }

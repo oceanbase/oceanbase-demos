@@ -1,0 +1,18 @@
+.container {
+  margin-top: 16px;
+}
+
+.tabSelector {
+  margin-bottom: 16px;
+}
+
+.content {
+  padding-top: 0;
+}
+
+.chartContainer {
+  padding: 0;
+  background: #fff;
+  border-radius: 4px;
+  width: 100%;
+}

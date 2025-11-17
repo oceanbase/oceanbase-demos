@@ -661,32 +661,10 @@ function Frame4() {
   );
 }
 
-function Component01Button() {
-  return (
-    <div
-      className="bg-[#f3f6fc] h-[40px] relative rounded-[6px] shrink-0 w-full cursor-not-allowed"
-      data-name="01-按钮Button"
-    >
-      <div
-        aria-hidden="true"
-        className="absolute border border-[#cdd5e4] border-solid inset-0 pointer-events-none rounded-[6px]"
-      />
-      <div className="flex flex-row items-center justify-center size-full">
-        <div className="box-border content-stretch flex gap-[8px] h-[40px] items-center justify-center px-[16px] py-[5px] relative w-full">
-          <p className="font-['PingFang_SC:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[#c1cbe0] text-[14px] text-nowrap whitespace-pre">
-            切换为主实例
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function Frame11() {
   return (
     <div className="absolute content-stretch flex flex-col gap-[16px] items-center left-[308px] top-[560px] w-[116px]">
       <Frame4 />
-      <Component01Button />
     </div>
   );
 }
@@ -1863,13 +1841,13 @@ export default function Group47() {
         />
       </div>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[644px] not-italic text-[#191919] text-[12px] text-nowrap top-[432px] whitespace-pre">
-        云厂商 B
+        云服务商 B
       </p>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[24px] left-[24px] not-italic text-[#191919] text-[16px] text-nowrap top-[376px] whitespace-pre">
         数据层
       </p>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[40px] not-italic text-[#191919] text-[12px] text-nowrap top-[432px] whitespace-pre">
-        云厂商 A
+        云服务商 A
       </p>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[24px] left-[24px] not-italic text-[#191919] text-[16px] text-nowrap top-[254px] whitespace-pre">
         连接层
@@ -1884,7 +1862,7 @@ export default function Group47() {
         />
       </div>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[40px] not-italic text-[#191919] text-[12px] text-nowrap top-[132px] whitespace-pre">
-        云厂商 A
+        云服务商 A
       </p>
       <div className="absolute bg-[#f7f9fc] h-[98px] left-[628px] rounded-[4px] top-[116px] w-[288px]">
         <div
@@ -1893,7 +1871,7 @@ export default function Group47() {
         />
       </div>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[644px] not-italic text-[#191919] text-[12px] text-nowrap top-[132px] whitespace-pre">
-        云厂商 B
+        云服务商 B
       </p>
       <Group26 />
       <p className="absolute font-['PingFang_SC:Regular',sans-serif] leading-[20px] left-[431px] not-italic text-[#5c6b8a] text-[12px] text-nowrap top-[244px] whitespace-pre">
