@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Database, Sun, Moon } from "lucide-react";
 import { ClusterTopology } from "./components/ClusterTopology";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { ScenarioControl } from "./components/ScenarioControl";
-import { Database, Sun, Moon } from "lucide-react";
 import { Button } from "./components/ui/button";
+import IframeCommunicator from "./components/IframeCommunicator";
 
 export type ClusterConfig = { zones: number; serversPerZone: number };
 export type ScalingState =
@@ -896,6 +897,7 @@ export default function App() {
           </div>
         </div>
       </div>
+      <IframeCommunicator />
       <Analytics />
       <SpeedInsights />
     </>
