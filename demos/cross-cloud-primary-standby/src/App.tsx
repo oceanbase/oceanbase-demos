@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import PrimaryBackupSwitch from "./components/PrimaryBackupSwitch";
 import DisasterRecovery from "./components/DisasterRecovery";
 
@@ -151,6 +152,7 @@ export default function App() {
       `}</style>
       </div>
       <Analytics />
+      <SpeedInsights />
     </>
   );
 }
