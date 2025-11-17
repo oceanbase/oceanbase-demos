@@ -55,7 +55,7 @@ WHERE sale_date >= '2024-01-01'
 GROUP BY category_level1_id, category_level1_name, category_level2_id, category_level2_name, sale_date
 ORDER BY sale_date, total_sales DESC;`,
       rewrite: `-- 查询改写：查询基础表，通过 MV_REWRITE hint 指定使用物化视图
-SELECT /*+ MV_REWRITE(sales_summary_mv) */
+SELECT /*+ MV_REWRITE(sales_summary_mv_agg1) */
   p.category_level1_id,
   p.category_level1_name,
   p.category_level2_id,
@@ -122,7 +122,7 @@ GROUP BY brand_id, brand_name, region_id, region_name
 HAVING SUM(order_count) >= 10
 ORDER BY total_sales DESC, total_quantity DESC;`,
       rewrite: `-- 查询改写：查询基础表，通过 MV_REWRITE hint 指定使用物化视图
-SELECT /*+ MV_REWRITE(sales_summary_mv) */
+SELECT /*+ MV_REWRITE(sales_summary_mv_agg1) */
   p.brand_id,
   p.brand_name,
   o.region_id,
@@ -190,7 +190,7 @@ GROUP BY sale_month, category_level1_id, category_level1_name
 HAVING SUM(order_count) >= 50
 ORDER BY sale_month, total_sales DESC;`,
       rewrite: `-- 查询改写：查询基础表，通过 MV_REWRITE hint 指定使用物化视图
-SELECT /*+ MV_REWRITE(sales_summary_mv) */
+SELECT /*+ MV_REWRITE(sales_summary_mv_agg1) */
   DATE_FORMAT(o.order_date, '%Y-%m') AS sale_month,
   p.category_level1_id,
   p.category_level1_name,
@@ -259,7 +259,7 @@ GROUP BY user_level, category_level1_id, category_level1_name
 HAVING SUM(order_count) >= 20
 ORDER BY user_level, total_sales DESC;`,
       rewrite: `-- 查询改写：查询基础表，通过 MV_REWRITE hint 指定使用物化视图
-SELECT /*+ MV_REWRITE(sales_summary_mv) */
+SELECT /*+ MV_REWRITE(sales_summary_mv_agg1) */
   u.user_level,
   p.category_level1_id,
   p.category_level1_name,
@@ -338,7 +338,7 @@ GROUP BY sale_month, region_id, region_name, brand_id, brand_name, category_leve
 HAVING SUM(order_count) >= 5
 ORDER BY sale_month, total_sales DESC;`,
       rewrite: `-- 查询改写：查询基础表，通过 MV_REWRITE hint 指定使用物化视图
-SELECT /*+ MV_REWRITE(sales_summary_mv) */
+SELECT /*+ MV_REWRITE(sales_summary_mv_agg1) */
   DATE_FORMAT(o.order_date, '%Y-%m') AS sale_month,
   o.region_id,
   o.region_name,
