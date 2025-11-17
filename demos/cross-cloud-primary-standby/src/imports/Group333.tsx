@@ -1923,7 +1923,7 @@ function Radiobutton1() {
         className="absolute border border-[#006aff] border-solid inset-0 pointer-events-none rounded-bl-[8px] rounded-tl-[8px]"
       />
       <p className="font-['PingFang_SC:Medium',sans-serif] leading-[22px] not-italic relative shrink-0 text-[#006aff] text-[14px] text-nowrap whitespace-pre">
-        云厂商故障
+        云服务商故障
       </p>
     </div>
   );
@@ -2058,7 +2058,7 @@ export default function Group45() {
         数据层
       </p>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[40px] not-italic text-[#191919] text-[12px] text-nowrap top-[432px] whitespace-pre">
-        云厂商 A
+        云服务商 A
       </p>
       <Frame5 />
       <Frame13 />
@@ -2069,7 +2069,7 @@ export default function Group45() {
         />
       </div>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[644px] not-italic text-[#191919] text-[12px] text-nowrap top-[432px] whitespace-pre">
-        云厂商 B
+        云服务商 B
       </p>
       <Frame4 />
       <div className="absolute flex h-[215px] items-center justify-center left-[470px] top-[336px] w-[364px]">
@@ -2227,7 +2227,7 @@ export default function Group45() {
         />
       </div>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[40px] not-italic text-[#191919] text-[12px] text-nowrap top-[132px] whitespace-pre">
-        云厂商 A
+        云服务商 A
       </p>
       <div className="absolute bg-[#f7f9fc] h-[98px] left-[628px] rounded-[4px] top-[116px] w-[288px]">
         <div
@@ -2236,7 +2236,7 @@ export default function Group45() {
         />
       </div>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[644px] not-italic text-[#191919] text-[12px] text-nowrap top-[132px] whitespace-pre">
-        云厂商 B
+        云服务商 B
       </p>
       <Group22 />
       <p className="absolute font-['PingFang_SC:Regular',sans-serif] leading-[20px] left-[431px] not-italic text-[#5c6b8a] text-[12px] text-nowrap top-[244px] whitespace-pre">

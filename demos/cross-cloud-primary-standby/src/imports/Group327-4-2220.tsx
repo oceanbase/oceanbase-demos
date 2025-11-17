@@ -1835,13 +1835,13 @@ export default function Group47() {
         />
       </div>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[644px] not-italic text-[#191919] text-[12px] text-nowrap top-[432px] whitespace-pre">
-        云厂商 B
+        云服务商 B
       </p>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[24px] left-[24px] not-italic text-[#191919] text-[16px] text-nowrap top-[376px] whitespace-pre">
         数据层
       </p>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[40px] not-italic text-[#191919] text-[12px] text-nowrap top-[432px] whitespace-pre">
-        云厂商 A
+        云服务商 A
       </p>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[24px] left-[24px] not-italic text-[#191919] text-[16px] text-nowrap top-[254px] whitespace-pre">
         连接层
@@ -1856,7 +1856,7 @@ export default function Group47() {
         />
       </div>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[40px] not-italic text-[#191919] text-[12px] text-nowrap top-[132px] whitespace-pre">
-        云厂商 A
+        云服务商 A
       </p>
       <div className="absolute bg-[#f7f9fc] h-[98px] left-[628px] rounded-[4px] top-[116px] w-[288px]">
         <div
@@ -1865,7 +1865,7 @@ export default function Group47() {
         />
       </div>
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[644px] not-italic text-[#191919] text-[12px] text-nowrap top-[132px] whitespace-pre">
-        云厂商 B
+        云服务商 B
       </p>
       <Group26 />
       <p className="absolute font-['PingFang_SC:Regular',sans-serif] leading-[20px] left-[431px] not-italic text-[#5c6b8a] text-[12px] text-nowrap top-[244px] whitespace-pre">
