@@ -118,7 +118,6 @@ export default function ExecutionTimeChart({
           alignItems: "center",
           justifyContent: "center",
           height: 300,
-          padding: "16px",
           background: "#fff",
           borderRadius: "4px",
           width: "100%",

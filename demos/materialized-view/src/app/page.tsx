@@ -366,6 +366,7 @@ export default function Home() {
           <Card
             bordered={false}
             style={{ boxShadow: "none" }}
+            bodyStyle={{ paddingBottom: 0 }}
             tabList={scenarios.map((scenario) => ({
               key: String(scenario.id),
               tab: scenario.name,
