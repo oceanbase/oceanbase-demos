@@ -17,8 +17,8 @@
 
 .sqlDisplay {
   position: relative;
-  min-height: 120px;
-  max-height: 240px;
+  min-height: 100px;
+  max-height: 200px;
   overflow: auto;
   background: #00000005;
   border-radius: 4px;

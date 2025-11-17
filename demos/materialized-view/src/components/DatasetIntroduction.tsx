@@ -27,7 +27,7 @@ export default function DatasetIntroduction() {
       <div className={styles.container}>
         <Collapse
           ghost
-          defaultActiveKey={["1"]}
+          defaultActiveKey={[]}
           expandIconPosition="right"
           expandIcon={({ isActive }) => (
             <UpOutlined
