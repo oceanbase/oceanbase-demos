@@ -48,7 +48,7 @@ export default function MovieSearchPage({}: MovieSearchPageProps) {
 
   const [settingModalOpen, setSettingModalOpen] = useState(false)
 
-  const defaultQuery = '机器人主题的带反转的科幻电影'
+  const defaultQuery = '斯嘉丽主演的漫威电影'
   const [searchQuery, setSearchQuery] = useState(defaultQuery)
 
   const [inputChangeValue, setInputChangeValue] = useState(defaultQuery)
@@ -73,18 +73,23 @@ export default function MovieSearchPage({}: MovieSearchPageProps) {
 
   // 预设查询标签
   const presetQueries = [
-    '周星驰',
-    '曾志伟',
-    '莱昂纳多',
+    // '周星驰',
+    // '曾志伟',
+    // '莱昂纳多',
     defaultQuery,
-    '家庭关系修复的温暖治愈的电影',
+    '周星弛的动作电影',
+    '有情感纠葛的悲剧爱情电影',
+    '诈骗题材具有喜剧色彩的国产电影',
+    '王宝强陈思诚合作的电影，充满悬疑喜剧色彩的',
+    '主角是律师，但焦点不在法庭而在人性的电影',
+    // '家庭关系修复的温暖治愈的电影',
     // '诺兰执导的科幻电影推荐',
-    '讲女性成长的电影',
-    '小镇悬疑，节奏慢但张力十足',
-    '根据真实事件改编，涉及金融诈骗',
-    '发生在列车上的，具有喜剧色彩的悬疑、惊悚电影',
-    '诈骗题材，具有喜剧、犯罪色彩',
-    '怪兽题材的动画片',
+    // '讲女性成长的电影',
+    // '小镇悬疑，节奏慢但张力十足',
+    // '根据真实事件改编，涉及金融诈骗',
+    // '发生在列车上的，具有喜剧色彩的悬疑、惊悚电影',
+    // '诈骗题材，具有喜剧、犯罪色彩',
+    // '怪兽题材的动画片',
   ]
 
   // 将实际的搜索逻辑提取为独立函数
@@ -342,9 +347,8 @@ export default function MovieSearchPage({}: MovieSearchPageProps) {
         <div className={styles.headerContent}>
           <div>
             <Title level={1} className={styles.mainTitle}>
-              基于混合搜索的 AI 应用
+              基于混合搜索的影搜小助手
             </Title>
-            <Text className={styles.subtitle}>电影混合搜索</Text>
           </div>
           <Button
             onClick={() => {

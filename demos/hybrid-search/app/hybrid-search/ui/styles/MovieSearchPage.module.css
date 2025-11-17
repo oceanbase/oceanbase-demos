@@ -178,9 +178,21 @@
 }
 
 .switchButtonSubText {
-  font-size: 16px;
-  font-weight: 400;
-  color: #8592ad;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  background-color: #0181fd;
+  padding: 4px 12px;
+  border-radius: 4px;
+  margin-top: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.switchButtonSubText:hover {
+  background-color: #0066cc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(1, 129, 253, 0.3);
 }
 
 /* 混合搜索列 */
