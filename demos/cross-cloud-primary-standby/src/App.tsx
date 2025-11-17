@@ -9,6 +9,29 @@ export default function App() {
   const [primaryBackupResetTrigger] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // embedded iframe 和 parent window 之间的通信
+  // parent window: https://www.oceanbase.com/demo/xxx
+  useEffect(() => {
+    window.parent.postMessage("iframe-response", "*");
+    // 监听跨域请求的返回
+    window.addEventListener(
+      "message",
+      (event) => {
+        console.log(event, event.data);
+      },
+      false
+    );
+    return () => {
+      window.removeEventListener(
+        "message",
+        (event) => {
+          console.log(event, event.data);
+        },
+        false
+      );
+    };
+  }, []);
+
   // 动态计算并设置缩放比例
   useEffect(() => {
     const updateScale = () => {
