@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-import { Database, Sun, Moon } from "lucide-react";
+import IframeCommunicator from "./components/IframeCommunicator";
 import { ClusterTopology } from "./components/ClusterTopology";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { ScenarioControl } from "./components/ScenarioControl";
+import { Database, Sun, Moon } from "lucide-react";
 import { Button } from "./components/ui/button";
-import IframeCommunicator from "./components/IframeCommunicator";
 
 export type ClusterConfig = { zones: number; serversPerZone: number };
 export type ScalingState =
@@ -15,7 +15,8 @@ export type ScalingState =
   | "scaling-out-migrating"
   | "scaling-in"
   | "scaling-in-migrating"
-  | "switching-primary";
+  | "switching-primary"
+  | "completed";
 export type Scenario = "normal" | "warming-up" | "peak" | "cooling-down";
 export type ScalingDirection = "scale-out" | "scale-in" | null;
 
@@ -59,7 +60,28 @@ export default function App() {
   const [scalingState, setScalingState] = useState<ScalingState>("idle");
   const [scalingDirection, setScalingDirection] =
     useState<ScalingDirection>(null);
-  const [metrics, setMetrics] = useState<MetricsData[]>([]);
+  const [metrics, setMetrics] = useState<MetricsData[]>(() => {
+    // 初始化时就创建60个数据点
+    const initialMetrics: MetricsData[] = [];
+    const now = Date.now();
+    const initialQPS = 5000;
+    const initialTPS = 4000;
+
+    for (let i = 59; i >= 0; i--) {
+      initialMetrics.push({
+        qps: initialQPS * (1 + (Math.random() - 0.5) * 0.01), // 添加小幅波动
+        tps: initialTPS * (1 + (Math.random() - 0.5) * 0.01),
+        latency: 0,
+        timestamp: now - i * 1000, // 每秒一个点
+        scalingPhase: "normal",
+        scenario: "normal",
+        config: { zones: 2, serversPerZone: 2 },
+        scalingState: "idle",
+      });
+    }
+
+    return initialMetrics;
+  });
   const [logs, setLogs] = useState<LogEvent[]>([]);
   const [zones, setZones] = useState<ZoneInfo[]>([
     { id: 1, name: "Zone-1", isPrimary: true, observerCount: 2 },
@@ -99,6 +121,66 @@ export default function App() {
   // 记录最近几秒的指标，用于判断流量是否平稳
   const recentMetricsRef = useRef<number[]>([]);
   const [isMetricsStable, setIsMetricsStable] = useState(false);
+
+  // 重置函数 - 恢复到初始状态
+  const handleReset = () => {
+    // 重置所有状态
+    setScenario("normal");
+    setConfig({ zones: 2, serversPerZone: 2 });
+    setScalingState("idle");
+    setScalingDirection(null);
+    setMetrics(() => {
+      // 初始化时就创建60个数据点
+      const initialMetrics: MetricsData[] = [];
+      const now = Date.now();
+      const initialQPS = 5000;
+      const initialTPS = 4000;
+
+      for (let i = 59; i >= 0; i--) {
+        initialMetrics.push({
+          qps: initialQPS * (1 + (Math.random() - 0.5) * 0.01), // 添加小幅波动
+          tps: initialTPS * (1 + (Math.random() - 0.5) * 0.01),
+          latency: 0,
+          timestamp: now - i * 1000, // 每秒一个点
+          scalingPhase: "normal",
+          scenario: "normal",
+          config: { zones: 2, serversPerZone: 2 },
+          scalingState: "idle",
+        });
+      }
+
+      return initialMetrics;
+    });
+    setLogs([]);
+    setZones([
+      { id: 1, name: "Zone-1", isPrimary: true, observerCount: 2 },
+      { id: 2, name: "Zone-2", isPrimary: true, observerCount: 2 },
+    ]);
+    setIsPaused(false);
+    setIsScaledOut(false);
+    setPrimarySwitched(false);
+    setJustCompletedScaleOut(false);
+
+    // 重置 refs
+    currentValuesRef.current = { qps: 5000, tps: 4000 };
+    targetValuesRef.current = { qps: 5000, tps: 4000 };
+    logIdRef.current = 0;
+    isStableRef.current = false;
+    promotionStableStartRef.current = null;
+    postPromotionStableStartRef.current = null;
+    switchingStartTimeRef.current = null;
+    preSwitchValuesRef.current = { qps: 5000, tps: 4000 };
+    scenarioStartTimeRef.current = Date.now();
+    previousScenarioRef.current = "normal";
+    cycleCountRef.current = 0;
+    recentMetricsRef.current = [];
+
+    setMetricsStableTime(0);
+    setIsMetricsStable(false);
+
+    // 添加重置日志
+    addLog("系统已重置到初始状态", "info");
+  };
 
   // 添加空格键控制暂停/继续
   useEffect(() => {
@@ -145,16 +227,32 @@ export default function App() {
   const handleScaleOut = async () => {
     if (scalingState !== "idle" || config === "4F1A" || isScaledOut) return;
 
+    // 重置所有相关的ref和状态，确保每轮都是干净的状态
+    switchingStartTimeRef.current = null;
+    promotionStableStartRef.current = null;
+    postPromotionStableStartRef.current = null;
+    isStableRef.current = false;
+    recentMetricsRef.current = [];
+    setIsMetricsStable(false);
+    setPrimarySwitched(false);
+    setJustCompletedScaleOut(false);
+
     setScalingDirection("scale-out"); // 设置扩容方向
 
     const currentZones = zones.map((z) => z.name).join(", ");
     addLog("🚀 开始扩容操作：平滑替换 Zone", "info");
     addLog(`📝 当前 Zone: ${currentZones} (各2台 OBServer)`, "info");
 
-    // Get next zone IDs
-    const maxId = zones.length > 0 ? Math.max(...zones.map((z) => z.id)) : 0;
-    const newId1 = maxId + 1;
-    const newId2 = maxId + 2;
+    // 使用循环的Zone ID：当前是 1,2 -> 新的是 3,4；当前是 3,4 -> 新的是 1,2
+    const currentIds = zones.map((z) => z.id).sort();
+    let newId1, newId2;
+    if (currentIds[0] === 1 && currentIds[1] === 2) {
+      newId1 = 3;
+      newId2 = 4;
+    } else {
+      newId1 = 1;
+      newId2 = 2;
+    }
 
     // Step 1: 添加新的大规模 Zone
     await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -254,7 +352,7 @@ export default function App() {
     );
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    setScalingState("scaling-out-migrating"); // 切换完成后，进入扩容迁移阶段
+    // 不要设置为 scaling-out-migrating，保持在 switching-primary 状态，这样流程面板会继续显示
     setPrimarySwitched(true);
 
     // 此时 4 个 Zone 同时存在：新 Zone 为主可用区（Leader+Follower），旧 Zone 为备区（Follower）
@@ -282,7 +380,7 @@ export default function App() {
       .map((z) => z.name)
       .join(", ");
     addLog(`🗑️ 删除原 Zone (${oldZoneNamesToDelete}) 中...`, "warning");
-    setScalingState("scaling-out-migrating"); // 进入删除阶段
+    // 保持在 switching-primary 状态，不要切换到 scaling-out-migrating
     setZones((prev) =>
       prev.map((z) =>
         oldZoneIdsToRemove.includes(z.id)
@@ -299,15 +397,21 @@ export default function App() {
     ]);
     setConfig("2F1A");
     setIsScaledOut(true);
-    setScalingState("idle"); // 恢复空闲状态
-    setScalingDirection(null); // 重置扩缩容方向
+    setScalingState("completed"); // 设置为完成状态，保持流程面板显示
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     addLog(`✅ 扩容流程完成！性能提升，承载更多流量`, "success");
     addLog(
       `📌 新配置：2F1A (Zone-${newId1}[4台主可用区], Zone-${newId2}[4台])`,
       "success"
     );
+
+    // 等待3秒后再隐藏流程面板 - 确保用户能看到所有步骤完成
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    // 同时重置状态和方向，避免流程面板提前消失
+    setScalingState("idle");
+    setScalingDirection(null);
 
     // 扩容完成后，重置 previousScenarioRef，避免影响下一轮循环
     previousScenarioRef.current = "normal";
@@ -318,16 +422,31 @@ export default function App() {
   const handleScaleIn = async () => {
     if (scalingState !== "idle" || config === "4F1A" || !isScaledOut) return;
 
+    // 重置所有相关的ref和状态，确保每轮都是干净的状态
+    switchingStartTimeRef.current = null;
+    promotionStableStartRef.current = null;
+    postPromotionStableStartRef.current = null;
+    isStableRef.current = false;
+    recentMetricsRef.current = [];
+    setIsMetricsStable(false);
+    setPrimarySwitched(false);
+
     setScalingDirection("scale-in"); // 设置缩容方向
 
     const currentZones = zones.map((z) => z.name).join(", ");
     addLog("🔽 开始缩容操作：平滑替换 Zone", "info");
     addLog(`📝 当前 Zone: ${currentZones} (各4台 OBServer)`, "info");
 
-    // Get next zone IDs
-    const maxId = zones.length > 0 ? Math.max(...zones.map((z) => z.id)) : 0;
-    const newId1 = maxId + 1;
-    const newId2 = maxId + 2;
+    // 使用循环的Zone ID：当前是 3,4 -> 新的是 1,2；当前是 1,2 -> 新的是 3,4
+    const currentIds = zones.map((z) => z.id).sort();
+    let newId1, newId2;
+    if (currentIds[0] === 3 && currentIds[1] === 4) {
+      newId1 = 1;
+      newId2 = 2;
+    } else {
+      newId1 = 3;
+      newId2 = 4;
+    }
 
     // Step 1: 添加新的小规模 Zone
     await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -427,9 +546,10 @@ export default function App() {
     );
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    setScalingState("scaling-in-migrating"); // 切换完成后，进入缩容迁移阶段
+    // 不要设置为 scaling-in-migrating，保持在 switching-primary 状态，这样流程面板会继续显示
+    setPrimarySwitched(true);
 
-    // 此时 4 个 Zone 同时存在：新 Zone 为主可用区（Leader+Follower），旧 Zone 为备区（Follower）
+    // 此时 4 个 Zone 同时存在：新 Zone 为主可用区（Leader+Follower），旧 Zone 备区（Follower）
     await new Promise((resolve) => setTimeout(resolve, 2000));
     addLog(`📊 当前状态：4个 Zone 共存（切主后）`, "info");
     addLog(
@@ -471,15 +591,21 @@ export default function App() {
     ]);
     setConfig("2F1A");
     setIsScaledOut(false);
-    setScalingState("idle"); // 恢复空闲状态
-    setScalingDirection(null); // 重置扩缩容方向
+    setScalingState("completed"); // 设置为完成状态，保持流程面板显示
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     addLog(`✅ 缩容流程完成！性能下降，配正常流量`, "success");
     addLog(
       `📌 新配置：2F1A (Zone-${newId1}[2台主可用区], Zone-${newId2}[2台])`,
       "success"
     );
+
+    // 等待3秒后再隐藏流程面板 - 确保用户能看到所有步骤完成
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    // 同时重置状态和方向，避免流程面板提前消失
+    setScalingState("idle");
+    setScalingDirection(null);
   };
 
   // Initialize
@@ -499,9 +625,9 @@ export default function App() {
     // 缩容后的 normal 阶段不自动切换，只有扩容完成后才切换到 warming-up
     const scenarioDurations = {
       normal: 999999, // Normal 阶段不自动切换，由扩容完成后手动触发 warming-up
-      "warming-up": 10, // 预热段 10 秒
-      peak: 45, // 大促持续 45 秒
-      "cooling-down": 45, // 大促结束持续 45 秒
+      "warming-up": 10, // 预热阶段 10 秒
+      peak: 15, // 大促持续 15 秒
+      "cooling-down": 10, // 大促降温 10 秒
     };
 
     const timer = setTimeout(() => {
@@ -551,15 +677,12 @@ export default function App() {
       scenario === "normal" &&
       scalingState === "idle"
     ) {
-      const timer = setTimeout(() => {
-        addLog("🤖 [自动模式] 扩容完成，立即切换到预热阶段", "info");
-        previousScenarioRef.current = scenario;
-        setScenario("warming-up");
-        setJustCompletedScaleOut(false); // 重置标记
-        cycleCountRef.current++; // 增加循环计数，确保下一轮等待 60 秒
-      }, 2000); // 2秒后切换，给用户看到扩容完成的日志
-
-      return () => clearTimeout(timer);
+      // 立即切换，不需要延迟
+      addLog("🤖 [自动模式] 扩容完成，立即切换到预热阶段", "info");
+      previousScenarioRef.current = scenario;
+      setScenario("warming-up");
+      setJustCompletedScaleOut(false); // 重置标记
+      cycleCountRef.current++; // 增加循环计数，确保下一轮等待 20 秒
     }
   }, [autoMode, justCompletedScaleOut, scenario, scalingState]);
 
@@ -575,7 +698,7 @@ export default function App() {
         const waitTimer = setTimeout(() => {
           addLog("🤖 [自动模式] 进入正常流量阶段，等待流量完全稳定...", "info");
 
-          // 等待10秒后，再检查流量是否平稳
+          // 等待3秒后，再检查流量是否平稳
           const checkStable = setInterval(() => {
             if (isMetricsStable) {
               clearInterval(checkStable);
@@ -583,22 +706,22 @@ export default function App() {
               handleScaleIn();
             }
           }, 1000); // 每秒检查一次
-        }, 10000); // 进入 normal 阶段后等待 10 秒
+        }, 3000); // 进入 normal 阶段后等待 3 秒（从10秒缩短到3秒）
 
         return () => clearTimeout(waitTimer);
       }
-      // 否则，如果还未扩容，说明是初始正常流量或缩容后的正常流量，需要提前扩容为下一轮大促做准备
+      // 否则，如果还未扩容，说明是初始正常流量或容后的正常流量，需要提前扩容为下一轮大促做准备
       else if (!isScaledOut) {
         // 区分首次开启自动模式和缩容后的下一轮扩容
         // 首次开启时 cycleCountRef.current === 0，立即开始扩容
-        // 缩容后的下一轮，等待 60 秒展示稳定状态
-        const delay = cycleCountRef.current === 0 ? 2000 : 60000;
+        // 缩容后的下一轮，等待 20 秒展示稳定状态
+        const delay = cycleCountRef.current === 0 ? 2000 : 20000;
 
-        // 如果不是首轮，在扩容前 10 秒添加提示
+        // 如果不是首轮，在扩容前 5 秒添加提示
         if (cycleCountRef.current > 0) {
           const notifyTimer = setTimeout(() => {
-            addLog("🔔 [自动模式] 下一轮循环即将开始（10秒后）...", "warning");
-          }, 50000); // 50 秒后提示（扩容前 10 秒）
+            addLog("🔔 [自动模式] 下一轮循环即将开始（5秒后）...", "warning");
+          }, 15000); // 15 秒后提示（扩容前 5 秒）
 
           // 清理定时器
           setTimeout(() => clearTimeout(notifyTimer), delay);
@@ -649,30 +772,19 @@ export default function App() {
           targetTPS = 4000;
           break;
         case "warming-up":
-          // 预热阶段：指标持续上升到28k（扩容期间也继续上升）
-          if (scalingState === "idle" && !isScaledOut) {
-            // 扩容前：上升到 15k
-            targetQPS = 15000;
-            targetTPS = 12000;
-          } else if (
-            scalingState === "scaling-out" ||
-            scalingState === "scaling-out-migrating"
-          ) {
-            // 扩容中：继续上升到 22k
-            targetQPS = 22000;
-            targetTPS = 17500;
-          } else if (scalingState === "switching-primary") {
-            // 切换主区中：继续上升到 26k
-            targetQPS = 26000;
-            targetTPS = 20500;
-          } else if (isScaledOut && scalingState === "idle") {
-            // 扩容完成后：继续上升到 28k
-            targetQPS = 28000;
-            targetTPS = 22000;
-          } else {
-            targetQPS = 15000;
-            targetTPS = 12000;
-          }
+          // 预热阶段：基于时间的平滑上升（5k → 28k），10秒内完成
+          const warmingDuration = 10000; // 10 秒总时间
+          const warmingElapsed = Date.now() - scenarioStartTimeRef.current;
+          const warmingProgress = Math.min(warmingElapsed / warmingDuration, 1); // 0 到 1
+
+          // 使用缓动函数（ease-in-out）使过渡更平滑
+          // y = 3x^2 - 2x^3 (Smoothstep function)
+          const smoothProgress =
+            warmingProgress * warmingProgress * (3 - 2 * warmingProgress);
+
+          // 平滑上升：从 5k 上升到 28k
+          targetQPS = 5000 + (28000 - 5000) * smoothProgress;
+          targetTPS = 4000 + (22000 - 4000) * smoothProgress;
           break;
         case "peak":
           // 大促高峰：保持在28k
@@ -681,28 +793,60 @@ export default function App() {
           break;
         case "cooling-down":
           // 降温阶段：基于时间的平滑下降（28k → 5k），不受扩缩容状态影响
-          const coolingDuration = 35000; // 35 秒总时间
+          const coolingDuration = 10000; // 10 秒总时间
           const elapsedTime = Date.now() - scenarioStartTimeRef.current;
           const progress = Math.min(elapsedTime / coolingDuration, 1); // 0 到 1
 
-          // 线性下降：从 28k 降到 5k
-          targetQPS = 28000 - (28000 - 5000) * progress;
-          targetTPS = 22000 - (22000 - 4000) * progress;
+          // 使用缓动函数（ease-in-out）使过渡更平滑
+          const smoothCoolingProgress =
+            progress * progress * (3 - 2 * progress);
+
+          // 平滑下降：从 28k 降到 5k
+          targetQPS = 28000 - (28000 - 5000) * smoothCoolingProgress;
+          targetTPS = 22000 - (22000 - 4000) * smoothCoolingProgress;
           break;
       }
 
       // 更新目标值
       targetValuesRef.current = { qps: targetQPS, tps: targetTPS };
 
-      // 使用平滑过渡：每次向目标值靠近一定比例
-      let smoothFactor = 0.15;
+      // 根据场景使用不同的过渡策略
+      let newQPS: number;
+      let newTPS: number;
 
       const currentQPS = currentValuesRef.current.qps;
       const currentTPS = currentValuesRef.current.tps;
 
-      // 计算新的当前值（向目标值靠近）
-      let newQPS = currentQPS + (targetQPS - currentQPS) * smoothFactor;
-      let newTPS = currentTPS + (targetTPS - currentTPS) * smoothFactor;
+      // warming-up 和 cooling-down 阶段：混合策略，前1秒使用平滑过渡，之后直接使用目标值
+      // normal 和 peak 阶段：使用平滑过渡
+      if (scenario === "warming-up" || scenario === "cooling-down") {
+        const elapsed = Date.now() - scenarioStartTimeRef.current;
+
+        if (elapsed < 1000) {
+          // 前1秒使用平滑过渡，避免突然的跳跃
+          const blendFactor = elapsed / 1000; // 0 到 1
+          const smoothFactor = 0.3;
+          const smoothValue =
+            currentQPS + (targetQPS - currentQPS) * smoothFactor;
+          // 从平滑值逐渐过渡到目标值
+          newQPS = smoothValue + (targetQPS - smoothValue) * blendFactor;
+          newTPS =
+            currentTPS +
+            (targetTPS - currentTPS) * smoothFactor +
+            (targetTPS -
+              (currentTPS + (targetTPS - currentTPS) * smoothFactor)) *
+              blendFactor;
+        } else {
+          // 1秒后直接使用目标值
+          newQPS = targetQPS;
+          newTPS = targetTPS;
+        }
+      } else {
+        // 正常和高峰阶段使用平滑过渡
+        const smoothFactor = 0.3; // 提高平滑因子，让变化更快
+        newQPS = currentQPS + (targetQPS - currentQPS) * smoothFactor;
+        newTPS = currentTPS + (targetTPS - currentTPS) * smoothFactor;
+      }
 
       // 切主时的特殊处理：模拟切主对指标的短暂影响
       // 扩容和缩容的切主都需要显示短暂下降（表示切主对业务有轻微影响）
@@ -726,27 +870,22 @@ export default function App() {
           else {
             const recoveryProgress = (timeSinceSwitchStart - 800) / 1200; // 0 到 1
             const recoveredRatio = 0.9 + recoveryProgress * 0.1; // 从 90% 恢复到 100%
-            const currentTarget =
-              currentQPS + (targetQPS - currentQPS) * smoothFactor;
+            // 不使用 smoothFactor，直接恢复到目标值
             newQPS =
               preSwitchValuesRef.current.qps * recoveredRatio +
-              (currentTarget - preSwitchValuesRef.current.qps) *
-                recoveryProgress;
+              (targetQPS - preSwitchValuesRef.current.qps) * recoveryProgress;
             newTPS =
               preSwitchValuesRef.current.tps * recoveredRatio +
-              (currentTPS +
-                (targetTPS - currentTPS) * smoothFactor -
-                preSwitchValuesRef.current.tps) *
-                recoveryProgress;
+              (targetTPS - preSwitchValuesRef.current.tps) * recoveryProgress;
           }
         } else {
-          // 切主完成，清除切主开始时间
+          // 切主完成，清除切��开始时间
           switchingStartTimeRef.current = null;
         }
       }
 
-      // 添加小幅随机波动（正常流量波动较小，让切主影响更突出）
-      const variation = 0.01; // 从 0.015 减小到 0.01，让正常波动更小
+      // 加小幅随机波动（正常流量波动较小，让切主影响更突出）
+      const variation = 0.01; // 从 0.015 减小到 0.01，让正常波动更
       const qps = newQPS * (1 + (Math.random() - 0.5) * variation);
       const tps = newTPS * (1 + (Math.random() - 0.5) * variation);
 
@@ -789,7 +928,7 @@ export default function App() {
         const minQPS = Math.min(...recentMetricsRef.current);
         const range = maxQPS - minQPS;
         if (range < 500) {
-          // 如果波动范围小于 500 QPS，则认为流量平稳
+          // 如果波动范围小于 500 QPS，则认流量平稳
           setIsMetricsStable(true);
         } else {
           setIsMetricsStable(false);
@@ -828,15 +967,15 @@ export default function App() {
                     theme === "dark" ? "text-slate-100" : "text-gray-900"
                   }
                 >
-                  OceanBase 平滑扩缩容演示
+                  OceanBase 平滑扩缩容 - 电商大促场景
                 </h1>
                 <p
                   className={`text-sm ${
                     theme === "dark" ? "text-slate-500" : "text-gray-500"
                   }`}
                 >
-                  电商大促场景 - 基于异构 Zone 的平滑扩缩容: 2F1A (2 台
-                  OBServer) ⇄ 4F1A ⇄ 2F1A (4 台 OBServer)
+                  基于异构 Zone 的平滑扩缩容: 2F1A (2 台 OBServer) ⇄ 4F1A ⇄ 2F1A
+                  (4 台 OBServer)
                 </p>
               </div>
             </div>
@@ -869,6 +1008,7 @@ export default function App() {
             theme={theme}
             scalingState={scalingState}
             scalingDirection={scalingDirection}
+            onReset={handleReset}
           />
         </div>
 
@@ -897,9 +1037,6 @@ export default function App() {
           </div>
         </div>
       </div>
-      <IframeCommunicator />
-      <Analytics />
-      <SpeedInsights />
     </>
   );
 }
