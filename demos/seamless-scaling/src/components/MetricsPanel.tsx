@@ -42,24 +42,33 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
     );
   }
 
-  // 先用全部数据来检测阶段
-  const allData = metrics.map((m) => ({
+  // 固定显示60个数据点，始终使用最后60个
+  const FIXED_CHART_POINTS = 60;
+  const displayMetrics = metrics.slice(-FIXED_CHART_POINTS);
+  
+  // 先生成图表数据，确定显示的时间窗口
+  const chartData = displayMetrics.map((m) => ({
     time: m.timestamp,
     QPS: Math.round(m.qps),
     TPS: Math.round(m.tps),
     scalingPhase: m.scalingPhase,
     scenario: m.scenario,
-    config: m.config,
     scalingState: m.scalingState,
   }));
+  
+  console.log('Chart Data Points:', chartData.length, '(固定显示60个点)');
 
+  // 获取图表显示的时间窗口
+  const chartStartTime = chartData[0]?.time || 0;
+  const chartEndTime = chartData[chartData.length - 1]?.time || 0;
+  
   // 获取当前最新的场景（从最后一个数据点）
-  const currentScenario = allData[allData.length - 1]?.scenario || 'normal';
+  const currentScenario = chartData[chartData.length - 1]?.scenario || 'normal';
 
   console.log('MetricsPanel Debug:', {
-    dataPoints: allData.length,
+    dataPoints: chartData.length,
     currentScenario,
-    lastDataPoint: allData[allData.length - 1],
+    lastDataPoint: chartData[chartData.length - 1],
     scenarioAreasCount: 0, // 将在后面计算
   });
 
@@ -73,14 +82,14 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
 
   // 找到扩缩容阶段的区域（使用全部数据，基于详细的 scalingState）
   const phaseAreas: PhaseArea[] = [];
-  let currentState: ScalingState | undefined = allData[0]?.scalingState || 'idle';
-  let stateStart = allData[0]?.time || 0;
+  let currentState: ScalingState | undefined = chartData[0]?.scalingState || 'idle';
+  let stateStart = chartData[0]?.time || 0;
 
-  allData.forEach((point, idx) => {
+  chartData.forEach((point, idx) => {
     // 检测状态变化或到达最后一个点
-    if (point.scalingState !== currentState || idx === allData.length - 1) {
+    if (point.scalingState !== currentState || idx === chartData.length - 1) {
       // 计算结束时间
-      const endTime = idx === allData.length - 1 && point.scalingState === currentState 
+      const endTime = idx === chartData.length - 1 && point.scalingState === currentState 
         ? point.time 
         : point.time;
       
@@ -131,80 +140,94 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
   // 找到场景阶段的区域（使用全部数据）
   const scenarioAreas: PhaseArea[] = [];
   
-  if (allData.length > 0) {
-    let currentScen = allData[0]?.scenario || 'normal';
-    let scenStart = allData[0]?.time || 0;
+  if (chartData.length > 0) {
+    let currentScen = chartData[0]?.scenario || 'normal';
+    let scenStart = chartData[0]?.time || 0;
 
-    allData.forEach((point, idx) => {
-      // 检测场景变化
-      if (point.scenario !== currentScen) {
-        // 记录前一个阶段
-        let label = '';
-        let color = '';
-        switch (currentScen) {
-          case 'normal':
-            label = '正常流量';
-            color = '#64748b';
-            break;
-          case 'warming-up':
-            label = '大促预热';
-            color = '#f59e0b';
-            break;
-          case 'peak':
-            label = '大促高峰';
-            color = '#ef4444';
-            break;
-          case 'cooling-down':
-            label = '大促降温';
-            color = '#10b981';
-            break;
-        }
-        
-        if (label) {
-          scenarioAreas.push({
-            start: scenStart,
-            end: point.time,
-            phase: label,
-            color,
-          });
-        }
-
-        // 开始新的阶段
-        currentScen = point.scenario || 'normal';
-        scenStart = point.time;
-      }
+    chartData.forEach((point, idx) => {
+      const isLastPoint = idx === chartData.length - 1;
+      const scenarioChanged = point.scenario !== currentScen;
       
-      // 如果是最后一个点，记录当前正在进行的阶段
-      if (idx === allData.length - 1) {
-        let label = '';
-        let color = '';
-        switch (currentScen) {
-          case 'normal':
-            label = '正常流量';
-            color = '#64748b';
-            break;
-          case 'warming-up':
-            label = '大促预热';
-            color = '#f59e0b';
-            break;
-          case 'peak':
-            label = '大促高峰';
-            color = '#ef4444';
-            break;
-          case 'cooling-down':
-            label = '大促降温';
-            color = '#10b981';
-            break;
-        }
+      if (scenarioChanged || isLastPoint) {
+        // 确定结束时间
+        // 场景变化时：旧场景结束于前一个数据点
+        // 最后一个点且未变化：用当前点时间
+        const endTime = scenarioChanged && idx > 0
+          ? chartData[idx - 1].time  // 场景变化时，旧场景结束于前一个点
+          : point.time;  // 最后一个点或第一个点，用当前点时间
         
-        if (label) {
-          scenarioAreas.push({
-            start: scenStart,
-            end: point.time + 1000, // 延伸到最后一个点之后，确保当前阶段可见
-            phase: label,
-            color,
-            isCurrentPhase: true, // 标记为当前正在进行的阶段
-          });
+        // 记录当前阶段（只有在有效范围内才记录）
+        if (endTime >= scenStart) {
+          let label = '';
+          let color = '';
+          switch (currentScen) {
+            case 'normal':
+              label = '正常流量';
+              color = '#64748b';
+              break;
+            case 'warming-up':
+              label = '大促预热';
+              color = '#f59e0b';
+              break;
+            case 'peak':
+              label = '大促高峰';
+              color = '#ef4444';
+              break;
+            case 'cooling-down':
+              label = '大促降温';
+              color = '#10b981';
+              break;
+          }
+          
+          if (label) {
+            scenarioAreas.push({
+              start: scenStart,
+              end: endTime,
+              phase: label,
+              color,
+              isCurrentPhase: isLastPoint && !scenarioChanged, // 只有最后一个点且场景未变化才标记为当前阶段
+            });
+          }
+        }
+
+        // 开始新的阶段（如果场景变化了）
+        if (scenarioChanged) {
+          currentScen = point.scenario || 'normal';
+          scenStart = point.time;  // 新阶段从当前点开始
+          
+          // 如果这是最后一个点，还需要记录这个新阶段（单点阶段）
+          if (isLastPoint) {
+            let label = '';
+            let color = '';
+            switch (currentScen) {
+              case 'normal':
+                label = '正常流量';
+                color = '#64748b';
+                break;
+              case 'warming-up':
+                label = '大促预热';
+                color = '#f59e0b';
+                break;
+              case 'peak':
+                label = '大促高峰';
+                color = '#ef4444';
+                break;
+              case 'cooling-down':
+                label = '大促降温';
+                color = '#10b981';
+                break;
+            }
+            
+            if (label) {
+              scenarioAreas.push({
+                start: scenStart,
+                end: point.time,
+                phase: label,
+                color,
+                isCurrentPhase: true,
+              });
+            }
+          }
         }
       }
     });
@@ -213,21 +236,15 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
   console.log('Scenario Areas:', scenarioAreas);
   console.log('Current Scenario from last data:', currentScenario);
 
-  // 使用最后90个数据点（1分30秒的数据），确保能看到更多历史事件
-  const displayMetrics = metrics.slice(-90);
+  // 格式化时间显示
+  const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  };
   
-  const chartData = displayMetrics.map((m) => ({
-    time: m.timestamp,
-    QPS: Math.round(m.qps),
-    TPS: Math.round(m.tps),
-    scalingPhase: m.scalingPhase,
-    scenario: m.scenario,
-  }));
-
-  // 获取图表显示的时间窗口
-  const chartStartTime = chartData[0]?.time || 0;
-  const chartEndTime = chartData[chartData.length - 1]?.time || 0;
-
   // 过滤并裁剪阶段区域，使其只显示在当前时间窗口内的部分
   const visiblePhaseAreas = phaseAreas
     .filter(area => area.end >= chartStartTime && area.start <= chartEndTime)
@@ -242,20 +259,65 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
     .map(area => ({
       ...area,
       start: Math.max(area.start, chartStartTime),
-      end: Math.min(area.end, chartEndTime),
+      // 如果是当前阶段，延伸到最后
+      end: area.isCurrentPhase ? Math.max(area.end, chartEndTime) : Math.min(area.end, chartEndTime),
     }));
+
+  // 将场景区域转换为基于数据点索引的位置，确保与图表完美对齐
+  const scenarioAreasWithPosition = visibleScenarioAreas.map(area => {
+    // 找到最接近起始时间的数据点索引
+    let startIdx = 0;
+    let endIdx = chartData.length - 1;
+    
+    for (let i = 0; i < chartData.length; i++) {
+      if (chartData[i].time >= area.start) {
+        startIdx = i;
+        break;
+      }
+    }
+    
+    // 找到最接近结束时间的数据点索引
+    for (let i = chartData.length - 1; i >= 0; i--) {
+      if (chartData[i].time <= area.end) {
+        endIdx = i;
+        break;
+      }
+    }
+    
+    // 如果是当前阶段，延伸到最后
+    if (area.isCurrentPhase) {
+      endIdx = chartData.length - 1;
+    }
+    
+    // 计算基于数据点索引的百分比位置
+    const totalPoints = chartData.length - 1;
+    const startPercent = totalPoints > 0 ? (startIdx / totalPoints) * 100 : 0;
+    const endPercent = totalPoints > 0 ? (endIdx / totalPoints) * 100 : 100;
+    const widthPercent = endPercent - startPercent;
+    
+    return {
+      ...area,
+      startPercent,
+      widthPercent,
+      startIdx,
+      endIdx,
+    };
+  });
 
   // 过滤在当前图表时间窗口内的主区切换标记
   const visiblePrimarySwitchMarkers = primarySwitchMarkers.filter(
     marker => marker.time >= chartStartTime && marker.time <= chartEndTime
   );
 
-  // 检测扩缩容关键事件：开始扩容、扩容后切主、开始缩容、缩容后切主
+  // 检测扩缩容关键件：开始扩容、扩容后切主、开始缩容、缩容后切主
   const scalingEventMarkers: ScalingEventMarker[] = [];
   let prevState: ScalingState | undefined = undefined;
   let lastScalingType: 'scale-out' | 'scale-in' | null = null; // 记录最近的扩缩容类型
   
-  allData.forEach((point, idx) => {
+  // 使用Set来记录已经添加过的事件，避免重复
+  const addedEvents = new Set<string>();
+  
+  chartData.forEach((point, idx) => {
     const currentState = point.scalingState;
     
     // 避免初始状态为 undefined
@@ -266,46 +328,62 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
     
     // 检测从 idle 到 scaling-out（开始扩容）
     if (prevState === 'idle' && currentState === 'scaling-out') {
-      scalingEventMarkers.push({
-        time: point.time,
-        label: '开始扩容',
-        type: 'scale-out',
-        color: '#22c55e', // 绿色
-      });
-      lastScalingType = 'scale-out'; // 记录为扩容
+      const eventKey = `scale-out-${point.time}`;
+      if (!addedEvents.has(eventKey)) {
+        scalingEventMarkers.push({
+          time: point.time,
+          label: '开始扩容',
+          type: 'scale-out',
+          color: '#22c55e', // 绿色
+        });
+        lastScalingType = 'scale-out'; // 记录为扩容
+        addedEvents.add(eventKey);
+      }
     }
     // 检测扩容后的切主（从 scaling-out 到 switching-primary）
     else if (prevState === 'scaling-out' && currentState === 'switching-primary') {
       // 根据最近的扩缩容类型判断：如果最近是扩容，则这是扩容后切主
       if (lastScalingType === 'scale-out') {
-        scalingEventMarkers.push({
-          time: point.time,
-          label: '扩容后切主',
-          type: 'switch-primary',
-          color: '#a855f7', // 紫色
-        });
+        const eventKey = `switch-primary-scale-out-${point.time}`;
+        if (!addedEvents.has(eventKey)) {
+          scalingEventMarkers.push({
+            time: point.time,
+            label: '扩容后切主',
+            type: 'switch-primary',
+            color: '#a855f7', // 紫色
+          });
+          addedEvents.add(eventKey);
+        }
       }
     }
     // 检测从 idle 到 scaling-in（开始缩容）
     else if (prevState === 'idle' && currentState === 'scaling-in') {
-      scalingEventMarkers.push({
-        time: point.time,
-        label: '开始缩容',
-        type: 'scale-in',
-        color: '#f59e0b', // 橙色
-      });
-      lastScalingType = 'scale-in'; // 记录为缩容
+      const eventKey = `scale-in-${point.time}`;
+      if (!addedEvents.has(eventKey)) {
+        scalingEventMarkers.push({
+          time: point.time,
+          label: '开始缩容',
+          type: 'scale-in',
+          color: '#f59e0b', // 橙色
+        });
+        lastScalingType = 'scale-in'; // 记录为缩容
+        addedEvents.add(eventKey);
+      }
     }
     // 检测缩容后的切主（从 scaling-in 到 switching-primary）
     else if (prevState === 'scaling-in' && currentState === 'switching-primary') {
       // 根据最近的扩缩容类型判断：如果最近是缩容，则这是缩容后切主
       if (lastScalingType === 'scale-in') {
-        scalingEventMarkers.push({
-          time: point.time,
-          label: '缩容后切主',
-          type: 'switch-primary',
-          color: '#a855f7', // 紫色
-        });
+        const eventKey = `switch-primary-scale-in-${point.time}`;
+        if (!addedEvents.has(eventKey)) {
+          scalingEventMarkers.push({
+            time: point.time,
+            label: '缩容后切主',
+            type: 'switch-primary',
+            color: '#a855f7', // 紫色
+          });
+          addedEvents.add(eventKey);
+        }
       }
     }
     
@@ -318,15 +396,6 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
   const visibleScalingEventMarkers = scalingEventMarkers.filter(
     marker => marker.time >= chartStartTime && marker.time <= chartEndTime
   );
-
-  // 格式化时间显示
-  const formatTime = (timestamp: number) => {
-    const date = new Date(timestamp);
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    return `${hours}:${minutes}:${seconds}`;
-  };
 
   return (
     <div className={`rounded-lg p-4 h-full flex flex-col border ${theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200'}`}>
@@ -391,12 +460,13 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
                   label={({viewBox}) => {
                     const x = viewBox?.x || 0;
                     const y = viewBox?.y || 0;
+                    const labelWidth = 110; // 增加度以适应中文
                     return (
                       <g>
                         <rect
-                          x={x - 45}
+                          x={x - labelWidth / 2}
                           y={y - 8}
-                          width={90}
+                          width={labelWidth}
                           height={16}
                           fill="#1e293b"
                           stroke="#a855f7"
@@ -418,7 +488,7 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
                 />
               ))}
 
-              {/* 扩缩容关键事件的垂直线标记 */}
+              {/* 扩缩容关键事件的垂直线记 */}
               {visibleScalingEventMarkers.map((marker, idx) => (
                 <ReferenceLine
                   key={`scale-${idx}`}
@@ -429,13 +499,14 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
                   label={({viewBox}) => {
                     const x = viewBox?.x || 0;
                     const y = viewBox?.y || 0;
-                    const width = marker.label.length * 7 + 10;
+                    // 根据中文字符计算宽度，中文大约10px一个字符
+                    const labelWidth = marker.label.length * 10 + 16;
                     return (
                       <g>
                         <rect
-                          x={x - width / 2}
+                          x={x - labelWidth / 2}
                           y={y - 8}
-                          width={width}
+                          width={labelWidth}
                           height={16}
                           fill="#1e293b"
                           stroke={marker.color}
@@ -484,45 +555,71 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
           {/* Scenario phases */}
           <div className="mb-2">
             <div className={`text-xs mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-gray-600'}`}>业务阶段</div>
-            {/* 精确匹配图表的绘图区域 */}
-            <div className="relative h-5" style={{ marginLeft: '41px', marginRight: '36px' }}>
-              {visibleScenarioAreas.length > 0 ? (
-                visibleScenarioAreas.map((area, idx) => {
-                  const totalDuration = chartData[chartData.length - 1]?.time - chartData[0]?.time || 1;
-                  const areaDuration = area.end - area.start;
-                  const startPercent = ((area.start - chartData[0]?.time) / totalDuration) * 100;
-                  let widthPercent = (areaDuration / totalDuration) * 100;
-                  
-                  // 如果是当前正在进行的阶段，确保它至少占据到图表的最右边
-                  if (area.isCurrentPhase) {
-                    const endPercent = 100;
-                    widthPercent = endPercent - startPercent;
-                  }
-                  
-                  // 计算实际像素宽度（假设容器宽度，用于判断是否显示文字）
-                  const containerWidth = 800; // 估算值
-                  const actualWidth = (widthPercent / 100) * containerWidth;
-                  const showText = actualWidth >= 50; // 宽度小于 50px 时不显示文字
-                  
-                  return (
-                    <div
-                      key={idx}
-                      className="absolute flex items-center justify-center text-white text-xs rounded"
-                      style={{
-                        left: `${startPercent}%`,
-                        width: `${widthPercent}%`,
-                        backgroundColor: area.color,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {showText && <span className="px-2">{area.phase}</span>}
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="h-full bg-slate-700/30 rounded" />
-              )}
+            {/* 精确匹配图表的绘图区域：使用与图表完全相同的margin */}
+            <div className="relative h-5 bg-slate-700/20 rounded overflow-hidden">
+              {/* 添加左右边距容器，确保与图表绘图区域完全对齐 */}
+              <div className="absolute inset-0" style={{ marginLeft: '35px', marginRight: '30px' }}>
+                {scenarioAreasWithPosition.length > 0 ? (
+                  scenarioAreasWithPosition.map((area, idx) => {
+                    // 使用基于数据点索引计算的位置
+                    let finalStartPercent = area.startPercent;
+                    let finalWidthPercent = area.widthPercent;
+                    
+                    // 填补缺口：如果这不是第一个区域，并且与前一个区域之间有缺口
+                    if (idx > 0) {
+                      const prevArea = scenarioAreasWithPosition[idx - 1];
+                      const prevEndPercent = prevArea.startPercent + prevArea.widthPercent;
+                      const gap = finalStartPercent - prevEndPercent;
+                      
+                      // 如果有明显缺口，从前一个区域结束位置开始
+                      if (gap > 0.5) {
+                        const originalEndPercent = finalStartPercent + finalWidthPercent;
+                        finalStartPercent = prevEndPercent;
+                        finalWidthPercent = originalEndPercent - finalStartPercent;
+                      }
+                    }
+                    
+                    // 边界检查
+                    finalStartPercent = Math.max(0, Math.min(100, finalStartPercent));
+                    finalWidthPercent = Math.max(0, Math.min(100 - finalStartPercent, finalWidthPercent));
+                    
+                    // 如果宽度太小，不显示
+                    if (finalWidthPercent < 0.1 || finalStartPercent >= 100) {
+                      return null;
+                    }
+                    
+                    // 计算实际像素宽度（用于判断是否显示文字）
+                    const containerWidth = 800;
+                    const actualWidth = (finalWidthPercent / 100) * containerWidth;
+                    const showText = actualWidth >= 50;
+                    
+                    console.log(`场景 ${area.phase}:`, {
+                      startIdx: area.startIdx,
+                      endIdx: area.endIdx,
+                      startPercent: finalStartPercent.toFixed(2),
+                      widthPercent: finalWidthPercent.toFixed(2),
+                      startTime: formatTime(area.start),
+                      endTime: formatTime(area.end),
+                    });
+                    
+                    return (
+                      <div
+                        key={`${area.phase}-${area.startIdx}-${idx}`}
+                        className="absolute flex items-center justify-center text-white text-xs h-full"
+                        style={{
+                          left: `${finalStartPercent}%`,
+                          width: `${finalWidthPercent}%`,
+                          backgroundColor: area.color,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {showText && <span className="px-2">{area.phase}</span>}
+                      </div>
+                    );
+                  })
+                ) : null}
+              </div>
             </div>
           </div>
 

@@ -1028,7 +1028,7 @@ function Group23() {
 function Alert() {
   return (
     <div
-      className="absolute bg-[#fff2f2] box-border content-stretch flex gap-[4px] h-[22px] items-center left-[97px] p-[8px] rounded-[4px] top-[461px]"
+      className="absolute bg-[#fff2f2] box-border content-stretch flex gap-[4px] h-[22px] items-center left-[110px] p-[8px] rounded-[4px] top-[461px]"
       data-name="alert"
     >
       <div
@@ -1720,7 +1720,10 @@ export default function Group41() {
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[644px] not-italic text-[#191919] text-[12px] text-nowrap top-[162px] whitespace-pre">
         云服务商 B
       </p>
-      <div className="absolute flex inset-[67.06%_60%_30.59%_37.87%] items-center justify-center">
+      <div
+        className="absolute flex inset-[67.06%_60%_30.59%_37.87%] items-center justify-center"
+        style={{ marginTop: -32 }}
+      >
         <div className="flex-none scale-y-[-100%] size-[20px]">
           <div className="relative size-full">
             <div className="absolute bottom-1/4 left-[10.35%] right-[10.35%] top-[5%]">

@@ -4,7 +4,7 @@ import { executeQueryWithTiming, testConnection } from "@/lib/db";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { sql } = body;
+    const { sql, scenarioId, queryType } = body;
 
     if (!sql || typeof sql !== "string") {
       return NextResponse.json(
@@ -16,14 +16,27 @@ export async function POST(request: NextRequest) {
     // 测试数据库连接
     const isConnected = await testConnection();
     if (!isConnected) {
+      const host = process.env.OCEANBASE_HOST || "127.0.0.1";
+      const port = process.env.OCEANBASE_PORT || "2883";
       return NextResponse.json(
-        { success: false, error: "数据库连接失败，请检查配置" },
+        {
+          success: false,
+          error: `数据库连接失败，请检查配置\n连接地址: ${host}:${port}\n可能原因: 数据库服务未启动、网络问题或配置错误`,
+        },
         { status: 500 }
       );
     }
 
-    // 执行 SQL 查询
-    const result = await executeQueryWithTiming(sql);
+    // 执行 SQL 查询（如果提供了场景 ID 和查询类型，会进行转换）
+    const result = await executeQueryWithTiming(sql, scenarioId, queryType);
+
+    // 打印执行时间
+    console.log(`\n[API] SQL 执行时间: ${result.executionTime}ms`);
+    if (result.success) {
+      console.log(`[API] 查询成功，返回 ${result.rowCount} 行数据`);
+    } else {
+      console.log(`[API] 查询失败: ${result.error}`);
+    }
 
     if (result.success) {
       return NextResponse.json({
@@ -37,7 +50,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: result.error,
-          // 查询失败时不返回执行时间
+          executionTime: result.executionTime, // 即使失败也返回执行时间
         },
         { status: 500 }
       );

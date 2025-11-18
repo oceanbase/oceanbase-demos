@@ -1393,7 +1393,7 @@ function Frame6() {
 function Alert() {
   return (
     <div
-      className="absolute bg-[#f5faf8] box-border content-stretch flex gap-[4px] h-[22px] items-center left-[97px] p-[8px] rounded-[4px] top-[431px]"
+      className="absolute bg-[#f5faf8] box-border content-stretch flex gap-[4px] h-[22px] items-center left-[110px] p-[8px] rounded-[4px] top-[431px]"
       data-name="alert"
     >
       <div
@@ -1468,7 +1468,10 @@ function Group44() {
           </div>
         </div>
       </div>
-      <div className="absolute flex inset-[65.85%_10.21%_31.71%_87.66%] items-center justify-center">
+      <div
+        className="absolute flex inset-[65.85%_10.21%_31.71%_87.66%] items-center justify-center"
+        style={{ marginTop: -72 }}
+      >
         <div className="flex-none scale-y-[-100%] size-[20px]">
           <div className="relative size-full">
             <div

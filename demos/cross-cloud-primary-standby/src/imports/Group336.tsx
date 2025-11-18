@@ -1712,7 +1712,10 @@ export default function Group40() {
           </svg>
         </div>
       </div>
-      <div className="absolute flex inset-[65.85%_82.98%_31.71%_14.89%] items-center justify-center">
+      <div
+        className="absolute flex inset-[65.85%_82.98%_31.71%_14.89%] items-center justify-center"
+        style={{ marginTop: -72 }}
+      >
         <div className="flex-none scale-y-[-100%] size-[20px]">
           <div className="relative size-full">
             <div

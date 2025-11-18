@@ -1,4 +1,4 @@
-# OceanBase Seamless Scaling Demo
+# OceanBase Seamless-Scaling Demo
 
 ## Running the code
 

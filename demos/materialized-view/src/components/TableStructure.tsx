@@ -200,177 +200,155 @@ const productsFields: FieldInfo[] = [
   },
 ];
 
-const usersFields: FieldInfo[] = [
-  {
-    field: "user_id",
-    type: "varchar(64)",
-    nullable: "NOT NULL",
-    key: "PRI",
-    comment: "用户ID",
-  },
-  {
-    field: "user_name",
-    type: "varchar(200)",
-    nullable: "NULL",
-    key: "",
-    comment: "用户名称",
-  },
-  {
-    field: "user_level",
-    type: "varchar(32)",
-    nullable: "NULL",
-    key: "",
-    comment: "用户等级：NORMAL, VIP, SVIP",
-  },
-  {
-    field: "region_id",
-    type: "varchar(32)",
-    nullable: "NULL",
-    key: "",
-    comment: "地区ID",
-  },
-];
-
 const mvFields: FieldInfo[] = [
+  // 维度字段（GROUP BY）
   {
     field: "sale_date",
     type: "date",
     nullable: "NOT NULL",
     key: "",
-    comment: "订单日期",
+    comment: "订单日期（维度字段）",
   },
   {
     field: "sale_month",
     type: "varchar(7)",
     nullable: "NULL",
     key: "",
-    comment: "订单月份（预计算）",
+    comment: "订单月份，格式：YYYY-MM（维度字段，预计算）",
   },
   {
     field: "category_level1_id",
     type: "varchar(64)",
     nullable: "NULL",
     key: "",
-    comment: "一级类目ID",
+    comment: "一级类目ID（维度字段）",
   },
   {
     field: "category_level1_name",
     type: "varchar(200)",
     nullable: "NULL",
     key: "",
-    comment: "一级类目名称",
+    comment: "一级类目名称（维度字段）",
   },
   {
     field: "category_level2_id",
     type: "varchar(64)",
     nullable: "NULL",
     key: "",
-    comment: "二级类目ID",
+    comment: "二级类目ID（维度字段）",
   },
   {
     field: "category_level2_name",
     type: "varchar(200)",
     nullable: "NULL",
     key: "",
-    comment: "二级类目名称",
+    comment: "二级类目名称（维度字段）",
   },
   {
     field: "brand_id",
     type: "varchar(64)",
     nullable: "NULL",
     key: "",
-    comment: "品牌ID",
+    comment: "品牌ID（维度字段）",
   },
   {
     field: "brand_name",
     type: "varchar(200)",
     nullable: "NULL",
     key: "",
-    comment: "品牌名称",
+    comment: "品牌名称（维度字段）",
   },
   {
     field: "region_id",
     type: "varchar(32)",
     nullable: "NULL",
     key: "",
-    comment: "地区ID",
+    comment: "地区ID（维度字段）",
   },
   {
     field: "region_name",
     type: "varchar(200)",
     nullable: "NULL",
     key: "",
-    comment: "地区名称",
+    comment: "地区名称（维度字段）",
   },
+  // 聚合指标字段（预计算）
   {
-    field: "user_level",
-    type: "varchar(32)",
-    nullable: "NULL",
-    key: "",
-    comment: "用户等级",
-  },
-  {
-    field: "order_count",
+    field: "order_count_raw",
     type: "bigint",
     nullable: "NULL",
     key: "",
-    comment: "订单数量（预聚合）",
+    comment: "订单数量（COUNT(o.order_id)，预聚合）",
   },
   {
-    field: "user_count",
+    field: "user_count_raw",
     type: "bigint",
     nullable: "NULL",
     key: "",
-    comment: "用户数量（预聚合）",
+    comment: "用户数量（COUNT(o.user_id)，预聚合）",
   },
   {
-    field: "item_count",
+    field: "item_count_raw",
     type: "bigint",
     nullable: "NULL",
     key: "",
-    comment: "商品数量（预聚合）",
+    comment: "商品数量（COUNT(oi.item_id)，预聚合）",
   },
   {
     field: "total_quantity",
-    type: "decimal",
+    type: "decimal(18,2)",
     nullable: "NULL",
     key: "",
-    comment: "总数量（预聚合）",
+    comment: "总数量（SUM(oi.quantity)，预聚合）",
   },
   {
     field: "total_sales",
-    type: "decimal",
+    type: "decimal(18,2)",
     nullable: "NULL",
     key: "",
-    comment: "总销售额（预聚合）",
+    comment: "总销售额（SUM(oi.amount)，预聚合）",
   },
   {
-    field: "avg_item_amount",
-    type: "decimal",
+    field: "amount_count",
+    type: "bigint",
     nullable: "NULL",
     key: "",
-    comment: "平均商品金额（预聚合）",
+    comment: "金额计数（COUNT(oi.amount)，用于计算 AVG）",
   },
   {
-    field: "avg_order_amount",
-    type: "decimal",
+    field: "amount_sum",
+    type: "decimal(18,2)",
     nullable: "NULL",
     key: "",
-    comment: "平均订单金额（预聚合）",
+    comment: "金额总和（SUM(oi.amount)，用于计算 AVG）",
+  },
+  {
+    field: "order_amount_count",
+    type: "bigint",
+    nullable: "NULL",
+    key: "",
+    comment: "订单金额计数（COUNT(o.order_amount)，用于计算 AVG）",
+  },
+  {
+    field: "order_amount_sum",
+    type: "decimal(18,2)",
+    nullable: "NULL",
+    key: "",
+    comment: "订单金额总和（SUM(o.order_amount)，用于计算 AVG）",
   },
   {
     field: "min_order_amount",
-    type: "decimal",
+    type: "decimal(18,2)",
     nullable: "NULL",
     key: "",
-    comment: "最小订单金额（预聚合）",
+    comment: "最小订单金额（MIN(o.order_amount)，预聚合）",
   },
   {
     field: "max_order_amount",
-    type: "decimal",
+    type: "decimal(18,2)",
     nullable: "NULL",
     key: "",
-    comment: "最大订单金额（预聚合）",
+    comment: "最大订单金额（MAX(o.order_amount)，预聚合）",
   },
 ];
 
@@ -446,22 +424,22 @@ export default function TableStructure({ open, onClose }: TableStructureProps) {
         />
       ),
     },
-    {
-      key: "users",
-      label: "users（用户表）",
-      children: (
-        <Table
-          columns={columns}
-          dataSource={usersFields}
-          rowKey="field"
-          pagination={false}
-          size="small"
-        />
-      ),
-    },
+    // {
+    //   key: "users",
+    //   label: "users（用户表）",
+    //   children: (
+    //     <Table
+    //       columns={columns}
+    //       dataSource={usersFields}
+    //       rowKey="field"
+    //       pagination={false}
+    //       size="small"
+    //     />
+    //   ),
+    // },
     {
       key: "mv",
-      label: "sales_summary_mv_agg1（聚合物化视图）",
+      label: "sales_summary_mv（聚合物化视图）",
       children: (
         <Table
           columns={columns}

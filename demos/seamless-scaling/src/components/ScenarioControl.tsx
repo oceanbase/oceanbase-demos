@@ -1,4 +1,4 @@
-import { Play, Pause, Activity, TrendingUp, Zap, TrendingDown, ArrowUpCircle, ArrowDownCircle, RefreshCw, Loader2 } from 'lucide-react';
+import { Play, Pause, Activity, TrendingUp, Zap, TrendingDown, ArrowUpCircle, ArrowDownCircle, RefreshCw, Loader2, RotateCcw } from 'lucide-react';
 import { Button } from './ui/button';
 import { Scenario, ScalingState, ScalingDirection } from '../App';
 
@@ -9,6 +9,7 @@ interface ScenarioControlProps {
   theme: 'light' | 'dark';
   scalingState: ScalingState;
   scalingDirection: ScalingDirection;
+  onReset: () => void;
 }
 
 export function ScenarioControl({
@@ -18,6 +19,7 @@ export function ScenarioControl({
   theme,
   scalingState,
   scalingDirection,
+  onReset,
 }: ScenarioControlProps) {
   const scenarioInfo = {
     normal: { label: '正常流量', icon: Activity, color: theme === 'dark' ? 'text-blue-400' : 'text-blue-600', bg: theme === 'dark' ? 'bg-blue-500/10' : 'bg-blue-50' },
@@ -133,6 +135,19 @@ export function ScenarioControl({
               暂停演示
             </>
           )}
+        </Button>
+
+        {/* 重置按钮 */}
+        <Button
+          onClick={onReset}
+          className={`h-9 px-4 ${
+            theme === 'dark'
+              ? 'bg-slate-700 hover:bg-slate-600 text-white border border-slate-600'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-900 border border-gray-300'
+          }`}
+        >
+          <RotateCcw className="w-4 h-4 mr-1.5" />
+          重置演示
         </Button>
 
         {/* 分隔线 */}
