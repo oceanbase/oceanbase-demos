@@ -1676,7 +1676,10 @@ export default function Group46() {
       <p className="absolute font-['PingFang_SC:Medium',sans-serif] leading-[20px] left-[40px] not-italic text-[#191919] text-[12px] text-nowrap top-[432px] whitespace-pre">
         云服务商 A
       </p>
-      <div className="absolute aspect-[14/14] flex items-center justify-center left-[57.87%] right-[40.43%] top-[calc(50%+145px)] translate-y-[-50%]">
+      <div
+        className="absolute aspect-[14/14] flex items-center justify-center left-[57.87%] right-[40.43%] top-[calc(50%+145px)] translate-y-[-50%]"
+        style={{ marginTop: -26, marginLeft: -2 }}
+      >
         <div className="flex-none rotate-[180deg] size-[16px]">
           <div className="relative size-full">
             <div className="absolute bottom-1/4 left-[8.98%] right-[8.98%] top-[3.12%]">
@@ -1750,7 +1753,10 @@ export default function Group46() {
           </svg>
         </div>
       </div>
-      <div className="absolute flex inset-[65.85%_82.98%_31.71%_14.89%] items-center justify-center">
+      <div
+        className="absolute flex inset-[65.85%_82.98%_31.71%_14.89%] items-center justify-center"
+        style={{ marginTop: -72 }}
+      >
         <div className="flex-none scale-y-[-100%] size-[20px]">
           <div className="relative size-full">
             <div

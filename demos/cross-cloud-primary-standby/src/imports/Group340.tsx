@@ -1468,7 +1468,10 @@ function Group44() {
           </div>
         </div>
       </div>
-      <div className="absolute flex inset-[65.85%_10.21%_31.71%_87.66%] items-center justify-center">
+      <div
+        className="absolute flex inset-[65.85%_10.21%_31.71%_87.66%] items-center justify-center"
+        style={{ marginTop: -72 }}
+      >
         <div className="flex-none scale-y-[-100%] size-[20px]">
           <div className="relative size-full">
             <div

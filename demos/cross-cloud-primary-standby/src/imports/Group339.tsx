@@ -1815,7 +1815,10 @@ export default function Group46() {
           </svg>
         </div>
       </div>
-      <div className="absolute flex inset-[65.85%_60%_31.71%_37.87%] items-center justify-center">
+      <div
+        className="absolute flex inset-[65.85%_60%_31.71%_37.87%] items-center justify-center"
+        style={{ marginTop: -72 }}
+      >
         <div className="flex-none scale-y-[-100%] size-[20px]">
           <div className="relative size-full">
             <div
