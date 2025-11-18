@@ -142,7 +142,10 @@ export default function DisasterRecovery() {
   return (
     <div className="relative">
       {/* 场景切换单选按钮 */}
-      <div className="absolute top-2 right-2 z-50 flex gap-2 items-center bg-white px-3 py-2 rounded-lg border border-[#e8e8e8]">
+      <div
+        className="absolute top-2 right-2 z-50 flex gap-2 items-center bg-white px-3 py-2 rounded-lg border border-[#e8e8e8]"
+        style={{ paddingBlock: 4 }}
+      >
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="radio"
