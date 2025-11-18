@@ -1028,7 +1028,7 @@ function Group23() {
 function Alert() {
   return (
     <div
-      className="absolute bg-[#fff2f2] box-border content-stretch flex gap-[4px] h-[22px] items-center left-[97px] p-[8px] rounded-[4px] top-[461px]"
+      className="absolute bg-[#fff2f2] box-border content-stretch flex gap-[4px] h-[22px] items-center left-[110px] p-[8px] rounded-[4px] top-[461px]"
       data-name="alert"
     >
       <div
