@@ -15,10 +15,16 @@ function getDbConfig() {
     pool: {
       max: 5,
       min: 0,
-      acquire: 30000,
+      acquire: 30000, // 从连接池获取连接的超时时间（30秒）
       idle: 10000,
     },
     timezone: "+08:00", // 设置时区
+    // mysql2 特定配置
+    dialectOptions: {
+      connectTimeout: 10000, // mysql2 连接超时（10秒）
+      // 禁用自动重连，由应用层控制
+      reconnect: false,
+    },
   };
 }
 
@@ -40,6 +46,7 @@ function getSequelize(): Sequelize {
         logging: dbConfig.logging,
         pool: dbConfig.pool,
         timezone: dbConfig.timezone,
+        dialectOptions: dbConfig.dialectOptions,
       }
     );
   }
@@ -56,11 +63,56 @@ export const sequelize = new Proxy({} as Sequelize, {
 // 测试数据库连接
 export async function testConnection() {
   try {
+    const dbConfig = getDbConfig();
+    console.log(
+      `[数据库连接] 尝试连接到 ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`
+    );
+
     await sequelize.authenticate();
     console.log("OceanBase 数据库连接成功");
     return true;
   } catch (error) {
+    const dbConfig = getDbConfig();
     console.error("OceanBase 数据库连接失败:", error);
+
+    // 提供更详细的错误信息
+    if (error instanceof Error) {
+      if (
+        error.message.includes("ETIMEDOUT") ||
+        error.message.includes("ECONNREFUSED")
+      ) {
+        console.error(`
+[连接诊断]
+- 连接地址: ${dbConfig.host}:${dbConfig.port}
+- 数据库名: ${dbConfig.database}
+- 用户名: ${dbConfig.username}
+
+可能的原因:
+1. OceanBase 数据库服务未启动
+2. 主机地址或端口配置错误
+3. 网络连接问题或防火墙阻止
+4. 连接超时（当前超时设置: 10秒）
+
+解决方案:
+- 检查 OceanBase 服务是否运行: obd cluster list
+- 验证连接信息是否正确
+- 检查网络连接和防火墙设置
+- 尝试增加连接超时时间
+        `);
+      } else if (
+        error.message.includes("Access denied") ||
+        error.message.includes("ER_ACCESS_DENIED_ERROR")
+      ) {
+        console.error(`
+[认证失败]
+- 用户名: ${dbConfig.username}
+- 密码: ${dbConfig.password ? "***" : "(未设置)"}
+
+请检查用户名和密码是否正确
+        `);
+      }
+    }
+
     return false;
   }
 }
