@@ -303,15 +303,6 @@ export default function MovieSearchPage({}: MovieSearchPageProps) {
 
   const [isFTS, setIsFTS] = useState(false)
 
-  useEffect(() => {
-    if (showHitCacheInfo) {
-      messageApi.info('命中缓存')
-      setTimeout(() => {
-        messageApi.destroy()
-      }, 3000)
-    }
-  }, [showHitCacheInfo, messageApi])
-
   const handleSwitchIsFTS = () => {
     setIsFTS(!isFTS)
   }
