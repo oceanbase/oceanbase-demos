@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Group327 from "../imports/Group327";
 import Group328 from "../imports/Group328";
 import Group329 from "../imports/Group329";
@@ -13,6 +13,9 @@ export default function PrimaryBackupSwitch({
   resetTrigger,
 }: PrimaryBackupSwitchProps) {
   const [state, setState] = useState<PrimaryBackupState>("initial");
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // 当 resetTrigger 改变时，重置状态
   useEffect(() => {
@@ -20,6 +23,71 @@ export default function PrimaryBackupSwitch({
       setState("initial");
     }
   }, [resetTrigger]);
+
+  // 计算并应用自动缩放
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    const updateScale = () => {
+      // 清除之前的请求
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+      }
+
+      // 使用防抖延迟计算
+      timeoutId = setTimeout(() => {
+        if (containerRef.current && contentRef.current) {
+          // 基于容器宽度和比例计算原始内容高度
+          // paddingBottom: 92.55% 意味着高度 = 宽度 * 0.9255
+          const containerWidth = containerRef.current.clientWidth;
+          const originalHeight = containerWidth * 0.9255;
+          const maxHeight = window.innerHeight;
+
+          // 计算新的缩放比例
+          let newScale = 1;
+          if (originalHeight > maxHeight) {
+            newScale = maxHeight / originalHeight;
+          }
+
+          // 只在缩放比例变化超过阈值时才更新，避免抖动
+          setScale((prevScale) => {
+            const diff = Math.abs(prevScale - newScale);
+            if (diff > 0.001) {
+              return newScale;
+            }
+            return prevScale;
+          });
+        }
+      }, 50);
+    };
+
+    // 防抖处理 resize 事件
+    const handleResize = () => {
+      updateScale();
+    };
+
+    // 初始计算
+    updateScale();
+
+    window.addEventListener("resize", handleResize);
+
+    // 使用 ResizeObserver 监听容器大小变化
+    const resizeObserver = new ResizeObserver(() => {
+      updateScale();
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => {
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+      }
+      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
+    };
+  }, [state]);
 
   // 处理点击事件
   const handleStateChange = (event: React.MouseEvent) => {
@@ -106,7 +174,11 @@ export default function PrimaryBackupSwitch({
   };
 
   return (
-    <div className="relative">
+    <div
+      ref={containerRef}
+      className="relative"
+      style={{ maxHeight: "100vh", overflow: "hidden" }}
+    >
       {/* 刷新按钮 */}
       <div
         className="absolute top-2 right-2 z-50 flex gap-2 items-center bg-white px-3 py-2 rounded-lg border border-[#e8e8e8]"
@@ -136,8 +208,13 @@ export default function PrimaryBackupSwitch({
       <div onClick={handleStateChange}>
         {/* 响应式容器 */}
         <div
-          className="relative w-full"
-          style={{ paddingBottom: "92.55%" /* 870/940 比例 */ }}
+          ref={contentRef}
+          className="relative w-full origin-top-left"
+          style={{
+            paddingBottom: "92.55%" /* 870/940 比例 */,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
         >
           <div className="absolute inset-0 origin-top-left">
             <div className="w-[940px] h-[870px] scale-[var(--scale)] origin-top-left">
