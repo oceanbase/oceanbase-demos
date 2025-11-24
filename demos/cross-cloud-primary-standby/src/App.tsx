@@ -10,7 +10,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>("primary-backup");
   const [primaryBackupResetTrigger] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
 
   // embedded iframe 和 parent window 之间的通信
   // parent window: https://www.oceanbase.com/demo/xxx
@@ -35,38 +34,24 @@ export default function App() {
     };
   }, []);
 
-  // 整体缩放：计算并应用整个卡片容器的缩放
+  // 动态计算并设置缩放比例
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null;
-
     const updateScale = () => {
-      if (timeoutId !== null) {
-        clearTimeout(timeoutId);
-      }
+      if (containerRef.current) {
+        const container = containerRef.current;
+        const containerWidth = container.offsetWidth;
+        const baseWidth = 940;
 
-      timeoutId = setTimeout(() => {
-        if (containerRef.current) {
-          const container = containerRef.current;
-          // 获取容器的实际高度（包括所有内容）
-          const containerHeight = container.scrollHeight;
-          const maxHeight = window.innerHeight;
-
-          // 计算缩放比例
-          let newScale = 1;
-          if (containerHeight > maxHeight) {
-            newScale = maxHeight / containerHeight;
-          }
-
-          // 只在缩放比例变化超过阈值时才更新，避免抖动
-          setScale((prevScale) => {
-            const diff = Math.abs(prevScale - newScale);
-            if (diff > 0.001) {
-              return newScale;
-            }
-            return prevScale;
-          });
+        // 如果容器宽度为0，延迟重试
+        if (containerWidth === 0) {
+          requestAnimationFrame(updateScale);
+          return;
         }
-      }, 50);
+
+        const scale =
+          containerWidth >= baseWidth ? 1 : containerWidth / baseWidth;
+        container.style.setProperty("--scale", scale.toString());
+      }
     };
 
     // 使用 requestAnimationFrame 确保 DOM 已渲染
@@ -77,7 +62,7 @@ export default function App() {
     // 监听窗口大小变化
     window.addEventListener("resize", updateScale);
 
-    // 使用 ResizeObserver 监听容器大小变化
+    // 使用 ResizeObserver 监听容器大小变化（更准确）
     const resizeObserver = new ResizeObserver(() => {
       requestAnimationFrame(updateScale);
     });
@@ -86,9 +71,6 @@ export default function App() {
     }
 
     return () => {
-      if (timeoutId !== null) {
-        clearTimeout(timeoutId);
-      }
       window.removeEventListener("resize", updateScale);
       resizeObserver.disconnect();
     };
@@ -96,15 +78,11 @@ export default function App() {
 
   return (
     <>
-      <div className="min-h-screen bg-[#fafafa] flex items-start justify-center p-4 sm:p-6 overflow-hidden">
+      <div className="min-h-screen bg-[#fafafa] flex items-start justify-center p-4 sm:p-6 overflow-auto">
         <div
           ref={containerRef}
-          className="w-full max-w-[940px] origin-top"
-          style={{
-            position: "relative",
-            transform: `scale(${scale})`,
-            transformOrigin: "top center",
-          }}
+          className="w-full max-w-[940px]"
+          style={{ position: "relative" }}
         >
           {/* Tab 切换区域 */}
           <div
@@ -154,6 +132,15 @@ export default function App() {
         </div>
 
         <style>{`
+        /* 确保所有使用 scale-[var(--scale)] 的元素都能正确应用 */
+        [class*="scale-\\[var\\(--scale\\)\\]"] {
+          transform-origin: top left;
+        }
+        
+        /* 默认缩放值为1，由JavaScript动态更新 */
+        .w-full.max-w-\\[940px\\] {
+          --scale: 1;
+        }
         [data-name="Group"] {
           margin-top: -8px;
           margin-bottom: 8px;

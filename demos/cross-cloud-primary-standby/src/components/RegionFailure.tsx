@@ -93,7 +93,7 @@ export default function RegionFailure({ resetTrigger }: RegionFailureProps) {
       {/* 响应式容器 */}
       <div className="relative w-full" style={{ paddingBottom: "92.55%" /* 870/940 比例 */ }}>
         <div className="absolute inset-0 origin-top-left">
-          <div className="w-[940px] h-[870px] origin-top-left">
+          <div className="w-[940px] h-[870px] scale-[var(--scale)] origin-top-left">
             {state === "initial" && <Group335 />}
             {state === "switching" && <Group336 />}
             {state === "recovered" && <Group337 />}

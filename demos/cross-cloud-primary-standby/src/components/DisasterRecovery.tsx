@@ -210,7 +210,7 @@ export default function DisasterRecovery() {
               className="absolute inset-0 origin-top-left"
               style={state === "state1" ? { top: -30 } : {}}
             >
-              <div className="w-[940px] h-[870px] origin-top-left">
+              <div className="w-[940px] h-[870px] scale-[var(--scale)] origin-top-left">
                 {state === "state1" && <Group330 />}
                 {state === "state2" && <Group331 />}
                 {state === "state3" && <Group332 />}

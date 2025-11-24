@@ -140,7 +140,7 @@ export default function PrimaryBackupSwitch({
           style={{ paddingBottom: "92.55%" /* 870/940 比例 */ }}
         >
           <div className="absolute inset-0 origin-top-left">
-            <div className="w-[940px] h-[870px] origin-top-left">
+            <div className="w-[940px] h-[870px] scale-[var(--scale)] origin-top-left">
               {state === "initial" && <Group327 />}
               {state === "afterSwitch" && <Group328 />}
               {state === "final" && <Group329 />}
