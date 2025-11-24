@@ -1719,7 +1719,7 @@ function Frame1() {
 
 export default function Group43() {
   return (
-    <div className="relative size-full">
+    <div className="relative size-full" style={{ overflow: "visible" }}>
       <Group26 />
       <div className="absolute bg-[#f8fafe] h-[404px] left-[24px] rounded-[4px] top-[416px] w-[588px]">
         <div
@@ -1790,6 +1790,36 @@ export default function Group43() {
         </div>
       </div>
       <Group22 />
+      <div
+        className="absolute flex items-center justify-center"
+        style={{
+          left: "54.38%",
+          right: "44.06%",
+          top: "61.11%",
+          bottom: "36.67%",
+          zIndex: 20,
+          marginLeft: -305,
+          marginTop: -65,
+        }}
+      >
+        <div
+          className="flex-none scale-y-[-100%]"
+          style={{ width: "20px", height: "20px" }}
+        >
+          <div className="relative size-full">
+            <div className="absolute bottom-1/4 left-[10.35%] right-[10.35%] top-[5%]">
+              <svg
+                className="block size-full"
+                fill="none"
+                preserveAspectRatio="none"
+                viewBox="0 0 16 14"
+              >
+                <path d={svgPaths.p2bc65280} fill="#F69898" id="Polygon 2" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
       <Frame10 />
       <Group41 />
       <Group42 />
