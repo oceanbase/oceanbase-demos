@@ -446,6 +446,9 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
                   borderRadius: '6px',
                   fontSize: '12px'
                 }}
+                labelStyle={{
+                  color: theme === 'dark' ? '#cbd5e1' : '#e2e8f0'
+                }}
                 labelFormatter={formatTime}
               />
 
@@ -556,7 +559,7 @@ export function MetricsPanel({ metrics, logs = [], theme }: MetricsPanelProps) {
           <div className="mb-2">
             <div className={`text-xs mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-gray-600'}`}>业务阶段</div>
             {/* 精确匹配图表的绘图区域：使用与图表完全相同的margin */}
-            <div className="relative h-5 bg-slate-700/20 rounded overflow-hidden">
+            <div className="relative h-5 rounded overflow-hidden">
               {/* 添加左右边距容器，确保与图表绘图区域完全对齐 */}
               <div className="absolute inset-0" style={{ marginLeft: '35px', marginRight: '30px' }}>
                 {scenarioAreasWithPosition.length > 0 ? (

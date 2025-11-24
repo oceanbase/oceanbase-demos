@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
-import IframeCommunicator from "./components/IframeCommunicator";
 import { ClusterTopology } from "./components/ClusterTopology";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { ScenarioControl } from "./components/ScenarioControl";
 import { Database, Sun, Moon } from "lucide-react";
 import { Button } from "./components/ui/button";
+import Custom from "./Custom";
 
 export type ClusterConfig = { zones: number; serversPerZone: number };
 export type ScalingState =
@@ -88,12 +86,23 @@ export default function App() {
     { id: 2, name: "Zone-2", isPrimary: true, observerCount: 2 },
   ]);
   const [isPaused, setIsPaused] = useState(false);
+  const isPausedRef = useRef(false); // 用于在异步函数中访问最新的暂停状态
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [isScaledOut, setIsScaledOut] = useState(false);
   const [primarySwitched, setPrimarySwitched] = useState(false);
   const [justCompletedScaleOut, setJustCompletedScaleOut] = useState(false);
   const autoMode = true; // 自动演示模式始终开启
   const logIdRef = useRef(0);
+
+  // 应用主题到 html 元素
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+  }, [theme]);
 
   // 用于平滑过渡的当前值和目标值
   const currentValuesRef = useRef({ qps: 5000, tps: 4000 });
@@ -105,7 +114,7 @@ export default function App() {
   const promotionStableStartRef = useRef<number | null>(null); // 记录大促满负载稳定的开始时间
   const postPromotionStableStartRef = useRef<number | null>(null); // 记录大促结束冗余稳定的开始时间
 
-  // 追踪切主时刻，用于实现切主时指标短暂下降
+  // 记录切主时刻，用于实现切主时指标短暂下降
   const switchingStartTimeRef = useRef<number | null>(null);
   const preSwitchValuesRef = useRef({ qps: 5000, tps: 4000 }); // 切主前的指标值
 
@@ -190,7 +199,11 @@ export default function App() {
         // 阻止空格键的默认行为（页面滚动）
         e.preventDefault();
         // 切换暂停状态
-        setIsPaused((prev) => !prev);
+        setIsPaused((prev) => {
+          const newValue = !prev;
+          isPausedRef.current = newValue; // 同步更新 ref
+          return newValue;
+        });
       }
     };
 
@@ -202,6 +215,32 @@ export default function App() {
       window.removeEventListener("keydown", handleKeyPress);
     };
   }, []); // 空依赖数组，只在组件挂载时添加一次
+
+  // 同步 isPaused 和 isPausedRef
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
+
+  // 可暂停的延迟函数
+  const pausableDelay = (ms: number): Promise<void> => {
+    return new Promise((resolve) => {
+      const startTime = Date.now();
+      const checkPause = () => {
+        if (isPausedRef.current) {
+          // 如果暂停，继续等待
+          setTimeout(checkPause, 100);
+        } else {
+          const elapsed = Date.now() - startTime;
+          if (elapsed >= ms) {
+            resolve();
+          } else {
+            setTimeout(checkPause, Math.min(100, ms - elapsed));
+          }
+        }
+      };
+      checkPause();
+    });
+  };
 
   // Add log entry
   const addLog = (
@@ -255,7 +294,7 @@ export default function App() {
     }
 
     // Step 1: 添加新的大规模 Zone
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await pausableDelay(1500);
     addLog(
       `➕ 添加新的 Zone-${newId1} 和 Zone-${newId2} (各4台 OBServer)`,
       "info"
@@ -279,13 +318,13 @@ export default function App() {
       },
     ]);
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await pausableDelay(1500);
     addLog(`🔄 副本同步中...`, "info");
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
     addLog(`📊 副本同步完成，准备切换主可用区`, "info");
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await pausableDelay(1500);
     setConfig("4F1A");
     const oldZoneNames = zones.map((z) => `${z.name}[2台]`).join(", ");
     addLog(
@@ -294,7 +333,7 @@ export default function App() {
     );
 
     // 此时 4 个 Zone 同时存在，但还未切主：旧 Zone 为主可用区（Leader+Follower），新 Zone 为备区（Follower）
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await pausableDelay(2000);
     const oldZoneIds = zones.map((z) => z.id);
     addLog(`📊 当前状态：4个 Zone 共存（切主前）`, "info");
     addLog(
@@ -309,11 +348,11 @@ export default function App() {
       "info"
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
     addLog(`📊 数据同步完成，准备切换主可用区`, "info");
 
     // Step 2: 切换主可用区（瞬时操作）
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await pausableDelay(2000);
     addLog(
       `🔀 切换主可用区：旧 Zone (${zones
         .filter((z) => !z.isNew)
@@ -329,7 +368,7 @@ export default function App() {
       tps: currentValuesRef.current.tps,
     }; // 记录切主前的指标值
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
     const oldZoneIdsToRemove = zones
       .filter((z) => z.id !== newId1 && z.id !== newId2)
       .map((z) => z.id);
@@ -351,12 +390,12 @@ export default function App() {
       "success"
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await pausableDelay(2000);
     // 不要设置为 scaling-out-migrating，保持在 switching-primary 状态，这样流程面板会继续显示
     setPrimarySwitched(true);
 
     // 此时 4 个 Zone 同时存在：新 Zone 为主可用区（Leader+Follower），旧 Zone 为备区（Follower）
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await pausableDelay(2000);
     addLog(`📊 当前状态：4个 Zone 共存（切主后）`, "info");
     addLog(
       `   - 新 Zone (Zone-${newId1}, Zone-${newId2}): 主可用区，各4台 OBServer，Leader + Follower`,
@@ -370,11 +409,11 @@ export default function App() {
       "info"
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
     addLog(`📊 新主可用区运行稳定，准备移除旧 Zone`, "info");
 
     // Step 3: 标记旧 Zone 为删除中，并结束 scaling 状态
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await pausableDelay(1500);
     const oldZoneNamesToDelete = zones
       .filter((z) => oldZoneIdsToRemove.includes(z.id))
       .map((z) => z.name)
@@ -390,7 +429,7 @@ export default function App() {
     );
 
     // Step 4: 真正删除旧 Zone
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
     setZones([
       { id: newId1, name: `Zone-${newId1}`, isPrimary: true, observerCount: 4 },
       { id: newId2, name: `Zone-${newId2}`, isPrimary: true, observerCount: 4 },
@@ -399,7 +438,7 @@ export default function App() {
     setIsScaledOut(true);
     setScalingState("completed"); // 设置为完成状态，保持流程面板显示
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await pausableDelay(500);
     addLog(`✅ 扩容流程完成！性能提升，承载更多流量`, "success");
     addLog(
       `📌 新配置：2F1A (Zone-${newId1}[4台主可用区], Zone-${newId2}[4台])`,
@@ -407,7 +446,7 @@ export default function App() {
     );
 
     // 等待3秒后再隐藏流程面板 - 确保用户能看到所有步骤完成
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
 
     // 同时重置状态和方向，避免流程面板提前消失
     setScalingState("idle");
@@ -437,7 +476,7 @@ export default function App() {
     addLog("🔽 开始缩容操作：平滑替换 Zone", "info");
     addLog(`📝 当前 Zone: ${currentZones} (各4台 OBServer)`, "info");
 
-    // 使用循环的Zone ID：当前是 3,4 -> 新的是 1,2；当前是 1,2 -> 新的是 3,4
+    // 使用循环的Zone ID：当前是 3,4 -> 新的是 1,2；当前是 1,2 -> 新的 3,4
     const currentIds = zones.map((z) => z.id).sort();
     let newId1, newId2;
     if (currentIds[0] === 3 && currentIds[1] === 4) {
@@ -449,7 +488,7 @@ export default function App() {
     }
 
     // Step 1: 添加新的小规模 Zone
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await pausableDelay(1500);
     addLog(
       `➕ 添加新的 Zone-${newId1} 和 Zone-${newId2} (各2台 OBServer)`,
       "info"
@@ -473,13 +512,13 @@ export default function App() {
       },
     ]);
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await pausableDelay(1500);
     addLog(`🔄 副本同步中...`, "info");
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
     addLog(`✅ 副本同步完成`, "success");
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await pausableDelay(1500);
     setConfig("4F1A");
     const oldZoneNames = zones.map((z) => `${z.name}[4台]`).join(", ");
     addLog(
@@ -488,7 +527,7 @@ export default function App() {
     );
 
     // 此时 4 个 Zone 同时存在，但还未切主：旧 Zone 为主区（Leader+Follower），新 Zone 为备区（Follower）
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await pausableDelay(2000);
     const oldZoneIds = zones.map((z) => z.id);
     addLog(`📊 当前状态：4个 Zone 共存（切主前）`, "info");
     addLog(
@@ -503,11 +542,11 @@ export default function App() {
       "info"
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
     addLog(`📊 数据同步完成，准备切换主可用区`, "info");
 
     // Step 2: 切换主可用区（瞬时操作）
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await pausableDelay(2000);
     addLog(
       `🔀 切换主可用区：旧 Zone (${zones
         .filter((z) => !z.isNew)
@@ -523,7 +562,7 @@ export default function App() {
       tps: currentValuesRef.current.tps,
     }; // 记录切主前的指标值
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
     const oldZoneIdsToRemove = zones
       .filter((z) => z.id !== newId1 && z.id !== newId2)
       .map((z) => z.id);
@@ -545,12 +584,12 @@ export default function App() {
       "success"
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await pausableDelay(2000);
     // 不要设置为 scaling-in-migrating，保持在 switching-primary 状态，这样流程面板会继续显示
     setPrimarySwitched(true);
 
     // 此时 4 个 Zone 同时存在：新 Zone 为主可用区（Leader+Follower），旧 Zone 备区（Follower）
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await pausableDelay(2000);
     addLog(`📊 当前状态：4个 Zone 共存（切主后）`, "info");
     addLog(
       `   - 新 Zone (Zone-${newId1}, Zone-${newId2}): 主可用区，各2台 OBServer，Leader + Follower`,
@@ -564,11 +603,11 @@ export default function App() {
       "info"
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
     addLog(`📊 新主可用区运行稳定，准备移除旧 Zone`, "info");
 
     // Step 3: 标记旧 Zone 为删除中，并结束 scaling 状态
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await pausableDelay(1500);
     const oldZoneNamesToDelete = zones
       .filter((z) => oldZoneIdsToRemove.includes(z.id))
       .map((z) => z.name)
@@ -584,7 +623,7 @@ export default function App() {
     );
 
     // Step 4: 真正删除旧 Zone
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
     setZones([
       { id: newId1, name: `Zone-${newId1}`, isPrimary: true, observerCount: 2 },
       { id: newId2, name: `Zone-${newId2}`, isPrimary: true, observerCount: 2 },
@@ -593,7 +632,7 @@ export default function App() {
     setIsScaledOut(false);
     setScalingState("completed"); // 设置为完成状态，保持流程面板显示
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await pausableDelay(500);
     addLog(`✅ 缩容流程完成！性能下降，配正常流量`, "success");
     addLog(
       `📌 新配置：2F1A (Zone-${newId1}[2台主可用区], Zone-${newId2}[2台])`,
@@ -601,7 +640,7 @@ export default function App() {
     );
 
     // 等待3秒后再隐藏流程面板 - 确保用户能看到所有步骤完成
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pausableDelay(3000);
 
     // 同时重置状态和方向，避免流程面板提前消失
     setScalingState("idle");
@@ -616,7 +655,7 @@ export default function App() {
 
   // 自动场景切换
   useEffect(() => {
-    if (!autoMode || isPaused) return;
+    if (!autoMode || isPausedRef.current) return;
 
     // 记录场景开始时间
     scenarioStartTimeRef.current = Date.now();
@@ -656,7 +695,7 @@ export default function App() {
     }, scenarioDurations[scenario] * 1000);
 
     return () => clearTimeout(timer);
-  }, [autoMode, scenario, scalingState, isPaused]);
+  }, [autoMode, scenario, scalingState, isPausedRef.current]);
 
   // 首次开启自动模式时，如果是正常流量阶段立即进入预热
   useEffect(() => {
@@ -678,7 +717,7 @@ export default function App() {
       scalingState === "idle"
     ) {
       // 立即切换，不需要延迟
-      addLog("🤖 [自动模式] 扩容完成，立即切换到预热阶段", "info");
+      addLog("🤖 [自动模式] 扩容完成��立即切换到预热阶段", "info");
       previousScenarioRef.current = scenario;
       setScenario("warming-up");
       setJustCompletedScaleOut(false); // 重置标记
@@ -688,7 +727,7 @@ export default function App() {
 
   // 自动扩缩容逻辑 - 基于场景时间触发，而非基于指标阈值
   useEffect(() => {
-    if (!autoMode || isPaused) return;
+    if (!autoMode || isPausedRef.current) return;
 
     // normal 阶段：区分是从 cooling-down 切换过来（需要缩容）还是初始状态（需要扩容）
     if (scenario === "normal" && scalingState === "idle") {
@@ -750,13 +789,13 @@ export default function App() {
     isScaledOut,
     scalingState,
     isMetricsStable,
-    isPaused,
+    isPausedRef.current,
   ]);
 
   // Generate metrics periodically with smooth transitions
   useEffect(() => {
     // 如果暂停，则完全停止生成指标
-    if (isPaused) {
+    if (isPausedRef.current) {
       return;
     }
 
@@ -879,7 +918,7 @@ export default function App() {
               (targetTPS - preSwitchValuesRef.current.tps) * recoveryProgress;
           }
         } else {
-          // 切主完成，清除切��开始时间
+          // 切主完成，清除切开始时间
           switchingStartTimeRef.current = null;
         }
       }
@@ -937,109 +976,112 @@ export default function App() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [scenario, config, scalingState, isScaledOut, primarySwitched, isPaused]);
+  }, [
+    scenario,
+    config,
+    scalingState,
+    isScaledOut,
+    primarySwitched,
+    isPausedRef.current,
+  ]);
 
   return (
-    <>
-      <div
-        className={`min-h-screen p-4 ${
-          theme === "dark"
-            ? "bg-slate-950 text-slate-100"
-            : "bg-gray-50 text-gray-900"
+    <div
+      className={`min-h-screen min-w-[940px] p-4 ${
+        theme === "dark"
+          ? "bg-slate-950 text-slate-100"
+          : "bg-gray-50 text-gray-900"
+      }`}
+    >
+      {/* Header */}
+      <header
+        className={`mb-4 border-b pb-3 ${
+          theme === "dark" ? "border-slate-800" : "border-gray-200"
         }`}
       >
-        {/* Header */}
-        <header
-          className={`mb-4 border-b pb-3 ${
-            theme === "dark" ? "border-slate-800" : "border-gray-200"
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Database
-                className={`w-7 h-7 ${
-                  theme === "dark" ? "text-blue-400" : "text-blue-600"
-                }`}
-              />
-              <div>
-                <h1
-                  className={
-                    theme === "dark" ? "text-slate-100" : "text-gray-900"
-                  }
-                >
-                  OceanBase 平滑扩缩容 - 电商大促场景
-                </h1>
-                <p
-                  className={`text-sm ${
-                    theme === "dark" ? "text-slate-500" : "text-gray-500"
-                  }`}
-                >
-                  基于异构 Zone 的平滑扩缩容: 2F1A (2 台 OBServer) ⇄ 4F1A ⇄ 2F1A
-                  (4 台 OBServer)
-                </p>
-              </div>
-            </div>
-
-            {/* 主题切换按钮 - 右上角 */}
-            <Button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`h-9 px-3 ${
-                theme === "dark"
-                  ? "bg-slate-800 hover:bg-slate-700 border border-slate-700"
-                  : "bg-white hover:bg-gray-100 border border-gray-300 text-gray-900"
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Database
+              className={`w-7 h-7 ${
+                theme === "dark" ? "text-blue-400" : "text-blue-600"
               }`}
-              title={theme === "dark" ? "切换到浅色主题" : "切换到深色主题"}
-            >
-              {theme === "dark" ? (
-                <Sun className="w-4 h-4" />
-              ) : (
-                <Moon className="w-4 h-4" />
-              )}
-            </Button>
+            />
+            <div>
+              <h1
+                className={
+                  theme === "dark" ? "text-slate-100" : "text-gray-900"
+                }
+              >
+                OceanBase 平滑扩缩容 - 电商大促场景
+              </h1>
+              <p
+                className={`text-sm ${
+                  theme === "dark" ? "text-slate-500" : "text-gray-500"
+                }`}
+              >
+                基于异构 Zone 的平滑扩缩容: 2F1A (2 台 OBServer) ⇄ 4F1A ⇄ 2F1A
+                (4 台 OBServer)
+              </p>
+            </div>
           </div>
-        </header>
 
-        {/* 场景控制 - 单独一行，简化版 */}
-        <div className="mb-3">
-          <ScenarioControl
-            scenario={scenario}
-            isPaused={isPaused}
-            onTogglePause={() => setIsPaused(!isPaused)}
-            theme={theme}
+          {/* 主题切换按钮 - 右上角 */}
+          <Button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className={`h-9 px-3 ${
+              theme === "dark"
+                ? "bg-slate-800 hover:bg-slate-700 border border-slate-700"
+                : "bg-white hover:bg-gray-100 border border-gray-300 text-gray-900"
+            }`}
+            title={theme === "dark" ? "切换到浅色主题" : "切换到深色主题"}
+          >
+            {theme === "dark" ? (
+              <Sun className="w-4 h-4 text-slate-100" />
+            ) : (
+              <Moon className="w-4 h-4 text-gray-900" />
+            )}
+          </Button>
+        </div>
+      </header>
+
+      {/* 场景控制 - 单独一行，简化版 */}
+      <div className="mb-3">
+        <ScenarioControl
+          scenario={scenario}
+          isPaused={isPaused}
+          onTogglePause={() => setIsPaused(!isPaused)}
+          theme={theme}
+          scalingState={scalingState}
+          scalingDirection={scalingDirection}
+          onReset={handleReset}
+        />
+      </div>
+
+      {/* Main Content - 两列紧凑布局 */}
+      <div
+        className="grid grid-cols-2 gap-4"
+        style={{ height: "calc(100vh - 200px)" }}
+      >
+        {/* 左侧：性能监控 */}
+        <div className="h-full">
+          <MetricsPanel metrics={metrics} logs={logs} theme={theme} />
+        </div>
+
+        {/* 右侧：集群拓扑 */}
+        <div className="h-full">
+          <ClusterTopology
+            config={config}
             scalingState={scalingState}
             scalingDirection={scalingDirection}
-            onReset={handleReset}
+            zones={zones}
+            currentQPS={
+              metrics.length > 0 ? metrics[metrics.length - 1].qps : 0
+            }
+            theme={theme}
           />
         </div>
-
-        {/* Main Content - 两列紧凑布局 */}
-        <div
-          className="grid grid-cols-2 gap-4"
-          style={{ height: "calc(100vh - 200px)" }}
-        >
-          {/* 左侧：性能监控 */}
-          <div className="h-full">
-            <MetricsPanel metrics={metrics} logs={logs} theme={theme} />
-          </div>
-
-          {/* 右侧：集群拓扑 */}
-          <div className="h-full">
-            <ClusterTopology
-              config={config}
-              scalingState={scalingState}
-              scalingDirection={scalingDirection}
-              zones={zones}
-              currentQPS={
-                metrics.length > 0 ? metrics[metrics.length - 1].qps : 0
-              }
-              theme={theme}
-            />
-          </div>
-        </div>
       </div>
-      <IframeCommunicator />
-      <Analytics />
-      <SpeedInsights />
-    </>
+      <Custom />
+    </div>
   );
 }

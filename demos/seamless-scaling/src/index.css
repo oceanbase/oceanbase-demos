@@ -375,6 +375,11 @@
     }
   }
 
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
   * {
     border-color: var(--border);
     outline-color: var(--ring);
@@ -386,9 +391,14 @@
     }
   }
 
+  html {
+    background-color: var(--background);
+  }
+
   body {
     background-color: var(--background);
     color: var(--foreground);
+    min-height: 100vh;
   }
 
   :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h1 {
@@ -591,6 +601,10 @@
 
   .w-px {
     width: 1px;
+  }
+
+  .min-w-\[940px\] {
+    min-width: 940px;
   }
 
   .flex-1 {
@@ -966,16 +980,6 @@
 
   .bg-slate-700 {
     background-color: var(--color-slate-700);
-  }
-
-  .bg-slate-700\/20 {
-    background-color: color-mix(in srgb, oklch(.372 .044 257.287) 20%, transparent);
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-slate-700\/20 {
-      background-color: color-mix(in oklab, var(--color-slate-700) 20%, transparent);
-    }
   }
 
   .bg-slate-700\/30 {
