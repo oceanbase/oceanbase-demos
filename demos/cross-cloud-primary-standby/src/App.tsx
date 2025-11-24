@@ -181,7 +181,7 @@ export default function App() {
               >
                 <button
                   onClick={() => setActiveTab("primary-backup")}
-                  className={`pb-[12px] transition-all relative ${
+                  className={`pb-[12px] transition-all relative cursor-pointer ${
                     activeTab === "primary-backup"
                       ? "text-[#0958D9]"
                       : "text-[#8C8C8C] hover:text-[#595959]"
@@ -194,7 +194,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => setActiveTab("disaster")}
-                  className={`pb-[12px] transition-all relative ${
+                  className={`pb-[12px] transition-all relative cursor-pointer ${
                     activeTab === "disaster"
                       ? "text-[#0958D9]"
                       : "text-[#8C8C8C] hover:text-[#595959]"

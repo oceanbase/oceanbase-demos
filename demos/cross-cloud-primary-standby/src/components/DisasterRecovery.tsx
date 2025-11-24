@@ -142,58 +142,104 @@ export default function DisasterRecovery() {
   return (
     <div className="relative">
       {/* 场景切换单选按钮 */}
-      <div
-        className="absolute top-2 right-2 z-50 flex gap-2 items-center bg-white px-3 py-2 rounded-lg border border-[#e8e8e8]"
-        style={{ paddingBlock: 4 }}
-      >
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="radio"
-            name="disaster-scenario"
-            value="cloud-failure"
-            checked={scenario === "cloud-failure"}
-            onChange={() => {
+      <div className="absolute top-2.5 right-2 z-50 flex gap-2 items-center">
+        <div className="flex items-center">
+          {/* 左侧按钮 - 云服务商故障 */}
+          <button
+            onClick={() => {
               setScenario("cloud-failure");
               setState("state1");
             }}
-            className="w-4 h-4 text-[#0958D9] focus:ring-[#0958D9]"
-          />
-          <span className="text-sm text-[#262626]">云服务商故障</span>
-        </label>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="radio"
-            name="disaster-scenario"
-            value="region-failure"
-            checked={scenario === "region-failure"}
-            onChange={() => {
+            className={`relative bg-white box-border content-stretch flex gap-[10px] h-[32px] items-center px-[12px] py-[5px] rounded-bl-[8px] rounded-tl-[8px] transition-colors cursor-pointer group ${
+              scenario === "cloud-failure" ? "" : "hover:bg-[#f5f7fa]"
+            }`}
+          >
+            <div
+              aria-hidden="true"
+              className={`absolute border border-solid inset-0 pointer-events-none rounded-bl-[8px] rounded-tl-[8px] transition-colors ${
+                scenario === "cloud-failure"
+                  ? "border-[#006aff]"
+                  : "border-[#cdd5e4] group-hover:border-[#a0aec0]"
+              }`}
+            />
+            <p
+              className={`font-['PingFang_SC',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-nowrap whitespace-pre ${
+                scenario === "cloud-failure"
+                  ? "text-[#006aff] font-medium"
+                  : "text-[#132039] font-normal"
+              }`}
+            >
+              云服务商故障
+            </p>
+          </button>
+          {/* 右侧按钮 - 地域故障 */}
+          <button
+            onClick={() => {
               setScenario("region-failure");
               setState("state1");
             }}
-            className="w-4 h-4 text-[#0958D9] focus:ring-[#0958D9]"
-          />
-          <span className="text-sm text-[#262626]">地域故障</span>
-        </label>
+            className={`relative bg-white box-border content-stretch flex gap-[10px] h-[32px] items-center px-[12px] py-[5px] rounded-br-[8px] rounded-tr-[8px] transition-colors cursor-pointer group ${
+              scenario === "region-failure" ? "" : "hover:bg-[#f5f7fa]"
+            }`}
+          >
+            <div
+              aria-hidden="true"
+              className={`absolute border border-solid inset-0 pointer-events-none rounded-br-[8px] rounded-tr-[8px] transition-colors ${
+                scenario === "region-failure"
+                  ? "border-[#006aff]"
+                  : "border-[#cdd5e4] group-hover:border-[#a0aec0]"
+              }`}
+            />
+            <p
+              className={`font-['PingFang_SC',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-nowrap whitespace-pre ${
+                scenario === "region-failure"
+                  ? "text-[#006aff] font-medium"
+                  : "text-[#132039] font-normal"
+              }`}
+            >
+              地域故障
+            </p>
+          </button>
+        </div>
+        {/* 刷新按钮 */}
         <button
           onClick={() => {
             setState("state1");
             setResetTrigger((prev) => prev + 1);
           }}
-          className="ml-2 p-1.5 hover:bg-gray-100 rounded transition-colors"
+          className="bg-white box-border content-stretch flex gap-[8px] items-center justify-center p-[6px] rounded-[6px] size-[32px] border-[#cdd5e4] border border-solid hover:bg-[#f5f7fa] hover:border-[#a0aec0] transition-all overflow-hidden cursor-pointer group"
           title="重置"
         >
           <svg
-            className="w-4 h-4 text-[#595959]"
+            className="w-4 h-4"
+            viewBox="0 0 16 16"
             fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M14.2047 3.27031L13.3234 3.95937C12.1219 2.42344 10.2531 1.4375 8.15469 1.4375C4.53126 1.4375 1.59844 4.36719 1.59376 7.99219C1.58907 11.6203 4.52813 14.5625 8.15469 14.5625C10.9875 14.5625 13.4016 12.7656 14.3203 10.2484C14.3438 10.1828 14.3094 10.1094 14.2438 10.0875L13.3578 9.78281C13.2938 9.76094 13.2234 9.79375 13.2 9.85781C13.1719 9.93594 13.1406 10.0141 13.1078 10.0906C12.8375 10.7312 12.45 11.3063 11.9563 11.8C11.4625 12.2937 10.8875 12.6812 10.2484 12.9531C9.58751 13.2328 8.88282 13.375 8.15782 13.375C7.43126 13.375 6.72813 13.2328 6.06719 12.9531C5.42813 12.6828 4.85313 12.2953 4.35938 11.8C3.86563 11.3063 3.47813 10.7312 3.20782 10.0906C2.92813 9.42812 2.78594 8.725 2.78594 7.99844C2.78594 7.27187 2.92813 6.56875 3.20782 5.90625C3.47813 5.26562 3.86563 4.69063 4.35938 4.19688C4.85313 3.70312 5.42813 3.31563 6.06719 3.04375C6.72813 2.76406 7.43282 2.62188 8.15782 2.62188C8.88438 2.62188 9.58751 2.76406 10.2484 3.04375C10.8875 3.31406 11.4625 3.70156 11.9563 4.19688C12.1109 4.35156 12.2563 4.51562 12.3906 4.6875L11.45 5.42188C11.3672 5.48594 11.3953 5.61719 11.4969 5.64219L14.2406 6.31406C14.3188 6.33281 14.3953 6.27344 14.3953 6.19375L14.4078 3.36719C14.4063 3.26406 14.2859 3.20625 14.2047 3.27031Z"
+              fill="#5C6B8A"
+              className="transition-colors group-hover:fill-[#4a5568]"
             />
+            <mask
+              id="mask0_reset_icon"
+              style={{ maskType: "luminance" }}
+              maskUnits="userSpaceOnUse"
+              x="1"
+              y="1"
+              width="14"
+              height="14"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M14.2047 3.27031L13.3234 3.95937C12.1219 2.42344 10.2531 1.4375 8.15469 1.4375C4.53126 1.4375 1.59844 4.36719 1.59376 7.99219C1.58907 11.6203 4.52813 14.5625 8.15469 14.5625C10.9875 14.5625 13.4016 12.7656 14.3203 10.2484C14.3438 10.1828 14.3094 10.1094 14.2438 10.0875L13.3578 9.78281C13.2938 9.76094 13.2234 9.79375 13.2 9.85781C13.1719 9.93594 13.1406 10.0141 13.1078 10.0906C12.8375 10.7312 12.45 11.3063 11.9563 11.8C11.4625 12.2937 10.8875 12.6812 10.2484 12.9531C9.58751 13.2328 8.88282 13.375 8.15782 13.375C7.43126 13.375 6.72813 13.2328 6.06719 12.9531C5.42813 12.6828 4.85313 12.2953 4.35938 11.8C3.86563 11.3063 3.47813 10.7312 3.20782 10.0906C2.92813 9.42812 2.78594 8.725 2.78594 7.99844C2.78594 7.27187 2.92813 6.56875 3.20782 5.90625C3.47813 5.26562 3.86563 4.69063 4.35938 4.19688C4.85313 3.70312 5.42813 3.31563 6.06719 3.04375C6.72813 2.76406 7.43282 2.62188 8.15782 2.62188C8.88438 2.62188 9.58751 2.76406 10.2484 3.04375C10.8875 3.31406 11.4625 3.70156 11.9563 4.19688C12.1109 4.35156 12.2563 4.51562 12.3906 4.6875L11.45 5.42188C11.3672 5.48594 11.3953 5.61719 11.4969 5.64219L14.2406 6.31406C14.3188 6.33281 14.3953 6.27344 14.3953 6.19375L14.4078 3.36719C14.4063 3.26406 14.2859 3.20625 14.2047 3.27031Z"
+                fill="white"
+              />
+            </mask>
+            <g mask="url(#mask0_reset_icon)"></g>
           </svg>
         </button>
       </div>
