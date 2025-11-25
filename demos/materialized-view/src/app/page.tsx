@@ -10,19 +10,15 @@ import { scenarios, queryTypes, type QueryType } from "@/data/scenarios";
 
 const { Content } = Layout;
 
-// 执行 SQL 查询
-async function executeSQLQuery(
-  sql: string,
-  scenarioId?: number,
-  queryType?: string
-) {
+// 执行 SQL 查询（仅允许执行内置场景的 SQL）
+async function executeSQLQuery(scenarioId: number, queryType: QueryType) {
   try {
     const response = await fetch("/api/query", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ sql, scenarioId, queryType }),
+      body: JSON.stringify({ scenarioId, queryType }),
     });
 
     const result = await response.json();
@@ -193,27 +189,15 @@ export default function Home() {
       try {
         // 并行执行三种查询类型，但每个查询完成后立即更新图表
         const promises = [
-          executeSQLQuery(
-            currentScenario.sql.base,
-            currentScenario.id,
-            "base"
-          ).then((result) => {
+          executeSQLQuery(currentScenario.id, "base").then((result) => {
             handleQueryResult("base", result);
             return result;
           }),
-          executeSQLQuery(
-            currentScenario.sql.materialized,
-            currentScenario.id,
-            "materialized"
-          ).then((result) => {
+          executeSQLQuery(currentScenario.id, "materialized").then((result) => {
             handleQueryResult("materialized", result);
             return result;
           }),
-          executeSQLQuery(
-            currentScenario.sql.rewrite,
-            currentScenario.id,
-            "rewrite"
-          ).then((result) => {
+          executeSQLQuery(currentScenario.id, "rewrite").then((result) => {
             handleQueryResult("rewrite", result);
             return result;
           }),

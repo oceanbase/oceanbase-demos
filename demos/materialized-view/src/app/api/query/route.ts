@@ -1,14 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 import { executeQueryWithTiming, testConnection } from "@/lib/db";
+import { scenarios, type QueryType } from "@/data/scenarios";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { sql, scenarioId, queryType } = body;
+    const { scenarioId, queryType } = body;
 
-    if (!sql || typeof sql !== "string") {
+    // 验证必需参数
+    if (!scenarioId || typeof scenarioId !== "number") {
       return NextResponse.json(
-        { success: false, error: "SQL 查询不能为空" },
+        { success: false, error: "场景 ID 不能为空且必须是数字" },
+        { status: 400 }
+      );
+    }
+
+    if (!queryType || typeof queryType !== "string") {
+      return NextResponse.json(
+        { success: false, error: "查询类型不能为空" },
+        { status: 400 }
+      );
+    }
+
+    // 验证查询类型是否有效
+    const validQueryTypes: QueryType[] = ["base", "materialized", "rewrite"];
+    if (!validQueryTypes.includes(queryType as QueryType)) {
+      return NextResponse.json(
+        { success: false, error: "无效的查询类型" },
+        { status: 400 }
+      );
+    }
+
+    // 从内置场景中获取 SQL
+    const scenario = scenarios.find((s) => s.id === scenarioId);
+    if (!scenario) {
+      return NextResponse.json(
+        { success: false, error: "场景不存在" },
+        { status: 400 }
+      );
+    }
+
+    // 获取场景对应的 SQL
+    const sql = scenario.sql[queryType as QueryType];
+    if (!sql) {
+      return NextResponse.json(
+        { success: false, error: "场景中不存在该查询类型的 SQL" },
         { status: 400 }
       );
     }
@@ -25,7 +61,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 执行 SQL 查询（如果提供了场景 ID 和查询类型，会进行转换）
+    // 执行 SQL 查询（使用内置场景的 SQL，确保安全）
     const result = await executeQueryWithTiming(sql, scenarioId, queryType);
 
     // 打印执行时间
