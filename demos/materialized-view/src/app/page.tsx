@@ -175,15 +175,13 @@ export default function Home() {
         if (!result.success) {
           const queryLabel =
             queryTypes.find((q) => q.key === queryType)?.label || queryType;
-          const errorMsg = `查询${queryLabel}失败: ${
-            result.error || "未知错误"
-          }`;
+          const errorMsg = `${queryLabel}失败: ${result.error || "未知错误"}`;
           errors.push(errorMsg);
           setError((prevError) => {
             const newErrors = prevError
               ? prevError
                   .split("; ")
-                  .filter((e) => !e.startsWith(`查询${queryLabel}`))
+                  .filter((e) => !e.startsWith(`${queryLabel}`))
               : [];
             newErrors.push(errorMsg);
             return newErrors.join("; ");
