@@ -16,12 +16,10 @@ export async function POST(request: NextRequest) {
     // 测试数据库连接
     const isConnected = await testConnection();
     if (!isConnected) {
-      const host = process.env.OCEANBASE_HOST || "127.0.0.1";
-      const port = process.env.OCEANBASE_PORT || "2883";
       return NextResponse.json(
         {
           success: false,
-          error: `数据库连接失败，请检查配置\n连接地址: ${host}:${port}\n可能原因: 数据库服务未启动、网络问题或配置错误`,
+          error: `数据库连接失败，请检查配置\n可能原因: 数据库服务未启动、网络问题或配置错误`,
         },
         { status: 500 }
       );
