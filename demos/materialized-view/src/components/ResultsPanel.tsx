@@ -35,8 +35,8 @@ export default function ResultsPanel({
           className={styles.radioGroup}
           optionType="button"
         >
-          <Radio.Button value="time">{intl.formatMessage({ id: "results.executionTime" })}</Radio.Button>
-          <Radio.Button value="result">{intl.formatMessage({ id: "results.executionResult" })}</Radio.Button>
+          <Radio.Button value="time">{intl.formatMessage({ id: "results.executionTime", defaultMessage: "执行时间" })}</Radio.Button>
+          <Radio.Button value="result">{intl.formatMessage({ id: "results.executionResult", defaultMessage: "执行结果" })}</Radio.Button>
         </Radio.Group>
       </div>
 
@@ -57,7 +57,7 @@ export default function ResultsPanel({
                 borderRadius: "4px",
               }}
             >
-              <Empty description={intl.formatMessage({ id: "results.executeFirst" })} />
+              <Empty description={intl.formatMessage({ id: "results.executeFirst", defaultMessage: "请先点击执行SQL 按钮" })} />
             </div>
           )
         ) : (

@@ -23,7 +23,7 @@ export default function ScenarioDescription({
         style={{ marginTop: -2 }}
       />
       <span className={styles.text}>
-        <span className={styles.label}>{intl.formatMessage({ id: "scenario.label" })}</span> {description}
+        <span className={styles.label}>{intl.formatMessage({ id: "scenario.label", defaultMessage: "场景说明:" })}</span> {description}
       </span>
     </div>
   );

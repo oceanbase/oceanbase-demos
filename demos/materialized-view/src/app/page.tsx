@@ -26,11 +26,9 @@ async function executeSQLQuery(scenarioId: number, queryType: QueryType) {
     const result = await response.json();
     return result;
   } catch (error: unknown) {
-    console.error(intl.formatMessage({ id: "message.apiCallFailed" }), error);
+    console.error("API 调用失败:", error);
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : intl.formatMessage({ id: "message.networkError" });
+      error instanceof Error ? error.message : "网络请求失败";
     return {
       success: false,
       error: errorMessage,
@@ -179,12 +177,18 @@ export default function Home() {
           const queryLabel =
             queryTypes.find((q) => q.key === queryType)?.label || queryType;
           const errorMsg = intl.formatMessage(
-            { id: "message.queryFailed" },
+            {
+              id: "message.queryFailed",
+              defaultMessage: "{type}失败: {error}",
+            },
             {
               type: queryLabel,
               error:
                 result.error ||
-                intl.formatMessage({ id: "message.queryError" }),
+                intl.formatMessage({
+                  id: "message.queryError",
+                  defaultMessage: "查询执行失败",
+                }),
             }
           );
           errors.push(errorMsg);
@@ -267,13 +271,21 @@ export default function Home() {
 
         // 只有所有查询都成功时才显示成功消息
         if (errors.length === 0) {
-          message.success(intl.formatMessage({ id: "message.queryCompleted" }));
+          message.success(
+            intl.formatMessage({
+              id: "message.queryCompleted",
+              defaultMessage: "场景查询完成，三种查询类型已执行",
+            })
+          );
         }
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error
             ? error.message
-            : intl.formatMessage({ id: "message.queryError" });
+            : intl.formatMessage({
+                id: "message.queryError",
+                defaultMessage: "查询执行失败",
+              });
         setError(errorMessage);
         message.error(errorMessage);
         setExecutionResults([]);
@@ -289,7 +301,7 @@ export default function Home() {
         });
       }
     },
-    [activeQueryType]
+    [activeQueryType, intl, queryTypes, scenarios]
   );
 
   // 手动执行 SQL（用于用户点击执行按钮）
@@ -426,6 +438,7 @@ export default function Home() {
                     <strong>
                       {intl.formatMessage({
                         id: "message.queryExecutionError",
+                        defaultMessage: "⚠️ 查询执行错误：",
                       })}
                     </strong>
                     <div style={{ marginTop: 8, whiteSpace: "pre-wrap" }}>

@@ -52,13 +52,13 @@ export default function SQLEditor({
   const handleCopy = () => {
     const success = copy(sqlValue, {
       debug: false,
-      message: intl.formatMessage({ id: "sql.copy" }),
+      message: intl.formatMessage({ id: "sql.copy", defaultMessage: "复制" }),
     });
 
     if (success) {
-      messageApi.success(intl.formatMessage({ id: "sql.copySuccess" }));
+      messageApi.success(intl.formatMessage({ id: "sql.copySuccess", defaultMessage: "复制成功" }));
     } else {
-      messageApi.error(intl.formatMessage({ id: "sql.copyFailed" }));
+      messageApi.error(intl.formatMessage({ id: "sql.copyFailed", defaultMessage: "复制失败" }));
     }
   };
 
@@ -122,7 +122,7 @@ export default function SQLEditor({
           loading={loading}
           className={styles.executeButton}
         >
-          {intl.formatMessage({ id: "sql.execute" })}
+          {intl.formatMessage({ id: "sql.execute", defaultMessage: "执行 SQL" })}
         </Button>
       }
     >
@@ -150,7 +150,7 @@ export default function SQLEditor({
             }}
             PreTag="div"
           >
-            {sqlValue || intl.formatMessage({ id: "sql.placeholder" })}
+            {sqlValue || intl.formatMessage({ id: "sql.placeholder", defaultMessage: "SQL 查询语句" })}
           </SyntaxHighlighter>
         </div>
         <Button
@@ -160,7 +160,7 @@ export default function SQLEditor({
           onClick={handleCopy}
           className={styles.copyButton}
           style={{ position: "absolute", top: 8, right: 8 }}
-          title={intl.formatMessage({ id: "sql.copy" })}
+          title={intl.formatMessage({ id: "sql.copy", defaultMessage: "复制" })}
         />
         <div
           className={styles.actions}
@@ -183,7 +183,7 @@ export default function SQLEditor({
             onClick={() => setExpanded(!expanded)}
             className={styles.expandButton}
           >
-            {expanded ? intl.formatMessage({ id: "sql.collapse" }) : intl.formatMessage({ id: "sql.expand" })}
+            {expanded ? intl.formatMessage({ id: "sql.collapse", defaultMessage: "收起" }) : intl.formatMessage({ id: "sql.expand", defaultMessage: "展开" })}
           </Button>
         </div>
       </div>

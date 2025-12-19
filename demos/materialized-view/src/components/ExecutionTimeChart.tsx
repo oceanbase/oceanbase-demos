@@ -57,7 +57,7 @@ export default function ExecutionTimeChart({
         range: colorRange,
       },
       time: {
-        alias: intl.formatMessage({ id: "results.executionTime" }),
+        alias: intl.formatMessage({ id: "results.executionTime", defaultMessage: "执行时间" }),
       },
       type: {
         alias: intl.locale === "zh-CN" ? "查询类型" : "Query Type",
@@ -68,7 +68,7 @@ export default function ExecutionTimeChart({
     tooltip: {
       items: [
         (d: Record<string, unknown>) => ({
-          name: intl.formatMessage({ id: "results.executionTime" }),
+          name: intl.formatMessage({ id: "results.executionTime", defaultMessage: "执行时间" }),
           value: `${(d.time as number) || 0}ms`,
         }),
       ],

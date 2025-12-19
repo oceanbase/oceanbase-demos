@@ -15,11 +15,11 @@ export default function DatasetIntroduction() {
   const [structureModalOpen, setStructureModalOpen] = useState(false);
 
   const datasetDescription = useMemo(() => {
-    const desc = intl.formatMessage({ id: "dataset.description" });
-    const featureTitle = intl.formatMessage({ id: "dataset.feature.title" });
-    const precomputeJoin = intl.formatMessage({ id: "dataset.feature.precomputeJoin" });
-    const preaggregate = intl.formatMessage({ id: "dataset.feature.preaggregate" });
-    const performance = intl.formatMessage({ id: "dataset.feature.performance" });
+    const desc = intl.formatMessage({ id: "dataset.description", defaultMessage: "这是一个**电商销售统计数据集**，包含订单、订单明细、商品等多张表。数据集涵盖了**2024年1月至12月**的销售数据，包含订单信息、商品信息、用户信息等多维度数据。" });
+    const featureTitle = intl.formatMessage({ id: "dataset.feature.title", defaultMessage: "核心特性：聚合物化视图优化" });
+    const precomputeJoin = intl.formatMessage({ id: "dataset.feature.precomputeJoin", defaultMessage: "**预计算多表JOIN**：避免每次查询时重复执行多表JOIN操作" });
+    const preaggregate = intl.formatMessage({ id: "dataset.feature.preaggregate", defaultMessage: "**预聚合数据**：预计算聚合结果，查询时只需简单的二次聚合" });
+    const performance = intl.formatMessage({ id: "dataset.feature.performance", defaultMessage: "**性能提升显著**：相比直接查询基础表，**性能提升可达10-100倍**" });
 
     return `${desc}
 
@@ -53,7 +53,7 @@ export default function DatasetIntroduction() {
           <Panel
             header={
               <Space>
-                {intl.formatMessage({ id: "dataset.title" })}
+                {intl.formatMessage({ id: "dataset.title", defaultMessage: "数据集介绍" })}
                 <Button
                   type="link"
                   icon={<TableOutlined />}
@@ -63,7 +63,7 @@ export default function DatasetIntroduction() {
                   }}
                   style={{ padding: 0, height: "auto" }}
                 >
-                  {intl.formatMessage({ id: "dataset.viewTableStructure" })}
+                  {intl.formatMessage({ id: "dataset.viewTableStructure", defaultMessage: "查看表结构和物化视图结构" })}
                 </Button>
               </Space>
             }

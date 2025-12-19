@@ -122,7 +122,7 @@ export default function ExecutionResultTable({
             height: "100%",
           }}
         >
-          <Empty description={intl.formatMessage({ id: "results.noData" })} />
+          <Empty description={intl.formatMessage({ id: "results.noData", defaultMessage: "暂无数据" })} />
         </div>
       </div>
     );

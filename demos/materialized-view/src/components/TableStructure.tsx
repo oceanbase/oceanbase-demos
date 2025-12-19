@@ -355,42 +355,56 @@ const mvFields: FieldInfo[] = [
 
 export default function TableStructure({ open, onClose }: TableStructureProps) {
   const intl = useIntl();
-  
+
   const columns: ColumnsType<FieldInfo> = [
     {
-      title: intl.formatMessage({ id: "table.field" }),
+      title: intl.formatMessage({
+        id: "table.field",
+        defaultMessage: "字段名",
+      }),
       dataIndex: "field",
       key: "field",
-      render: (text: string) => <code style={{ color: "#057cf2" }}>{text}</code>,
+      render: (text: string) => (
+        <code style={{ color: "#057cf2" }}>{text}</code>
+      ),
     },
     {
-      title: intl.formatMessage({ id: "table.comment" }),
+      title: intl.formatMessage({
+        id: "table.comment",
+        defaultMessage: "说明",
+      }),
       dataIndex: "comment",
       key: "comment",
     },
     {
-      title: intl.formatMessage({ id: "table.type" }),
+      title: intl.formatMessage({ id: "table.type", defaultMessage: "类型" }),
       dataIndex: "type",
       key: "type",
     },
     {
-      title: intl.formatMessage({ id: "table.nullable" }),
+      title: intl.formatMessage({
+        id: "table.nullable",
+        defaultMessage: "可空",
+      }),
       dataIndex: "nullable",
       key: "nullable",
     },
     {
-      title: intl.formatMessage({ id: "table.key" }),
+      title: intl.formatMessage({ id: "table.key", defaultMessage: "键" }),
       dataIndex: "key",
       key: "key",
       render: (text: string) =>
         text ? <span style={{ color: "#52c41a" }}>{text}</span> : "-",
     },
   ];
-  
+
   const tabItems = [
     {
       key: "orders",
-      label: intl.formatMessage({ id: "table.orders" }),
+      label: intl.formatMessage({
+        id: "table.orders",
+        defaultMessage: "orders（订单表）",
+      }),
       children: (
         <Table
           columns={columns}
@@ -403,7 +417,10 @@ export default function TableStructure({ open, onClose }: TableStructureProps) {
     },
     {
       key: "order_items",
-      label: intl.formatMessage({ id: "table.orderItems" }),
+      label: intl.formatMessage({
+        id: "table.orderItems",
+        defaultMessage: "order_items（订单明细表）",
+      }),
       children: (
         <Table
           columns={columns}
@@ -416,7 +433,10 @@ export default function TableStructure({ open, onClose }: TableStructureProps) {
     },
     {
       key: "products",
-      label: intl.formatMessage({ id: "table.products" }),
+      label: intl.formatMessage({
+        id: "table.products",
+        defaultMessage: "products（商品表）",
+      }),
       children: (
         <Table
           columns={columns}
@@ -442,7 +462,10 @@ export default function TableStructure({ open, onClose }: TableStructureProps) {
     // },
     {
       key: "mv",
-      label: intl.formatMessage({ id: "table.materializedView" }),
+      label: intl.formatMessage({
+        id: "table.materializedView",
+        defaultMessage: "sales_summary_mv（聚合物化视图）",
+      }),
       children: (
         <Table
           columns={columns}
@@ -457,7 +480,10 @@ export default function TableStructure({ open, onClose }: TableStructureProps) {
 
   return (
     <Modal
-      title={intl.formatMessage({ id: "table.structure" })}
+      title={intl.formatMessage({
+        id: "table.structure",
+        defaultMessage: "表结构和物化视图结构",
+      })}
       open={open}
       onCancel={onClose}
       footer={null}
