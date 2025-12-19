@@ -1,150 +1,150 @@
-import { useState, useEffect, useRef } from 'react'
-import { useIntl as useReactIntl } from 'react-intl'
-import Group330 from '../imports/Group330'
-import Group331 from '../imports/Group331'
-import Group332 from '../imports/Group332'
-import Group333 from '../imports/Group333'
-import Group334 from '../imports/Group334'
-import Group338 from '../imports/Group338'
-import Group340 from '../imports/Group340'
-import RegionFailure from './RegionFailure'
-import { useTextReplacer } from '../hooks/useTextReplacer'
+import { useState, useEffect, useRef } from "react";
+import { useIntl as useReactIntl } from "react-intl";
+import Group330 from "../imports/Group330";
+import Group331 from "../imports/Group331";
+import Group332 from "../imports/Group332";
+import Group333 from "../imports/Group333";
+import Group334 from "../imports/Group334";
+import Group338 from "../imports/Group338";
+import Group340 from "../imports/Group340";
+import RegionFailure from "./RegionFailure";
+import { useTextReplacer } from "../hooks/useTextReplacer";
 
 type VendorFailureState =
-  | 'state1'
-  | 'state2'
-  | 'state3'
-  | 'state3-alt'
-  | 'state4'
-  | 'state5'
-  | 'state6'
-type DisasterScenario = 'cloud-failure' | 'region-failure'
+  | "state1"
+  | "state2"
+  | "state3"
+  | "state3-alt"
+  | "state4"
+  | "state5"
+  | "state6";
+type DisasterScenario = "cloud-failure" | "region-failure";
 
 export default function DisasterRecovery() {
-  const intl = useReactIntl()
-  const [scenario, setScenario] = useState<DisasterScenario>('cloud-failure')
-  const [state, setState] = useState<VendorFailureState>('state1')
-  const [resetTrigger, setResetTrigger] = useState(0)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const intl = useReactIntl();
+  const [scenario, setScenario] = useState<DisasterScenario>("cloud-failure");
+  const [state, setState] = useState<VendorFailureState>("state1");
+  const [resetTrigger, setResetTrigger] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // 使用文本替换 Hook 来国际化 imports 组件中的文案
-  useTextReplacer(containerRef)
+  useTextReplacer(containerRef);
 
   // 当进入state2时，2秒后自动切换到state3
   useEffect(() => {
-    if (state === 'state2') {
+    if (state === "state2") {
       const timer = setTimeout(() => {
         console.log(
-          '容灾切换 - 云服务商 - Auto transitioning from state2 to state3 after 2 seconds'
-        )
-        setState('state3')
-      }, 2000)
+          "容灾切换 - 云服务商 - Auto transitioning from state2 to state3 after 2 seconds"
+        );
+        setState("state3");
+      }, 2000);
 
-      return () => clearTimeout(timer)
+      return () => clearTimeout(timer);
     }
-  }, [state])
+  }, [state]);
 
   // 处理点击事件（仅用于云服务商故障场景）
   const handleStateChange = (event: React.MouseEvent) => {
-    const target = event.target as HTMLElement
+    const target = event.target as HTMLElement;
 
     // 检查是否点击了置灰按钮（不可点击按钮）
-    let element: HTMLElement | null = target
+    let element: HTMLElement | null = target;
     while (element) {
-      const classList = element.className || ''
+      const classList = element.className || "";
       // 如果找到置灰按钮的特征类名，直接返回，不执行任何操作
       if (
-        typeof classList === 'string' &&
-        (classList.includes('bg-[#f3f6fc]') ||
-          classList.includes('cursor-not-allowed'))
+        typeof classList === "string" &&
+        (classList.includes("bg-[#f3f6fc]") ||
+          classList.includes("cursor-not-allowed"))
       ) {
         console.log(
-          '容灾切换 - 云服务商 - Clicked on disabled button, ignoring'
-        )
-        return
+          "容灾切换 - 云服务商 - Clicked on disabled button, ignoring"
+        );
+        return;
       }
-      element = element.parentElement
+      element = element.parentElement;
     }
 
     // 检查是否点击了可操作按钮
-    let checkElement: HTMLElement | null = target
-    let buttonId: string | null = null
+    let checkElement: HTMLElement | null = target;
+    let buttonId: string | null = null;
     while (checkElement) {
-      const dataButtonId = checkElement.getAttribute?.('data-button-id')
+      const dataButtonId = checkElement.getAttribute?.("data-button-id");
       if (dataButtonId) {
-        buttonId = dataButtonId
-        break
+        buttonId = dataButtonId;
+        break;
       }
-      checkElement = checkElement.parentElement
+      checkElement = checkElement.parentElement;
     }
 
-    const text = target.textContent || ''
+    const text = target.textContent || "";
     console.log(
-      '容灾切换 - 云服务商 - Clicked:',
+      "容灾切换 - 云服务商 - Clicked:",
       text,
-      'Button ID:',
+      "Button ID:",
       buttonId,
-      'Current state:',
+      "Current state:",
       state
-    )
+    );
 
     // 状态1: 点击"切换为主实例"按钮 → 状态2
-    if (state === 'state1' && buttonId === 'vendor-state1-button1') {
-      console.log('容灾切换 - 云服务商 - State1 → State2')
-      setState('state2')
-      return
+    if (state === "state1" && buttonId === "vendor-state1-button1") {
+      console.log("容灾切换 - 云服务商 - State1 → State2");
+      setState("state2");
+      return;
     }
 
     // 状态2: 不再自动切换，需要手动操作才能进入状态3
     // 这里可以根据需要添加从状态2到状态3的手动触发逻辑
 
     // 状态3: 点击"创建跨云主备库"按钮 → 状态4
-    if (state === 'state3' && buttonId === 'vendor-state3-button1') {
-      console.log('容灾切换 - 云服务商 - State3 → State4')
-      setState('state4')
-      return
+    if (state === "state3" && buttonId === "vendor-state3-button1") {
+      console.log("容灾切换 - 云服务商 - State3 → State4");
+      setState("state4");
+      return;
     }
 
     // 状态3: 点击"释放实例"按钮（杭州或上海） → 状态6（Group340）
     if (
-      state === 'state3' &&
-      (buttonId === 'vendor-state3-button2' ||
-        buttonId === 'vendor-state3-button3')
+      state === "state3" &&
+      (buttonId === "vendor-state3-button2" ||
+        buttonId === "vendor-state3-button3")
     ) {
-      console.log('容灾切换 - 云服务商 - State3 → State6 (释放实例)')
-      setState('state6')
-      return
+      console.log("容灾切换 - 云服务商 - State3 → State6 (释放实例)");
+      setState("state6");
+      return;
     }
 
     // 状态3-alt: 点击"释放实例"按钮 → 状态6（Group340）
     if (
-      state === 'state3-alt' &&
-      (buttonId === 'vendor-state3-alt-button1' ||
-        buttonId === 'vendor-state3-alt-button2')
+      state === "state3-alt" &&
+      (buttonId === "vendor-state3-alt-button1" ||
+        buttonId === "vendor-state3-alt-button2")
     ) {
-      console.log('容灾切换 - 云服务商 - State3-alt → State6 (释放实例)')
-      setState('state6')
-      return
+      console.log("容灾切换 - 云服务商 - State3-alt → State6 (释放实例)");
+      setState("state6");
+      return;
     }
 
     // 状态6: 点击"创建跨云主备库"按钮 → 状态5（Group329）
-    if (state === 'state6' && buttonId === 'vendor-state6-button1') {
-      console.log('容灾切换 - 云服务商 - State6 → State5 (创建跨云主备库)')
-      setState('state5')
-      return
+    if (state === "state6" && buttonId === "vendor-state6-button1") {
+      console.log("容灾切换 - 云服务商 - State6 → State5 (创建跨云主备库)");
+      setState("state5");
+      return;
     }
 
     // 状态4: 点击"释放实例"按钮 → 状态5
     if (
-      state === 'state4' &&
-      (buttonId === 'vendor-state4-button1' ||
-        buttonId === 'vendor-state4-button2')
+      state === "state4" &&
+      (buttonId === "vendor-state4-button1" ||
+        buttonId === "vendor-state4-button2")
     ) {
-      console.log('容灾切换 - 云服务商 - State4 → State5 (释放实例)')
-      setState('state5')
-      return
+      console.log("容灾切换 - 云服务商 - State4 → State5 (释放实例)");
+      setState("state5");
+      return;
     }
-  }
+  };
 
   return (
     <div className="relative">
@@ -154,68 +154,68 @@ export default function DisasterRecovery() {
           {/* 左侧按钮 - 云服务商故障 */}
           <button
             onClick={() => {
-              setScenario('cloud-failure')
-              setState('state1')
+              setScenario("cloud-failure");
+              setState("state1");
             }}
             className={`relative bg-white box-border content-stretch flex gap-[10px] h-[32px] items-center px-[12px] py-[5px] rounded-bl-[8px] rounded-tl-[8px] transition-colors cursor-pointer group ${
-              scenario === 'cloud-failure' ? '' : 'hover:bg-[#f5f7fa]'
+              scenario === "cloud-failure" ? "" : "hover:bg-[#f5f7fa]"
             }`}
           >
             <div
               aria-hidden="true"
               className={`absolute border border-solid inset-0 pointer-events-none rounded-bl-[8px] rounded-tl-[8px] transition-colors ${
-                scenario === 'cloud-failure'
-                  ? 'border-[#006aff]'
-                  : 'border-[#cdd5e4] group-hover:border-[#a0aec0]'
+                scenario === "cloud-failure"
+                  ? "border-[#006aff]"
+                  : "border-[#cdd5e4] group-hover:border-[#a0aec0]"
               }`}
             />
             <p
               className={`font-['PingFang_SC',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-nowrap whitespace-pre ${
-                scenario === 'cloud-failure'
-                  ? 'text-[#006aff] font-medium'
-                  : 'text-[#132039] font-normal'
+                scenario === "cloud-failure"
+                  ? "text-[#006aff] font-medium"
+                  : "text-[#132039] font-normal"
               }`}
             >
-              {intl.formatMessage({ id: 'scenario.cloudFailure' })}
+              {intl.formatMessage({ id: "scenario.cloudFailure" })}
             </p>
           </button>
           {/* 右侧按钮 - 地域故障 */}
           <button
             onClick={() => {
-              setScenario('region-failure')
-              setState('state1')
+              setScenario("region-failure");
+              setState("state1");
             }}
             className={`relative bg-white box-border content-stretch flex gap-[10px] h-[32px] items-center px-[12px] py-[5px] rounded-br-[8px] rounded-tr-[8px] transition-colors cursor-pointer group ${
-              scenario === 'region-failure' ? '' : 'hover:bg-[#f5f7fa]'
+              scenario === "region-failure" ? "" : "hover:bg-[#f5f7fa]"
             }`}
           >
             <div
               aria-hidden="true"
               className={`absolute border border-solid inset-0 pointer-events-none rounded-br-[8px] rounded-tr-[8px] transition-colors ${
-                scenario === 'region-failure'
-                  ? 'border-[#006aff]'
-                  : 'border-[#cdd5e4] group-hover:border-[#a0aec0]'
+                scenario === "region-failure"
+                  ? "border-[#006aff]"
+                  : "border-[#cdd5e4] group-hover:border-[#a0aec0]"
               }`}
             />
             <p
               className={`font-['PingFang_SC',sans-serif] leading-[22px] not-italic relative shrink-0 text-[14px] text-nowrap whitespace-pre ${
-                scenario === 'region-failure'
-                  ? 'text-[#006aff] font-medium'
-                  : 'text-[#132039] font-normal'
+                scenario === "region-failure"
+                  ? "text-[#006aff] font-medium"
+                  : "text-[#132039] font-normal"
               }`}
             >
-              {intl.formatMessage({ id: 'scenario.regionFailure' })}
+              {intl.formatMessage({ id: "scenario.regionFailure" })}
             </p>
           </button>
         </div>
         {/* 刷新按钮 */}
         <button
           onClick={() => {
-            setState('state1')
-            setResetTrigger((prev) => prev + 1)
+            setState("state1");
+            setResetTrigger((prev) => prev + 1);
           }}
           className="bg-white box-border content-stretch flex gap-[8px] items-center justify-center p-[6px] rounded-[6px] size-[32px] border-[#cdd5e4] border border-solid hover:bg-[#f5f7fa] hover:border-[#a0aec0] transition-all overflow-hidden cursor-pointer group"
-          title={intl.formatMessage({ id: 'common.reset' })}
+          title={intl.formatMessage({ id: "common.reset" })}
         >
           <svg
             className="w-4 h-4"
@@ -232,7 +232,7 @@ export default function DisasterRecovery() {
             />
             <mask
               id="mask0_reset_icon"
-              style={{ maskType: 'luminance' }}
+              style={{ maskType: "luminance" }}
               maskUnits="userSpaceOnUse"
               x="1"
               y="1"
@@ -252,7 +252,7 @@ export default function DisasterRecovery() {
       </div>
 
       {/* 根据场景显示不同的内容 */}
-      {scenario === 'cloud-failure' ? (
+      {scenario === "cloud-failure" ? (
         <div
           onClick={handleStateChange}
           ref={containerRef}
@@ -261,20 +261,20 @@ export default function DisasterRecovery() {
           {/* 响应式容器 */}
           <div
             className="relative w-full"
-            style={{ paddingBottom: '92.55%' /* 870/940 比例 */ }}
+            style={{ paddingBottom: "92.55%" /* 870/940 比例 */ }}
           >
             <div
               className="absolute inset-0 origin-top-left"
-              style={state === 'state1' ? { top: -30 } : {}}
+              style={state === "state1" ? { top: -30 } : {}}
             >
               <div className="w-[940px] h-[870px] scale-[var(--scale)] origin-top-left">
-                {state === 'state1' && <Group330 />}
-                {state === 'state2' && <Group331 />}
-                {state === 'state3' && <Group332 />}
-                {state === 'state3-alt' && <Group338 />}
-                {state === 'state4' && <Group333 />}
-                {state === 'state5' && <Group334 />}
-                {state === 'state6' && <Group340 />}
+                {state === "state1" && <Group330 />}
+                {state === "state2" && <Group331 />}
+                {state === "state3" && <Group332 />}
+                {state === "state3-alt" && <Group338 />}
+                {state === "state4" && <Group333 />}
+                {state === "state5" && <Group334 />}
+                {state === "state6" && <Group340 />}
               </div>
             </div>
           </div>
@@ -283,5 +283,5 @@ export default function DisasterRecovery() {
         <RegionFailure resetTrigger={resetTrigger} />
       )}
     </div>
-  )
+  );
 }

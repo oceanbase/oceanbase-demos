@@ -1,4 +1,4 @@
-import svgPaths from './svg-maiwl6utf8'
+import svgPaths from "./svg-maiwl6utf8";
 
 function Group26() {
   return (
@@ -38,7 +38,7 @@ function Group26() {
         </defs>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame2() {
@@ -48,7 +48,7 @@ function Frame2() {
         全局地址
       </p>
     </div>
-  )
+  );
 }
 
 function Frame3() {
@@ -63,7 +63,7 @@ function Frame3() {
       />
       <Frame2 />
     </div>
-  )
+  );
 }
 
 function Group22() {
@@ -71,7 +71,7 @@ function Group22() {
     <div className="absolute contents inset-[35.85%_2.55%_59.02%_2.55%]">
       <Frame3 />
     </div>
-  )
+  );
 }
 
 function Component() {
@@ -178,7 +178,7 @@ function Component() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame9() {
@@ -188,7 +188,7 @@ function Frame9() {
         杭州备实例
       </p>
     </div>
-  )
+  );
 }
 
 function Frame5() {
@@ -197,7 +197,7 @@ function Frame5() {
       <Component />
       <Frame9 />
     </div>
-  )
+  );
 }
 
 function Component7() {
@@ -210,7 +210,7 @@ function Component7() {
         <p className="leading-[22px] whitespace-pre">切换为主实例</p>
       </div>
     </div>
-  )
+  );
 }
 
 function Group21() {
@@ -218,7 +218,7 @@ function Group21() {
     <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
       <Component7 />
     </div>
-  )
+  );
 }
 
 function Frame10() {
@@ -227,7 +227,7 @@ function Frame10() {
       <Frame5 />
       <Group21 />
     </div>
-  )
+  );
 }
 
 function Group32() {
@@ -237,8 +237,8 @@ function Group32() {
         className="absolute flex h-[calc(1px*((var(--transform-inner-width)*0.2797243595123291)+(var(--transform-inner-height)*0.9600803256034851)))] items-center justify-center left-[138px] top-[745px] w-[calc(1px*((var(--transform-inner-height)*0.2797243595123291)+(var(--transform-inner-width)*0.9600803256034851)))]"
         style={
           {
-            '--transform-inner-width': '7',
-            '--transform-inner-height': '2',
+            "--transform-inner-width": "7",
+            "--transform-inner-height": "2",
           } as React.CSSProperties
         }
       >
@@ -255,8 +255,8 @@ function Group32() {
         className="absolute flex h-[calc(1px*((var(--transform-inner-width)*0.9298685193061829)+(var(--transform-inner-height)*0.3678920567035675)))] items-center justify-center left-[146px] top-[733px] w-[calc(1px*((var(--transform-inner-height)*0.9298685193061829)+(var(--transform-inner-width)*0.3678920567035675)))]"
         style={
           {
-            '--transform-inner-width': '7',
-            '--transform-inner-height': '2',
+            "--transform-inner-width": "7",
+            "--transform-inner-height": "2",
           } as React.CSSProperties
         }
       >
@@ -273,8 +273,8 @@ function Group32() {
         className="absolute flex h-[calc(1px*((var(--transform-inner-width)*0.9272937178611755)+(var(--transform-inner-height)*0.37433451414108276)))] items-center justify-center left-[157px] top-[735px] w-[calc(1px*((var(--transform-inner-height)*0.9272937178611755)+(var(--transform-inner-width)*0.37433451414108276)))]"
         style={
           {
-            '--transform-inner-width': '7',
-            '--transform-inner-height': '2',
+            "--transform-inner-width": "7",
+            "--transform-inner-height": "2",
           } as React.CSSProperties
         }
       >
@@ -288,7 +288,7 @@ function Group32() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function Group27() {
@@ -301,7 +301,7 @@ function Group27() {
         VPC（主）
       </p>
     </div>
-  )
+  );
 }
 
 function Group() {
@@ -352,7 +352,7 @@ function Group() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group1() {
@@ -376,7 +376,7 @@ function Group1() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group2() {
@@ -400,7 +400,7 @@ function Group2() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group3() {
@@ -424,7 +424,7 @@ function Group3() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group4() {
@@ -448,7 +448,7 @@ function Group4() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group5() {
@@ -472,7 +472,7 @@ function Group5() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group6() {
@@ -496,7 +496,7 @@ function Group6() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group33() {
@@ -510,7 +510,7 @@ function Group33() {
       <Group5 />
       <Group6 />
     </div>
-  )
+  );
 }
 
 function Group36() {
@@ -519,7 +519,7 @@ function Group36() {
       <div className="absolute bg-[rgba(255,255,255,0)] h-[46px] left-[412px] top-[152px] w-[38px]" />
       <Group33 />
     </div>
-  )
+  );
 }
 
 function Group41() {
@@ -528,7 +528,7 @@ function Group41() {
       <Group27 />
       <Group36 />
     </div>
-  )
+  );
 }
 
 function Group28() {
@@ -539,7 +539,7 @@ function Group28() {
       </p>
       <p className="absolute font-['PingFang_SC:Regular',sans-serif] leading-[20px] left-[757px] text-[#5c6b8a] text-[12px] top-[178px]">{` VPC（备 2）`}</p>
     </div>
-  )
+  );
 }
 
 function Group7() {
@@ -590,7 +590,7 @@ function Group7() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group8() {
@@ -614,7 +614,7 @@ function Group8() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group9() {
@@ -638,7 +638,7 @@ function Group9() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group10() {
@@ -662,7 +662,7 @@ function Group10() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group11() {
@@ -686,7 +686,7 @@ function Group11() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group12() {
@@ -710,7 +710,7 @@ function Group12() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group13() {
@@ -734,7 +734,7 @@ function Group13() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group34() {
@@ -748,7 +748,7 @@ function Group34() {
       <Group12 />
       <Group13 />
     </div>
-  )
+  );
 }
 
 function Group38() {
@@ -757,7 +757,7 @@ function Group38() {
       <div className="absolute bg-[rgba(255,255,255,0)] h-[46px] left-[711px] top-[152px] w-[38px]" />
       <Group34 />
     </div>
-  )
+  );
 }
 
 function Group42() {
@@ -766,7 +766,7 @@ function Group42() {
       <Group28 />
       <Group38 />
     </div>
-  )
+  );
 }
 
 function Icon() {
@@ -873,7 +873,7 @@ function Icon() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame7() {
@@ -883,7 +883,7 @@ function Frame7() {
         上海主实例
       </p>
     </div>
-  )
+  );
 }
 
 function Frame4() {
@@ -895,7 +895,7 @@ function Frame4() {
       <Icon />
       <Frame7 />
     </div>
-  )
+  );
 }
 
 function Component1() {
@@ -937,7 +937,7 @@ function Component1() {
         </svg>
       </div>
     </div>
-  )
+  );
 }
 
 function Component2() {
@@ -948,7 +948,7 @@ function Component2() {
     >
       <Component1 />
     </div>
-  )
+  );
 }
 
 function Group23() {
@@ -957,14 +957,14 @@ function Group23() {
       <Component2 />
       <div className="[grid-area:1_/_1] ml-0 mt-0 size-[20px]" />
     </div>
-  )
+  );
 }
 
 function Alert() {
   return (
     <div
       className="absolute bg-[#fff2f2] box-border content-stretch flex gap-[4px] items-center left-[298px] p-[8px] rounded-[4px] top-[522px]"
-      style={{ minHeight: '22px', height: 'auto' }}
+      style={{ minHeight: "22px", height: "auto" }}
       data-name="alert"
     >
       <div
@@ -976,7 +976,7 @@ function Alert() {
         <p className="leading-[20px]">上海地域出现故障</p>
       </div>
     </div>
-  )
+  );
 }
 
 function Icon1() {
@@ -1083,7 +1083,7 @@ function Icon1() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame8() {
@@ -1093,7 +1093,7 @@ function Frame8() {
         上海备实例
       </p>
     </div>
-  )
+  );
 }
 
 function Frame6() {
@@ -1105,7 +1105,7 @@ function Frame6() {
       <Icon1 />
       <Frame8 />
     </div>
-  )
+  );
 }
 
 function Component3() {
@@ -1147,7 +1147,7 @@ function Component3() {
         </svg>
       </div>
     </div>
-  )
+  );
 }
 
 function Component4() {
@@ -1158,7 +1158,7 @@ function Component4() {
     >
       <Component3 />
     </div>
-  )
+  );
 }
 
 function Group24() {
@@ -1167,14 +1167,14 @@ function Group24() {
       <Component4 />
       <div className="[grid-area:1_/_1] ml-0 mt-0 size-[20px]" />
     </div>
-  )
+  );
 }
 
 function Alert1() {
   return (
     <div
       className="absolute bg-[#fff2f2] box-border content-stretch flex gap-[4px] items-center left-[766px] p-[8px] rounded-[4px] top-[522px]"
-      style={{ minHeight: '22px', height: 'auto' }}
+      style={{ minHeight: "22px", height: "auto" }}
       data-name="alert"
     >
       <div
@@ -1186,7 +1186,7 @@ function Alert1() {
         <p className="leading-[20px]">上海地域出现故障</p>
       </div>
     </div>
-  )
+  );
 }
 
 function Component5() {
@@ -1228,7 +1228,7 @@ function Component5() {
         </svg>
       </div>
     </div>
-  )
+  );
 }
 
 function Component6() {
@@ -1239,7 +1239,7 @@ function Component6() {
     >
       <Component5 />
     </div>
-  )
+  );
 }
 
 function Group25() {
@@ -1248,7 +1248,7 @@ function Group25() {
       <Component6 />
       <div className="[grid-area:1_/_1] ml-0 mt-0 size-[20px]" />
     </div>
-  )
+  );
 }
 
 function Alert2() {
@@ -1263,7 +1263,7 @@ function Alert2() {
       />
       <Group25 />
     </div>
-  )
+  );
 }
 
 function Group31() {
@@ -1293,7 +1293,7 @@ function Group31() {
         网络连接
       </p>
     </div>
-  )
+  );
 }
 
 function Group40() {
@@ -1323,7 +1323,7 @@ function Group40() {
         网络连接
       </p>
     </div>
-  )
+  );
 }
 
 function Group29() {
@@ -1336,7 +1336,7 @@ function Group29() {
         VPC（备 1）
       </p>
     </div>
-  )
+  );
 }
 
 function Group14() {
@@ -1387,7 +1387,7 @@ function Group14() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group15() {
@@ -1411,7 +1411,7 @@ function Group15() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group16() {
@@ -1435,7 +1435,7 @@ function Group16() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group17() {
@@ -1459,7 +1459,7 @@ function Group17() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group18() {
@@ -1483,7 +1483,7 @@ function Group18() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group19() {
@@ -1507,7 +1507,7 @@ function Group19() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group20() {
@@ -1531,7 +1531,7 @@ function Group20() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group35() {
@@ -1545,7 +1545,7 @@ function Group35() {
       <Group19 />
       <Group20 />
     </div>
-  )
+  );
 }
 
 function Group39() {
@@ -1554,7 +1554,7 @@ function Group39() {
       <div className="absolute bg-[rgba(255,255,255,0)] h-[46px] left-[108px] top-[152px] w-[38px]" />
       <Group35 />
     </div>
-  )
+  );
 }
 
 function Group37() {
@@ -1563,7 +1563,7 @@ function Group37() {
       <Group29 />
       <Group39 />
     </div>
-  )
+  );
 }
 
 function Component26TabZ() {
@@ -1580,7 +1580,7 @@ function Component26TabZ() {
         data-name="Rectangle"
       />
     </div>
-  )
+  );
 }
 
 function Frame() {
@@ -1590,7 +1590,7 @@ function Frame() {
         容灾切换
       </p>
     </div>
-  )
+  );
 }
 
 function Component26TabZ1() {
@@ -1605,7 +1605,7 @@ function Component26TabZ1() {
         data-name="Rectangle"
       />
     </div>
-  )
+  );
 }
 
 function Radiobutton() {
@@ -1622,7 +1622,7 @@ function Radiobutton() {
         云服务商故障
       </p>
     </div>
-  )
+  );
 }
 
 function Radiobutton1() {
@@ -1639,7 +1639,7 @@ function Radiobutton1() {
         地域故障
       </p>
     </div>
-  )
+  );
 }
 
 function Group30() {
@@ -1648,7 +1648,7 @@ function Group30() {
       <Radiobutton />
       <Radiobutton1 />
     </div>
-  )
+  );
 }
 
 function Component01Reload() {
@@ -1675,7 +1675,7 @@ function Component01Reload() {
             height="14"
             id="mask0_6_3303"
             maskUnits="userSpaceOnUse"
-            style={{ maskType: 'luminance' }}
+            style={{ maskType: "luminance" }}
             width="14"
             x="1"
             y="1"
@@ -1692,7 +1692,7 @@ function Component01Reload() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Component01Button() {
@@ -1707,7 +1707,7 @@ function Component01Button() {
       />
       <Component01Reload />
     </div>
-  )
+  );
 }
 
 function Frame1() {
@@ -1722,12 +1722,12 @@ function Frame1() {
       <Group30 />
       <Component01Button />
     </div>
-  )
+  );
 }
 
 export default function Group43() {
   return (
-    <div className="relative size-full" style={{ overflow: 'visible' }}>
+    <div className="relative size-full" style={{ overflow: "visible" }}>
       <Group26 />
       <div className="absolute bg-[#f8fafe] h-[404px] left-[24px] rounded-[4px] top-[416px] w-[588px]">
         <div
@@ -1801,10 +1801,10 @@ export default function Group43() {
       <div
         className="absolute flex items-center justify-center"
         style={{
-          left: '54.38%',
-          right: '44.06%',
-          top: '61.11%',
-          bottom: '36.67%',
+          left: "54.38%",
+          right: "44.06%",
+          top: "61.11%",
+          bottom: "36.67%",
           zIndex: 20,
           marginLeft: -305,
           marginTop: -65,
@@ -1812,7 +1812,7 @@ export default function Group43() {
       >
         <div
           className="flex-none scale-y-[-100%]"
-          style={{ width: '20px', height: '20px' }}
+          style={{ width: "20px", height: "20px" }}
         >
           <div className="relative size-full">
             <div className="absolute bottom-1/4 left-[10.35%] right-[10.35%] top-[5%]">
@@ -1933,5 +1933,5 @@ export default function Group43() {
       <Group40 />
       <Group37 />
     </div>
-  )
+  );
 }

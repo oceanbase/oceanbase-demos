@@ -1,4 +1,4 @@
-import svgPaths from './svg-x1w9g6rvku'
+import svgPaths from "./svg-x1w9g6rvku";
 
 function Group29() {
   return (
@@ -42,7 +42,7 @@ function Group29() {
         </defs>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group30() {
@@ -87,7 +87,7 @@ function Group30() {
         </defs>
       </svg>
     </div>
-  )
+  );
 }
 
 function Component() {
@@ -194,7 +194,7 @@ function Component() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame8() {
@@ -204,7 +204,7 @@ function Frame8() {
         上海备实例
       </p>
     </div>
-  )
+  );
 }
 
 function Frame5() {
@@ -213,7 +213,7 @@ function Frame5() {
       <Component />
       <Frame8 />
     </div>
-  )
+  );
 }
 
 function Component2() {
@@ -227,7 +227,7 @@ function Component2() {
         <p className="leading-[22px] whitespace-pre">切换为主实例</p>
       </div>
     </div>
-  )
+  );
 }
 
 function Group21() {
@@ -235,7 +235,7 @@ function Group21() {
     <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
       <Component2 />
     </div>
-  )
+  );
 }
 
 function Frame10() {
@@ -244,7 +244,7 @@ function Frame10() {
       <Frame5 />
       <Group21 />
     </div>
-  )
+  );
 }
 
 function Icon() {
@@ -351,7 +351,7 @@ function Icon() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame7() {
@@ -361,7 +361,7 @@ function Frame7() {
         上海主实例
       </p>
     </div>
-  )
+  );
 }
 
 function Frame4() {
@@ -370,7 +370,7 @@ function Frame4() {
       <Icon />
       <Frame7 />
     </div>
-  )
+  );
 }
 
 function Frame11() {
@@ -378,7 +378,7 @@ function Frame11() {
     <div className="absolute content-stretch flex flex-col gap-[16px] items-center left-[776px] top-[560px] w-[116px]">
       <Frame4 />
     </div>
-  )
+  );
 }
 
 function Component1() {
@@ -485,7 +485,7 @@ function Component1() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame9() {
@@ -495,7 +495,7 @@ function Frame9() {
         杭州备实例
       </p>
     </div>
-  )
+  );
 }
 
 function Frame6() {
@@ -504,7 +504,7 @@ function Frame6() {
       <Component1 />
       <Frame9 />
     </div>
-  )
+  );
 }
 
 function Component3() {
@@ -518,7 +518,7 @@ function Component3() {
         <p className="leading-[22px] whitespace-pre">切换为主实例</p>
       </div>
     </div>
-  )
+  );
 }
 
 function Group22() {
@@ -526,7 +526,7 @@ function Group22() {
     <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
       <Component3 />
     </div>
-  )
+  );
 }
 
 function Frame12() {
@@ -535,7 +535,7 @@ function Frame12() {
       <Frame6 />
       <Group22 />
     </div>
-  )
+  );
 }
 
 function Group24() {
@@ -580,7 +580,7 @@ function Group24() {
         </defs>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group32() {
@@ -604,7 +604,7 @@ function Group32() {
         </svg>
       </div>
     </div>
-  )
+  );
 }
 
 function Group41() {
@@ -628,7 +628,7 @@ function Group41() {
         </svg>
       </div>
     </div>
-  )
+  );
 }
 
 function Frame() {
@@ -638,7 +638,7 @@ function Frame() {
         主备切换
       </p>
     </div>
-  )
+  );
 }
 
 function Component26TabZ() {
@@ -653,7 +653,7 @@ function Component26TabZ() {
         data-name="Rectangle"
       />
     </div>
-  )
+  );
 }
 
 function Component26TabZ1() {
@@ -670,7 +670,7 @@ function Component26TabZ1() {
         data-name="Rectangle"
       />
     </div>
-  )
+  );
 }
 
 function Frame1() {
@@ -683,7 +683,7 @@ function Frame1() {
       <Component26TabZ />
       <Component26TabZ1 />
     </div>
-  )
+  );
 }
 
 function Group42() {
@@ -724,7 +724,7 @@ function Group42() {
         </defs>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group43() {
@@ -765,7 +765,7 @@ function Group43() {
         </defs>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group25() {
@@ -806,7 +806,7 @@ function Group25() {
         </defs>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group31() {
@@ -852,7 +852,7 @@ function Group31() {
         </defs>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group44() {
@@ -898,7 +898,7 @@ function Group44() {
         </defs>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame2() {
@@ -908,7 +908,7 @@ function Frame2() {
         全局地址
       </p>
     </div>
-  )
+  );
 }
 
 function Frame3() {
@@ -923,7 +923,7 @@ function Frame3() {
       />
       <Frame2 />
     </div>
-  )
+  );
 }
 
 function Group23() {
@@ -931,7 +931,7 @@ function Group23() {
     <div className="absolute contents inset-[35.85%_2.55%_59.02%_2.55%]">
       <Frame3 />
     </div>
-  )
+  );
 }
 
 function Group26() {
@@ -944,7 +944,7 @@ function Group26() {
         VPC（备 1）
       </p>
     </div>
-  )
+  );
 }
 
 function Group() {
@@ -995,7 +995,7 @@ function Group() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group1() {
@@ -1019,7 +1019,7 @@ function Group1() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group2() {
@@ -1043,7 +1043,7 @@ function Group2() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group3() {
@@ -1067,7 +1067,7 @@ function Group3() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group4() {
@@ -1091,7 +1091,7 @@ function Group4() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group5() {
@@ -1115,7 +1115,7 @@ function Group5() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group6() {
@@ -1139,7 +1139,7 @@ function Group6() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group33() {
@@ -1153,7 +1153,7 @@ function Group33() {
       <Group5 />
       <Group6 />
     </div>
-  )
+  );
 }
 
 function Group36() {
@@ -1162,7 +1162,7 @@ function Group36() {
       <div className="absolute bg-[rgba(255,255,255,0)] h-[46px] left-[108px] top-[152px] w-[38px]" />
       <Group33 />
     </div>
-  )
+  );
 }
 
 function Group37() {
@@ -1171,7 +1171,7 @@ function Group37() {
       <Group26 />
       <Group36 />
     </div>
-  )
+  );
 }
 
 function Group27() {
@@ -1182,7 +1182,7 @@ function Group27() {
       </p>
       <p className="absolute font-['PingFang_SC:Regular',sans-serif] leading-[20px] left-[757px] text-[#5c6b8a] text-[12px] top-[178px]">{` VPC（备 2）`}</p>
     </div>
-  )
+  );
 }
 
 function Group7() {
@@ -1233,7 +1233,7 @@ function Group7() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group8() {
@@ -1257,7 +1257,7 @@ function Group8() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group9() {
@@ -1281,7 +1281,7 @@ function Group9() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group10() {
@@ -1305,7 +1305,7 @@ function Group10() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group11() {
@@ -1329,7 +1329,7 @@ function Group11() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group12() {
@@ -1353,7 +1353,7 @@ function Group12() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group13() {
@@ -1377,7 +1377,7 @@ function Group13() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group34() {
@@ -1391,7 +1391,7 @@ function Group34() {
       <Group12 />
       <Group13 />
     </div>
-  )
+  );
 }
 
 function Group39() {
@@ -1400,7 +1400,7 @@ function Group39() {
       <div className="absolute bg-[rgba(255,255,255,0)] h-[46px] left-[711px] top-[152px] w-[38px]" />
       <Group34 />
     </div>
-  )
+  );
 }
 
 function Group40() {
@@ -1409,7 +1409,7 @@ function Group40() {
       <Group27 />
       <Group39 />
     </div>
-  )
+  );
 }
 
 function Group28() {
@@ -1422,7 +1422,7 @@ function Group28() {
         VPC（主）
       </p>
     </div>
-  )
+  );
 }
 
 function Group14() {
@@ -1473,7 +1473,7 @@ function Group14() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group15() {
@@ -1497,7 +1497,7 @@ function Group15() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group16() {
@@ -1521,7 +1521,7 @@ function Group16() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group17() {
@@ -1545,7 +1545,7 @@ function Group17() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group18() {
@@ -1569,7 +1569,7 @@ function Group18() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group19() {
@@ -1593,7 +1593,7 @@ function Group19() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group20() {
@@ -1617,7 +1617,7 @@ function Group20() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group35() {
@@ -1631,7 +1631,7 @@ function Group35() {
       <Group19 />
       <Group20 />
     </div>
-  )
+  );
 }
 
 function Group45() {
@@ -1640,7 +1640,7 @@ function Group45() {
       <div className="absolute bg-[rgba(255,255,255,0)] h-[46px] left-[412px] top-[152px] w-[38px]" />
       <Group35 />
     </div>
-  )
+  );
 }
 
 function Group38() {
@@ -1649,7 +1649,7 @@ function Group38() {
       <Group28 />
       <Group45 />
     </div>
-  )
+  );
 }
 
 export default function Group46() {
@@ -1762,7 +1762,7 @@ export default function Group46() {
             <div
               className="absolute bottom-1/4 left-[10.35%] right-[10.35%] top-[5%]"
               style={
-                { '--fill-0': 'rgba(81, 137, 251, 1)' } as React.CSSProperties
+                { "--fill-0": "rgba(81, 137, 251, 1)" } as React.CSSProperties
               }
             >
               <svg
@@ -1788,8 +1788,8 @@ export default function Group46() {
         className="absolute flex h-[calc(1px*((var(--transform-inner-width)*1)+(var(--transform-inner-height)*0)))] items-center justify-center left-[150px] top-[512px] w-[calc(1px*((var(--transform-inner-height)*1)+(var(--transform-inner-width)*0)))]"
         style={
           {
-            '--transform-inner-width': '87',
-            '--transform-inner-height': '320.5',
+            "--transform-inner-width": "87",
+            "--transform-inner-height": "320.5",
           } as React.CSSProperties
         }
       >
@@ -1868,8 +1868,8 @@ export default function Group46() {
         className="absolute flex h-[calc(1px*((var(--transform-inner-width)*1)+(var(--transform-inner-height)*0)))] items-center justify-center left-[264px] top-[167px] w-[calc(1px*((var(--transform-inner-height)*1)+(var(--transform-inner-width)*0)))]"
         style={
           {
-            '--transform-inner-width': '16',
-            '--transform-inner-height': '108',
+            "--transform-inner-width": "16",
+            "--transform-inner-height": "108",
           } as React.CSSProperties
         }
       >
@@ -1881,8 +1881,8 @@ export default function Group46() {
         className="absolute flex h-[calc(1px*((var(--transform-inner-width)*1)+(var(--transform-inner-height)*0)))] items-center justify-center left-[566px] top-[167px] w-[calc(1px*((var(--transform-inner-height)*1)+(var(--transform-inner-width)*0)))]"
         style={
           {
-            '--transform-inner-width': '16',
-            '--transform-inner-height': '108',
+            "--transform-inner-width": "16",
+            "--transform-inner-height": "108",
           } as React.CSSProperties
         }
       >
@@ -1895,5 +1895,5 @@ export default function Group46() {
       <Group40 />
       <Group38 />
     </div>
-  )
+  );
 }

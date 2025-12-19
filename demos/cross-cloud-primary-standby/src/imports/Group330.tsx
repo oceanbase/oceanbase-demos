@@ -1,4 +1,4 @@
-import svgPaths from './svg-6xpm17ms62'
+import svgPaths from "./svg-6xpm17ms62";
 
 function Group39() {
   return (
@@ -38,7 +38,7 @@ function Group39() {
         </defs>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame2() {
@@ -48,7 +48,7 @@ function Frame2() {
         全局地址
       </p>
     </div>
-  )
+  );
 }
 
 function Frame3() {
@@ -63,7 +63,7 @@ function Frame3() {
       />
       <Frame2 />
     </div>
-  )
+  );
 }
 
 function Group22() {
@@ -71,7 +71,7 @@ function Group22() {
     <div className="absolute contents inset-[38.12%_2.55%_56.94%_2.55%]">
       <Frame3 />
     </div>
-  )
+  );
 }
 
 function Group25() {
@@ -84,7 +84,7 @@ function Group25() {
         VPC（主）
       </p>
     </div>
-  )
+  );
 }
 
 function Group() {
@@ -135,7 +135,7 @@ function Group() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group1() {
@@ -159,7 +159,7 @@ function Group1() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group2() {
@@ -183,7 +183,7 @@ function Group2() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group3() {
@@ -207,7 +207,7 @@ function Group3() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group4() {
@@ -231,7 +231,7 @@ function Group4() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group5() {
@@ -255,7 +255,7 @@ function Group5() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group6() {
@@ -279,7 +279,7 @@ function Group6() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group30() {
@@ -293,7 +293,7 @@ function Group30() {
       <Group5 />
       <Group6 />
     </div>
-  )
+  );
 }
 
 function Group33() {
@@ -302,7 +302,7 @@ function Group33() {
       <div className="absolute bg-[rgba(255,255,255,0)] h-[46px] left-[412px] top-[182px] w-[38px]" />
       <Group30 />
     </div>
-  )
+  );
 }
 
 function Group38() {
@@ -311,7 +311,7 @@ function Group38() {
       <Group25 />
       <Group33 />
     </div>
-  )
+  );
 }
 
 function Group26() {
@@ -324,7 +324,7 @@ function Group26() {
         VPC（备 1）
       </p>
     </div>
-  )
+  );
 }
 
 function Group7() {
@@ -375,7 +375,7 @@ function Group7() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group8() {
@@ -399,7 +399,7 @@ function Group8() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group9() {
@@ -423,7 +423,7 @@ function Group9() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group10() {
@@ -447,7 +447,7 @@ function Group10() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group11() {
@@ -471,7 +471,7 @@ function Group11() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group12() {
@@ -495,7 +495,7 @@ function Group12() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group13() {
@@ -519,7 +519,7 @@ function Group13() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group31() {
@@ -533,7 +533,7 @@ function Group31() {
       <Group12 />
       <Group13 />
     </div>
-  )
+  );
 }
 
 function Group34() {
@@ -542,7 +542,7 @@ function Group34() {
       <div className="absolute bg-[rgba(255,255,255,0)] h-[46px] left-[108px] top-[182px] w-[38px]" />
       <Group31 />
     </div>
-  )
+  );
 }
 
 function Group40() {
@@ -551,7 +551,7 @@ function Group40() {
       <Group26 />
       <Group34 />
     </div>
-  )
+  );
 }
 
 function Icon() {
@@ -658,7 +658,7 @@ function Icon() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame6() {
@@ -668,7 +668,7 @@ function Frame6() {
         上海主实例
       </p>
     </div>
-  )
+  );
 }
 
 function Frame4() {
@@ -680,7 +680,7 @@ function Frame4() {
       <Icon />
       <Frame6 />
     </div>
-  )
+  );
 }
 
 function Icon1() {
@@ -787,7 +787,7 @@ function Icon1() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame7() {
@@ -797,7 +797,7 @@ function Frame7() {
         杭州备实例
       </p>
     </div>
-  )
+  );
 }
 
 function Frame10() {
@@ -806,7 +806,7 @@ function Frame10() {
       <Icon1 />
       <Frame7 />
     </div>
-  )
+  );
 }
 
 function Component() {
@@ -913,7 +913,7 @@ function Component() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Frame8() {
@@ -923,7 +923,7 @@ function Frame8() {
         上海备实例
       </p>
     </div>
-  )
+  );
 }
 
 function Frame5() {
@@ -932,7 +932,7 @@ function Frame5() {
       <Component />
       <Frame8 />
     </div>
-  )
+  );
 }
 
 function Component5() {
@@ -946,7 +946,7 @@ function Component5() {
         <p className="leading-[22px] whitespace-pre">切换为主实例</p>
       </div>
     </div>
-  )
+  );
 }
 
 function Group21() {
@@ -954,7 +954,7 @@ function Group21() {
     <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
       <Component5 />
     </div>
-  )
+  );
 }
 
 function Frame9() {
@@ -963,7 +963,7 @@ function Frame9() {
       <Frame5 />
       <Group21 />
     </div>
-  )
+  );
 }
 
 function Component1() {
@@ -1005,7 +1005,7 @@ function Component1() {
         </svg>
       </div>
     </div>
-  )
+  );
 }
 
 function Component2() {
@@ -1016,7 +1016,7 @@ function Component2() {
     >
       <Component1 />
     </div>
-  )
+  );
 }
 
 function Group23() {
@@ -1025,7 +1025,7 @@ function Group23() {
       <Component2 />
       <div className="[grid-area:1_/_1] ml-0 mt-0 size-[20px]" />
     </div>
-  )
+  );
 }
 
 function Alert() {
@@ -1049,7 +1049,7 @@ function Alert() {
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 function Component3() {
@@ -1091,7 +1091,7 @@ function Component3() {
         </svg>
       </div>
     </div>
-  )
+  );
 }
 
 function Component4() {
@@ -1102,7 +1102,7 @@ function Component4() {
     >
       <Component3 />
     </div>
-  )
+  );
 }
 
 function Group24() {
@@ -1111,7 +1111,7 @@ function Group24() {
       <Component4 />
       <div className="[grid-area:1_/_1] ml-0 mt-0 size-[20px]" />
     </div>
-  )
+  );
 }
 
 function Alert1() {
@@ -1126,7 +1126,7 @@ function Alert1() {
       />
       <Group24 />
     </div>
-  )
+  );
 }
 
 function Group29() {
@@ -1156,7 +1156,7 @@ function Group29() {
         网络连接
       </p>
     </div>
-  )
+  );
 }
 
 function Group37() {
@@ -1186,7 +1186,7 @@ function Group37() {
         网络连接
       </p>
     </div>
-  )
+  );
 }
 
 function Group27() {
@@ -1197,7 +1197,7 @@ function Group27() {
       </p>
       <p className="absolute font-['PingFang_SC:Regular',sans-serif] leading-[20px] left-[757px] text-[#5c6b8a] text-[12px] top-[208px]">{` VPC（备 2）`}</p>
     </div>
-  )
+  );
 }
 
 function Group14() {
@@ -1248,7 +1248,7 @@ function Group14() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group15() {
@@ -1272,7 +1272,7 @@ function Group15() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group16() {
@@ -1296,7 +1296,7 @@ function Group16() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group17() {
@@ -1320,7 +1320,7 @@ function Group17() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group18() {
@@ -1344,7 +1344,7 @@ function Group18() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group19() {
@@ -1368,7 +1368,7 @@ function Group19() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group20() {
@@ -1392,7 +1392,7 @@ function Group20() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Group32() {
@@ -1406,7 +1406,7 @@ function Group32() {
       <Group19 />
       <Group20 />
     </div>
-  )
+  );
 }
 
 function Group35() {
@@ -1415,7 +1415,7 @@ function Group35() {
       <div className="absolute bg-[rgba(255,255,255,0)] h-[46px] left-[711px] top-[182px] w-[38px]" />
       <Group32 />
     </div>
-  )
+  );
 }
 
 function Group36() {
@@ -1424,7 +1424,7 @@ function Group36() {
       <Group27 />
       <Group35 />
     </div>
-  )
+  );
 }
 
 function Component26TabZ() {
@@ -1441,7 +1441,7 @@ function Component26TabZ() {
         data-name="Rectangle"
       />
     </div>
-  )
+  );
 }
 
 function Frame() {
@@ -1451,7 +1451,7 @@ function Frame() {
         容灾切换
       </p>
     </div>
-  )
+  );
 }
 
 function Component26TabZ1() {
@@ -1466,7 +1466,7 @@ function Component26TabZ1() {
         data-name="Rectangle"
       />
     </div>
-  )
+  );
 }
 
 function Radiobutton() {
@@ -1483,7 +1483,7 @@ function Radiobutton() {
         地域故障
       </p>
     </div>
-  )
+  );
 }
 
 function Radiobutton1() {
@@ -1500,7 +1500,7 @@ function Radiobutton1() {
         云服务商故障
       </p>
     </div>
-  )
+  );
 }
 
 function Group28() {
@@ -1509,7 +1509,7 @@ function Group28() {
       <Radiobutton />
       <Radiobutton1 />
     </div>
-  )
+  );
 }
 
 function Component01Reload() {
@@ -1536,7 +1536,7 @@ function Component01Reload() {
             height="14"
             id="mask0_6_3303"
             maskUnits="userSpaceOnUse"
-            style={{ maskType: 'luminance' }}
+            style={{ maskType: "luminance" }}
             width="14"
             x="1"
             y="1"
@@ -1553,7 +1553,7 @@ function Component01Reload() {
         </g>
       </svg>
     </div>
-  )
+  );
 }
 
 function Component01Button() {
@@ -1568,7 +1568,7 @@ function Component01Button() {
       />
       <Component01Reload />
     </div>
-  )
+  );
 }
 
 function Frame1() {
@@ -1583,7 +1583,7 @@ function Frame1() {
       <Group28 />
       <Component01Button />
     </div>
-  )
+  );
 }
 
 function TooltipCenter() {
@@ -1596,7 +1596,7 @@ function TooltipCenter() {
         重置
       </p>
     </div>
-  )
+  );
 }
 
 function ArrowPositionScrubber() {
@@ -1612,7 +1612,7 @@ function ArrowPositionScrubber() {
         <div
           className="absolute bottom-[7.02%] left-0 right-0 top-0"
           style={
-            { '--fill-0': 'rgba(255, 255, 255, 1)' } as React.CSSProperties
+            { "--fill-0": "rgba(255, 255, 255, 1)" } as React.CSSProperties
           }
         >
           <svg
@@ -1630,7 +1630,7 @@ function ArrowPositionScrubber() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function Component04Tooltip() {
@@ -1642,7 +1642,7 @@ function Component04Tooltip() {
       <TooltipCenter />
       <ArrowPositionScrubber />
     </div>
-  )
+  );
 }
 
 function Component03Comment() {
@@ -1675,7 +1675,7 @@ function Component03Comment() {
         点击后重置为该场景的初始状态
       </p>
     </div>
-  )
+  );
 }
 
 export default function Group41() {
@@ -1796,5 +1796,5 @@ export default function Group41() {
       <Group37 />
       <Group36 />
     </div>
-  )
+  );
 }
