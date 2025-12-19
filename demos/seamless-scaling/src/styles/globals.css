@@ -138,7 +138,7 @@
  * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
  */
 @layer base {
-  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+  :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
     h1 {
       font-size: var(--text-2xl);
       font-weight: var(--font-weight-medium);
@@ -191,4 +191,43 @@
 
 html {
   font-size: var(--font-size);
+}
+
+/* // 全局字体定义 - 从 poppins-fonts 包导入 */
+@font-face {
+  font-family: 'Poppins';
+  src: url('https://mdn.alipayobjects.com/huamei_22khvb/afts/file/A*K9X5RYKXfkQAAAAAAAAAAAAADiGDAQ/Poppins-SemiBold.ttf');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('https://mdn.alipayobjects.com/huamei_22khvb/afts/file/A*yRoDQaOMcyIAAAAAAAAAAAAADiGDAQ/Poppins-Regular.ttf');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('https://mdn.alipayobjects.com/huamei_22khvb/afts/file/A*y8e4RYFONsoAAAAAAAAAAAAADiGDAQ/Poppins-Medium.ttf');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('https://mass-office.alipay.com/huamei_koqzbu/afts/file/mHDuR4lzLUYAAAAAAAAAABAADnV5AQBr/Roboto-Regular.ttf')
+    format('truetype');
+}
+
+@font-face {
+  font-family: 'AlimamaShuHeiTi-Bold';
+  src: url('https://mass-office.alipay.com/huamei_koqzbu/afts/file/mscvSpA6EzkAAAAAAAAAABAADnV5AQBr/AlimamaShuHeiTi-Bold.ttf')
+    format('truetype');
+}
+
+/* 全局字体配置 - 英文环境：覆盖所有元素包括 Ant Design 组件 */
+html:lang(en-US) * {
+  font-family: 'Poppins', 'Roboto', sans-serif !important;
 }

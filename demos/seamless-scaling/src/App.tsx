@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useIntl, FormattedMessage } from "react-intl";
 import { ClusterTopology } from "./components/ClusterTopology";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { ScenarioControl } from "./components/ScenarioControl";
@@ -50,6 +51,7 @@ export interface LogEvent {
 }
 
 export default function App() {
+  const intl = useIntl();
   const [scenario, setScenario] = useState<Scenario>("normal");
   const [config, setConfig] = useState<ClusterConfig>({
     zones: 2,
@@ -188,7 +190,7 @@ export default function App() {
     setIsMetricsStable(false);
 
     // 添加重置日志
-    addLog("系统已重置到初始状态", "info");
+    addLog(intl.formatMessage({ id: "log.systemReset", defaultMessage: "系统已重置到初始状态" }), "info");
   };
 
   // 添加空格键控制暂停/继续
@@ -279,8 +281,8 @@ export default function App() {
     setScalingDirection("scale-out"); // 设置扩容方向
 
     const currentZones = zones.map((z) => z.name).join(", ");
-    addLog("🚀 开始扩容操作：平滑替换 Zone", "info");
-    addLog(`📝 当前 Zone: ${currentZones} (各2台 OBServer)`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleOut.start", defaultMessage: "🚀 开始扩容操作：平滑替换 Zone" }), "info");
+    addLog(intl.formatMessage({ id: "log.scaleOut.currentZone", defaultMessage: "📝 当前 Zone: {zones} (各2台 OBServer)" }, { zones: currentZones }), "info");
 
     // 使用循环的Zone ID：当前是 1,2 -> 新的是 3,4；当前是 3,4 -> 新的是 1,2
     const currentIds = zones.map((z) => z.id).sort();
@@ -296,7 +298,7 @@ export default function App() {
     // Step 1: 添加新的大规模 Zone
     await pausableDelay(1500);
     addLog(
-      `➕ 添加新的 Zone-${newId1} 和 Zone-${newId2} (各4台 OBServer)`,
+      intl.formatMessage({ id: "log.scaleOut.addNewZone", defaultMessage: "➕ 添加新的 Zone-{id1} 和 Zone-{id2} (各4台 OBServer)" }, { id1: newId1, id2: newId2 }),
       "info"
     );
     setScalingState("scaling-out");
@@ -319,45 +321,43 @@ export default function App() {
     ]);
 
     await pausableDelay(1500);
-    addLog(`🔄 副本同步中...`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleOut.syncing", defaultMessage: "🔄 副本同步中..." }), "info");
 
     await pausableDelay(3000);
-    addLog(`📊 副本同步完成，准备切换主可用区`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleOut.syncDone", defaultMessage: "📊 副本同步完成，准备切换主可用区" }), "info");
 
     await pausableDelay(1500);
     setConfig("4F1A");
     const oldZoneNames = zones.map((z) => `${z.name}[2台]`).join(", ");
     addLog(
-      `✅ 临时扩展至 4F1A (${oldZoneNames}, Zone-${newId1}[4台], Zone-${newId2}[4台])`,
+      intl.formatMessage({ id: "log.scaleOut.to4F1A", defaultMessage: "✅ 临时扩展至 4F1A ({config})" }, { config: `${oldZoneNames}, Zone-${newId1}[4台], Zone-${newId2}[4台]` }),
       "success"
     );
 
     // 此时 4 个 Zone 同时存在，但还未切主：旧 Zone 为主可用区（Leader+Follower），新 Zone 为备区（Follower）
     await pausableDelay(2000);
     const oldZoneIds = zones.map((z) => z.id);
-    addLog(`📊 当前状态：4个 Zone 共存（切主前）`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleOut.status4Zone", defaultMessage: "📊 当前状态：4个 Zone 共存（切主前）" }), "info");
     addLog(
-      `   - 旧 Zone (${zones
-        .filter((z) => oldZoneIds.includes(z.id))
-        .map((z) => z.name)
-        .join(", ")}): 主可用区，各2台 OBServer，Leader + Follower`,
+      intl.formatMessage({ id: "log.scaleOut.oldZoneLeader", defaultMessage: "   - 旧 Zone ({zones}): 主可用区，各2台 OBServer，Leader + Follower" }, { zones: zones.filter((z) => oldZoneIds.includes(z.id)).map((z) => z.name).join(", ") }),
       "info"
     );
     addLog(
-      `   - 新 Zone (Zone-${newId1}, Zone-${newId2}): 备区，各4台 OBServer，Follower`,
+      intl.formatMessage({ id: "log.scaleOut.newZoneFollower", defaultMessage: "   - 新 Zone (Zone-{id1}, Zone-{id2}): 备区，各4台 OBServer，Follower" }, { id1: newId1, id2: newId2 }),
       "info"
     );
 
     await pausableDelay(3000);
-    addLog(`📊 数据同步完成，准备切换主可用区`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleIn.dataSyncDone", defaultMessage: "📊 数据同步完成，准备切换主可用区" }), "info");
 
     // Step 2: 切换主可用区（瞬时操作）
     await pausableDelay(2000);
     addLog(
-      `🔀 切换主可用区：旧 Zone (${zones
-        .filter((z) => !z.isNew)
-        .map((z) => z.name)
-        .join(", ")}) → 新 Zone (Zone-${newId1}, Zone-${newId2})`,
+      intl.formatMessage({ id: "log.scaleOut.switchPrimary", defaultMessage: "🔀 切换主可用区：旧 Zone ({oldZones}) → 新 Zone (Zone-{id1}, Zone-{id2})" }, { 
+        oldZones: zones.filter((z) => !z.isNew).map((z) => z.name).join(", "),
+        id1: newId1, 
+        id2: newId2 
+      }),
       "info",
       true
     );
@@ -386,7 +386,7 @@ export default function App() {
       })
     );
     addLog(
-      `✅ 主可用区切换完成：Zone-${newId1}, Zone-${newId2} 现为主可用区`,
+      intl.formatMessage({ id: "log.scaleOut.switchDone", defaultMessage: "✅ 主可用区切换完成：Zone-{id1}, Zone-{id2} 现为主可用区" }, { id1: newId1, id2: newId2 }),
       "success"
     );
 
@@ -396,21 +396,18 @@ export default function App() {
 
     // 此时 4 个 Zone 同时存在：新 Zone 为主可用区（Leader+Follower），旧 Zone 为备区（Follower）
     await pausableDelay(2000);
-    addLog(`📊 当前状态：4个 Zone 共存（切主后）`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleOut.status4ZoneAfter", defaultMessage: "📊 当前状态：4个 Zone 共存（切主后）" }), "info");
     addLog(
-      `   - 新 Zone (Zone-${newId1}, Zone-${newId2}): 主可用区，各4台 OBServer，Leader + Follower`,
+      intl.formatMessage({ id: "log.scaleOut.newZoneLeader", defaultMessage: "   - 新 Zone (Zone-{id1}, Zone-{id2}): 主可用区，各4台 OBServer，Leader + Follower" }, { id1: newId1, id2: newId2 }),
       "info"
     );
     addLog(
-      `   - 旧 Zone (${zones
-        .filter((z) => oldZoneIdsToRemove.includes(z.id))
-        .map((z) => z.name)
-        .join(", ")}): 备区，各2台 OBServer，Follower`,
+      intl.formatMessage({ id: "log.scaleOut.oldZoneFollower", defaultMessage: "   - 旧 Zone ({zones}): 备区，各2台 OBServer，Follower" }, { zones: zones.filter((z) => oldZoneIdsToRemove.includes(z.id)).map((z) => z.name).join(", ") }),
       "info"
     );
 
     await pausableDelay(3000);
-    addLog(`📊 新主可用区运行稳定，准备移除旧 Zone`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleOut.newPrimaryStable", defaultMessage: "📊 新主可用区运行稳定，准备移除旧 Zone" }), "info");
 
     // Step 3: 标记旧 Zone 为删除中，并结束 scaling 状态
     await pausableDelay(1500);
@@ -418,7 +415,7 @@ export default function App() {
       .filter((z) => oldZoneIdsToRemove.includes(z.id))
       .map((z) => z.name)
       .join(", ");
-    addLog(`🗑️ 删除原 Zone (${oldZoneNamesToDelete}) 中...`, "warning");
+    addLog(intl.formatMessage({ id: "log.scaleOut.deletingOld", defaultMessage: "🗑️ 删除原 Zone ({zones}) 中..." }, { zones: oldZoneNamesToDelete }), "warning");
     // 保持在 switching-primary 状态，不要切换到 scaling-out-migrating
     setZones((prev) =>
       prev.map((z) =>
@@ -439,9 +436,9 @@ export default function App() {
     setScalingState("completed"); // 设置为完成状态，保持流程面板显示
 
     await pausableDelay(500);
-    addLog(`✅ 扩容流程完成！性能提升，承载更多流量`, "success");
+    addLog(intl.formatMessage({ id: "log.scaleOut.complete", defaultMessage: "✅ 扩容流程完成！性能提升，承载更多流量" }), "success");
     addLog(
-      `📌 新配置：2F1A (Zone-${newId1}[4台主可用区], Zone-${newId2}[4台])`,
+      intl.formatMessage({ id: "log.scaleOut.newConfig", defaultMessage: "📌 新配置：2F1A (Zone-{id1}[4台主可用区], Zone-{id2}[4台])" }, { id1: newId1, id2: newId2 }),
       "success"
     );
 
@@ -473,8 +470,8 @@ export default function App() {
     setScalingDirection("scale-in"); // 设置缩容方向
 
     const currentZones = zones.map((z) => z.name).join(", ");
-    addLog("🔽 开始缩容操作：平滑替换 Zone", "info");
-    addLog(`📝 当前 Zone: ${currentZones} (各4台 OBServer)`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleIn.start", defaultMessage: "🔽 开始缩容操作：平滑替换 Zone" }), "info");
+    addLog(intl.formatMessage({ id: "log.scaleIn.currentZone", defaultMessage: "📝 当前 Zone: {zones} (各4台 OBServer)" }, { zones: currentZones }), "info");
 
     // 使用循环的Zone ID：当前是 3,4 -> 新的是 1,2；当前是 1,2 -> 新的 3,4
     const currentIds = zones.map((z) => z.id).sort();
@@ -490,7 +487,7 @@ export default function App() {
     // Step 1: 添加新的小规模 Zone
     await pausableDelay(1500);
     addLog(
-      `➕ 添加新的 Zone-${newId1} 和 Zone-${newId2} (各2台 OBServer)`,
+      intl.formatMessage({ id: "log.scaleIn.addNewZone", defaultMessage: "➕ 添加新的 Zone-{id1} 和 Zone-{id2} (各2台 OBServer)" }, { id1: newId1, id2: newId2 }),
       "info"
     );
     setScalingState("scaling-in");
@@ -513,45 +510,43 @@ export default function App() {
     ]);
 
     await pausableDelay(1500);
-    addLog(`🔄 副本同步中...`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleIn.syncing", defaultMessage: "🔄 副本同步中..." }), "info");
 
     await pausableDelay(3000);
-    addLog(`✅ 副本同步完成`, "success");
+    addLog(intl.formatMessage({ id: "log.scaleIn.syncDone", defaultMessage: "✅ 副本同步完成" }), "success");
 
     await pausableDelay(1500);
     setConfig("4F1A");
     const oldZoneNames = zones.map((z) => `${z.name}[4台]`).join(", ");
     addLog(
-      `✅ 临时扩展至 4F1A (${oldZoneNames}, Zone-${newId1}[2台], Zone-${newId2}[2台])`,
+      intl.formatMessage({ id: "log.scaleIn.to4F1A", defaultMessage: "✅ 临时扩展至 4F1A ({config})" }, { config: `${oldZoneNames}, Zone-${newId1}[2台], Zone-${newId2}[2台]` }),
       "success"
     );
 
     // 此时 4 个 Zone 同时存在，但还未切主：旧 Zone 为主区（Leader+Follower），新 Zone 为备区（Follower）
     await pausableDelay(2000);
     const oldZoneIds = zones.map((z) => z.id);
-    addLog(`📊 当前状态：4个 Zone 共存（切主前）`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleIn.status4Zone", defaultMessage: "📊 当前状态：4个 Zone 共存（切主前）" }), "info");
     addLog(
-      `   - 旧 Zone (${zones
-        .filter((z) => oldZoneIds.includes(z.id))
-        .map((z) => z.name)
-        .join(", ")}): 主区，各4台 OBServer，Leader + Follower`,
+      intl.formatMessage({ id: "log.scaleIn.oldZoneLeader", defaultMessage: "   - 旧 Zone ({zones}): 主区，各4台 OBServer，Leader + Follower" }, { zones: zones.filter((z) => oldZoneIds.includes(z.id)).map((z) => z.name).join(", ") }),
       "info"
     );
     addLog(
-      `   - 新 Zone (Zone-${newId1}, Zone-${newId2}): 备区，各2台 OBServer，Follower`,
+      intl.formatMessage({ id: "log.scaleIn.newZoneFollower", defaultMessage: "   - 新 Zone (Zone-{id1}, Zone-{id2}): 备区，各2台 OBServer，Follower" }, { id1: newId1, id2: newId2 }),
       "info"
     );
 
     await pausableDelay(3000);
-    addLog(`📊 数据同步完成，准备切换主可用区`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleIn.dataSyncDone", defaultMessage: "📊 数据同步完成，准备切换主可用区" }), "info");
 
     // Step 2: 切换主可用区（瞬时操作）
     await pausableDelay(2000);
     addLog(
-      `🔀 切换主可用区：旧 Zone (${zones
-        .filter((z) => !z.isNew)
-        .map((z) => z.name)
-        .join(", ")}) → 新 Zone (Zone-${newId1}, Zone-${newId2})`,
+      intl.formatMessage({ id: "log.scaleIn.switchPrimary", defaultMessage: "🔀 切换主可用区：旧 Zone ({oldZones}) → 新 Zone (Zone-{id1}, Zone-{id2})" }, { 
+        oldZones: zones.filter((z) => !z.isNew).map((z) => z.name).join(", "),
+        id1: newId1, 
+        id2: newId2 
+      }),
       "info",
       true
     );
@@ -580,7 +575,7 @@ export default function App() {
       })
     );
     addLog(
-      `✅ 主可用区切换完成：Zone-${newId1}, Zone-${newId2} 现为主可用区`,
+      intl.formatMessage({ id: "log.scaleIn.switchDone", defaultMessage: "✅ 主可用区切换完成：Zone-{id1}, Zone-{id2} 现为主可用区" }, { id1: newId1, id2: newId2 }),
       "success"
     );
 
@@ -590,21 +585,18 @@ export default function App() {
 
     // 此时 4 个 Zone 同时存在：新 Zone 为主可用区（Leader+Follower），旧 Zone 备区（Follower）
     await pausableDelay(2000);
-    addLog(`📊 当前状态：4个 Zone 共存（切主后）`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleIn.status4ZoneAfter", defaultMessage: "📊 当前状态：4个 Zone 共存（切主后）" }), "info");
     addLog(
-      `   - 新 Zone (Zone-${newId1}, Zone-${newId2}): 主可用区，各2台 OBServer，Leader + Follower`,
+      intl.formatMessage({ id: "log.scaleIn.newZoneLeader", defaultMessage: "   - 新 Zone (Zone-{id1}, Zone-{id2}): 主可用区，各2台 OBServer，Leader + Follower" }, { id1: newId1, id2: newId2 }),
       "info"
     );
     addLog(
-      `   - 旧 Zone (${zones
-        .filter((z) => oldZoneIdsToRemove.includes(z.id))
-        .map((z) => z.name)
-        .join(", ")}): 备区，各4台 OBServer，Follower`,
+      intl.formatMessage({ id: "log.scaleIn.oldZoneFollower", defaultMessage: "   - 旧 Zone ({zones}): 备区，各4台 OBServer，Follower" }, { zones: zones.filter((z) => oldZoneIdsToRemove.includes(z.id)).map((z) => z.name).join(", ") }),
       "info"
     );
 
     await pausableDelay(3000);
-    addLog(`📊 新主可用区运行稳定，准备移除旧 Zone`, "info");
+    addLog(intl.formatMessage({ id: "log.scaleIn.newPrimaryStable", defaultMessage: "📊 新主可用区运行稳定，准备移除旧 Zone" }), "info");
 
     // Step 3: 标记旧 Zone 为删除中，并结束 scaling 状态
     await pausableDelay(1500);
@@ -612,7 +604,7 @@ export default function App() {
       .filter((z) => oldZoneIdsToRemove.includes(z.id))
       .map((z) => z.name)
       .join(", ");
-    addLog(`🗑️ 删除原 Zone (${oldZoneNamesToDelete}) 中...`, "warning");
+    addLog(intl.formatMessage({ id: "log.scaleIn.deletingOld", defaultMessage: "🗑️ 删除原 Zone ({zones}) 中..." }, { zones: oldZoneNamesToDelete }), "warning");
     setScalingState("scaling-in-migrating"); // 进入删除阶段
     setZones((prev) =>
       prev.map((z) =>
@@ -633,9 +625,9 @@ export default function App() {
     setScalingState("completed"); // 设置为完成状态，保持流程面板显示
 
     await pausableDelay(500);
-    addLog(`✅ 缩容流程完成！性能下降，配正常流量`, "success");
+    addLog(intl.formatMessage({ id: "log.scaleIn.complete", defaultMessage: "✅ 缩容流程完成！性能下降，适配正常流量" }), "success");
     addLog(
-      `📌 新配置：2F1A (Zone-${newId1}[2台主可用区], Zone-${newId2}[2台])`,
+      intl.formatMessage({ id: "log.scaleIn.newConfig", defaultMessage: "📌 新配置：2F1A (Zone-{id1}[2台主可用区], Zone-{id2}[2台])" }, { id1: newId1, id2: newId2 }),
       "success"
     );
 
@@ -649,8 +641,8 @@ export default function App() {
 
   // Initialize
   useEffect(() => {
-    addLog("🎯 OceanBase 电商大促扩缩容演示系统已启动", "success");
-    addLog("📌 当前配置：2F1A (2个全功能副本 + 1个仲裁副本)", "info");
+    addLog(intl.formatMessage({ id: "log.systemStarted", defaultMessage: "🎯 OceanBase 电商大促扩缩容演示系统已启动" }), "success");
+    addLog(intl.formatMessage({ id: "log.currentConfig", defaultMessage: "📌 当前配置：2F1A (2个全功能副本 + 1个仲裁副本)" }), "info");
   }, []);
 
   // 自动场景切换
@@ -678,17 +670,17 @@ export default function App() {
         if (scenario === "normal") {
           // Normal 阶段不自动切换（由扩容完成后手动触发）
           // 这行不会执行，因为 normal 的 duration 是 999999
-          addLog("🤖 [自动模式] 切换到预热阶段", "info");
+          addLog(intl.formatMessage({ id: "log.auto.switchToWarmUp", defaultMessage: "🤖 [自动模式] 切换到预热阶段" }), "info");
           setScenario("warming-up");
           cycleCountRef.current++; // 每次从 normal 切换到 warming-up 时，循环次数加1
         } else if (scenario === "warming-up") {
-          addLog("🤖 [自动模式] 切换到大促高峰场景", "info");
+          addLog(intl.formatMessage({ id: "log.auto.switchToPeak", defaultMessage: "🤖 [自动模式] 切换到大促高峰场景" }), "info");
           setScenario("peak");
         } else if (scenario === "peak") {
-          addLog("🤖 [自动模式] 大促结束，流量开始下降", "info");
+          addLog(intl.formatMessage({ id: "log.auto.switchToCoolDown", defaultMessage: "🤖 [自动模式] 大促结束，流量开始下降" }), "info");
           setScenario("cooling-down");
         } else if (scenario === "cooling-down") {
-          addLog("🤖 [自动模式] 恢复到正常流量", "info");
+          addLog(intl.formatMessage({ id: "log.auto.switchToNormal", defaultMessage: "🤖 [自动模式] 恢复到正常流量" }), "info");
           setScenario("normal");
         }
       }
@@ -702,7 +694,7 @@ export default function App() {
     if (autoMode && scenario === "normal" && scalingState === "idle") {
       // 延迟一下让用户看到模式切换
       const timer = setTimeout(() => {
-        addLog("🤖 [自动模式] 立即开始大促演示", "info");
+        addLog(intl.formatMessage({ id: "log.auto.startDemo", defaultMessage: "🤖 [自动模式] 立即开始大促演示" }), "info");
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -717,7 +709,7 @@ export default function App() {
       scalingState === "idle"
     ) {
       // 立即切换，不需要延迟
-      addLog("🤖 [自动模式] 扩容完成��立即切换到预热阶段", "info");
+      addLog(intl.formatMessage({ id: "log.auto.afterScaleOutSwitchWarmUp", defaultMessage: "🤖 [自动模式] 扩容完成，立即切换到预热阶段" }), "info");
       previousScenarioRef.current = scenario;
       setScenario("warming-up");
       setJustCompletedScaleOut(false); // 重置标记
@@ -735,13 +727,13 @@ export default function App() {
       if (previousScenarioRef.current === "cooling-down" && isScaledOut) {
         // 先等待一段时间让流量完全稳定，再检查是否开始缩容
         const waitTimer = setTimeout(() => {
-          addLog("🤖 [自动模式] 进入正常流量阶段，等待流量完全稳定...", "info");
+          addLog(intl.formatMessage({ id: "log.auto.enterNormalWaitStable", defaultMessage: "🤖 [自动模式] 进入正常流量阶段，等待流量完全稳定..." }), "info");
 
           // 等待3秒后，再检查流量是否平稳
           const checkStable = setInterval(() => {
             if (isMetricsStable) {
               clearInterval(checkStable);
-              addLog("🤖 [自动模式] 流量已平稳，开始缩容", "info");
+              addLog(intl.formatMessage({ id: "log.auto.trafficStableStartScaleIn", defaultMessage: "🤖 [自动模式] 流量已平稳，开始缩容" }), "info");
               handleScaleIn();
             }
           }, 1000); // 每秒检查一次
@@ -759,7 +751,7 @@ export default function App() {
         // 如果不是首轮，在扩容前 5 秒添加提示
         if (cycleCountRef.current > 0) {
           const notifyTimer = setTimeout(() => {
-            addLog("🔔 [自动模式] 下一轮循环即将开始（5秒后）...", "warning");
+            addLog(intl.formatMessage({ id: "log.auto.nextCycleNotify", defaultMessage: "🔔 [自动模式] 下一轮循环即将开始（5秒后）..." }), "warning");
           }, 15000); // 15 秒后提示（扩容前 5 秒）
 
           // 清理定时器
@@ -768,12 +760,10 @@ export default function App() {
 
         const timer = setTimeout(() => {
           if (cycleCountRef.current === 0) {
-            addLog("🤖 [自动模式] 立即开始扩容，准备大促演示", "info");
+            addLog(intl.formatMessage({ id: "log.auto.immediateScaleOut", defaultMessage: "🤖 [自动模式] 立即开始扩容，准备大促演示" }), "info");
           } else {
             addLog(
-              `🔄 [自动模式] 第 ${
-                cycleCountRef.current + 1
-              } 轮大促演示开始，正常流量阶段，提前扩容为大促做准备`,
+              intl.formatMessage({ id: "log.auto.cycleStart", defaultMessage: "🔄 [自动模式] 第 {count} 轮大促演示开始，正常流量阶段，提前扩容为大促做准备" }, { count: cycleCountRef.current + 1 }),
               "info"
             );
           }
@@ -1012,15 +1002,14 @@ export default function App() {
                   theme === "dark" ? "text-slate-100" : "text-gray-900"
                 }
               >
-                OceanBase 平滑扩缩容 - 电商大促场景
+                <FormattedMessage id="app.title" defaultMessage="OceanBase 平滑扩缩容 - 电商大促场景" />
               </h1>
               <p
                 className={`text-sm ${
                   theme === "dark" ? "text-slate-500" : "text-gray-500"
                 }`}
               >
-                基于异构 Zone 的平滑扩缩容: 2F1A (2 台 OBServer) ⇄ 4F1A ⇄ 2F1A
-                (4 台 OBServer)
+                <FormattedMessage id="app.subtitle" defaultMessage="基于异构 Zone 的平滑扩缩容: 2F1A (2 台 OBServer) ⇄ 4F1A ⇄ 2F1A (4 台 OBServer)" />
               </p>
             </div>
           </div>
@@ -1033,7 +1022,7 @@ export default function App() {
                 ? "bg-slate-800 hover:bg-slate-700 border border-slate-700"
                 : "bg-white hover:bg-gray-100 border border-gray-300 text-gray-900"
             }`}
-            title={theme === "dark" ? "切换到浅色主题" : "切换到深色主题"}
+            title={intl.formatMessage({ id: theme === "dark" ? "app.theme.switchToLight" : "app.theme.switchToDark", defaultMessage: theme === "dark" ? "切换到浅色主题" : "切换到深色主题" })}
           >
             {theme === "dark" ? (
               <Sun className="w-4 h-4 text-slate-100" />

@@ -1,3 +1,5 @@
+import React from 'react';
+import { useIntl, FormattedMessage } from 'react-intl';
 import { Play, Pause, Activity, TrendingUp, Zap, TrendingDown, ArrowUpCircle, ArrowDownCircle, RefreshCw, Loader2, RotateCcw } from 'lucide-react';
 import { Button } from './ui/button';
 import { Scenario, ScalingState, ScalingDirection } from '../App';
@@ -21,11 +23,33 @@ export function ScenarioControl({
   scalingDirection,
   onReset,
 }: ScenarioControlProps) {
+  const intl = useIntl();
+  
   const scenarioInfo = {
-    normal: { label: '正常流量', icon: Activity, color: theme === 'dark' ? 'text-blue-400' : 'text-blue-600', bg: theme === 'dark' ? 'bg-blue-500/10' : 'bg-blue-50' },
-    'warming-up': { label: '大促预热', icon: TrendingUp, color: theme === 'dark' ? 'text-amber-400' : 'text-amber-600', bg: theme === 'dark' ? 'bg-amber-500/10' : 'bg-amber-50' },
-    peak: { label: '大促高峰', icon: Zap, color: theme === 'dark' ? 'text-red-400' : 'text-red-600', bg: theme === 'dark' ? 'bg-red-500/10' : 'bg-red-50' },
-    'cooling-down': { label: '大促降温', icon: TrendingDown, color: theme === 'dark' ? 'text-green-400' : 'text-green-600', bg: theme === 'dark' ? 'bg-green-500/10' : 'bg-green-50' },
+    normal: { 
+      labelId: 'scenario.normal', 
+      icon: Activity, 
+      color: theme === 'dark' ? 'text-blue-400' : 'text-blue-600', 
+      bg: theme === 'dark' ? 'bg-blue-500/10' : 'bg-blue-50' 
+    },
+    'warming-up': { 
+      labelId: 'scenario.warmingUp', 
+      icon: TrendingUp, 
+      color: theme === 'dark' ? 'text-amber-400' : 'text-amber-600', 
+      bg: theme === 'dark' ? 'bg-amber-500/10' : 'bg-amber-50' 
+    },
+    peak: { 
+      labelId: 'scenario.peak', 
+      icon: Zap, 
+      color: theme === 'dark' ? 'text-red-400' : 'text-red-600', 
+      bg: theme === 'dark' ? 'bg-red-500/10' : 'bg-red-50' 
+    },
+    'cooling-down': { 
+      labelId: 'scenario.coolingDown', 
+      icon: TrendingDown, 
+      color: theme === 'dark' ? 'text-green-400' : 'text-green-600', 
+      bg: theme === 'dark' ? 'bg-green-500/10' : 'bg-green-50' 
+    },
   };
 
   const currentInfo = scenarioInfo[scenario];
@@ -35,7 +59,7 @@ export function ScenarioControl({
   const getOperationInfo = () => {
     if (scalingState === 'idle') {
       return {
-        label: '空闲',
+        labelId: 'operation.idle',
         icon: Activity,
         color: theme === 'dark' ? 'text-slate-400' : 'text-gray-500',
         bg: theme === 'dark' ? 'bg-slate-800/50' : 'bg-gray-100',
@@ -46,7 +70,7 @@ export function ScenarioControl({
     if (scalingDirection === 'scale-out') {
       if (scalingState === 'scaling-out') {
         return {
-          label: '扩容中 - 添加新Zone',
+          labelId: 'operation.scaleOut.addZone',
           icon: ArrowUpCircle,
           color: theme === 'dark' ? 'text-blue-400' : 'text-blue-600',
           bg: theme === 'dark' ? 'bg-blue-500/10' : 'bg-blue-50',
@@ -54,7 +78,7 @@ export function ScenarioControl({
         };
       } else if (scalingState === 'switching-primary') {
         return {
-          label: '扩容中 - 切换主可用区',
+          labelId: 'operation.scaleOut.switchPrimary',
           icon: RefreshCw,
           color: theme === 'dark' ? 'text-purple-400' : 'text-purple-600',
           bg: theme === 'dark' ? 'bg-purple-500/10' : 'bg-purple-50',
@@ -62,7 +86,7 @@ export function ScenarioControl({
         };
       } else if (scalingState === 'scaling-out-migrating') {
         return {
-          label: '扩容中 - 删除旧Zone',
+          labelId: 'operation.scaleOut.deleteOld',
           icon: Loader2,
           color: theme === 'dark' ? 'text-green-400' : 'text-green-600',
           bg: theme === 'dark' ? 'bg-green-500/10' : 'bg-green-50',
@@ -75,7 +99,7 @@ export function ScenarioControl({
     if (scalingDirection === 'scale-in') {
       if (scalingState === 'scaling-in') {
         return {
-          label: '缩容中 - 添加新Zone',
+          labelId: 'operation.scaleIn.addZone',
           icon: ArrowDownCircle,
           color: theme === 'dark' ? 'text-amber-400' : 'text-amber-600',
           bg: theme === 'dark' ? 'bg-amber-500/10' : 'bg-amber-50',
@@ -83,7 +107,7 @@ export function ScenarioControl({
         };
       } else if (scalingState === 'switching-primary') {
         return {
-          label: '缩容中 - 切换主可用区',
+          labelId: 'operation.scaleIn.switchPrimary',
           icon: RefreshCw,
           color: theme === 'dark' ? 'text-purple-400' : 'text-purple-600',
           bg: theme === 'dark' ? 'bg-purple-500/10' : 'bg-purple-50',
@@ -91,7 +115,7 @@ export function ScenarioControl({
         };
       } else if (scalingState === 'scaling-in-migrating') {
         return {
-          label: '缩容中 - 删除旧Zone',
+          labelId: 'operation.scaleIn.deleteOld',
           icon: Loader2,
           color: theme === 'dark' ? 'text-green-400' : 'text-green-600',
           bg: theme === 'dark' ? 'bg-green-500/10' : 'bg-green-50',
@@ -102,7 +126,7 @@ export function ScenarioControl({
 
     // 默认空闲状态
     return {
-      label: '空闲',
+      labelId: 'operation.idle',
       icon: Activity,
       color: theme === 'dark' ? 'text-slate-400' : 'text-gray-500',
       bg: theme === 'dark' ? 'bg-slate-800/50' : 'bg-gray-100',
@@ -127,12 +151,12 @@ export function ScenarioControl({
           {isPaused ? (
             <>
               <Play className="w-4 h-4 mr-1.5" />
-              继续演示
+              <FormattedMessage id="control.continue" defaultMessage="继续演示" />
             </>
           ) : (
             <>
               <Pause className="w-4 h-4 mr-1.5" />
-              暂停演示
+              <FormattedMessage id="control.pause" defaultMessage="暂停演示" />
             </>
           )}
         </Button>
@@ -147,7 +171,7 @@ export function ScenarioControl({
           }`}
         >
           <RotateCcw className="w-4 h-4 mr-1.5" />
-          重置演示
+          <FormattedMessage id="control.reset" defaultMessage="重置演示" />
         </Button>
 
         {/* 分隔线 */}
@@ -155,19 +179,27 @@ export function ScenarioControl({
 
         {/* 当前场景 */}
         <div className="flex items-center gap-3">
-          <span className={`text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-gray-600'}`}>当前场景:</span>
+          <span className={`text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-gray-600'}`}>
+            <FormattedMessage id="scenario.current" defaultMessage="当前场景:" />
+          </span>
           <div className={`${currentInfo.bg} border rounded px-3 py-1.5 flex items-center gap-2 ${theme === 'dark' ? 'border-slate-700' : 'border-gray-200'}`}>
             <Icon className={`w-4 h-4 ${currentInfo.color}`} />
-            <span className={`${currentInfo.color} text-sm`}>{currentInfo.label}</span>
+            <span className={`${currentInfo.color} text-sm`}>
+              <FormattedMessage id={currentInfo.labelId} />
+            </span>
           </div>
         </div>
 
         {/* 当前操作 */}
         <div className="flex items-center gap-3">
-          <span className={`text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-gray-600'}`}>当前操作:</span>
+          <span className={`text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-gray-600'}`}>
+            <FormattedMessage id="scenario.operation" defaultMessage="当前操作:" />
+          </span>
           <div className={`${operationInfo.bg} border rounded px-3 py-1.5 flex items-center gap-2 ${theme === 'dark' ? 'border-slate-700' : 'border-gray-200'}`}>
             <OperationIcon className={`w-4 h-4 ${operationInfo.color} ${operationInfo.animated ? 'animate-spin' : ''}`} />
-            <span className={`${operationInfo.color} text-sm`}>{operationInfo.label}</span>
+            <span className={`${operationInfo.color} text-sm`}>
+              <FormattedMessage id={operationInfo.labelId} />
+            </span>
           </div>
         </div>
 
@@ -177,7 +209,7 @@ export function ScenarioControl({
             <div className={`h-8 w-px ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-300'}`} />
             <div className={`flex items-center gap-2 text-sm ${theme === 'dark' ? 'text-amber-400' : 'text-amber-600'}`}>
               <Pause className="w-4 h-4" />
-              <span>演示已暂停</span>
+              <span><FormattedMessage id="scenario.paused" defaultMessage="演示已暂停" /></span>
             </div>
           </>
         )}
