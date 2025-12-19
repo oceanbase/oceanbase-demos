@@ -4,8 +4,10 @@ import { Analytics } from "@vercel/analytics/next";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { App } from "antd";
 import IframeCommunicator from "@/components/IframeCommunicator";
+import IntlProviderWrapper from "@/components/IntlProviderWrapper";
 import "antd/dist/reset.css";
 import "./globals.css";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Materialized View Demo",
@@ -24,7 +26,11 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body>
         <AntdRegistry>
-          <App>{children}</App>
+          <App>
+            <Suspense fallback={<div>Loading...</div>}>
+              <IntlProviderWrapper>{children}</IntlProviderWrapper>
+            </Suspense>
+          </App>
         </AntdRegistry>
         <IframeCommunicator />
         <SpeedInsights />

@@ -1,0 +1,90 @@
+{
+  "app": {
+    "title": "物化视图演示",
+    "description": "OceanBase 物化视图演示"
+  },
+  "dataset": {
+    "title": "数据集介绍",
+    "viewTableStructure": "查看表结构和物化视图结构",
+    "description": "这是一个**电商销售统计数据集**，包含订单、订单明细、商品等多张表。数据集涵盖了**2024年1月至12月**的销售数据，包含订单信息、商品信息、用户信息等多维度数据。",
+    "feature": {
+      "title": "核心特性：聚合物化视图优化",
+      "precomputeJoin": "**预计算多表JOIN**：避免每次查询时重复执行多表JOIN操作",
+      "preaggregate": "**预聚合数据**：预计算聚合结果，查询时只需简单的二次聚合",
+      "performance": "**性能提升显著**：相比直接查询基础表，**性能提升可达10-100倍**"
+    }
+  },
+  "scenario": {
+    "label": "场景说明:",
+    "scenario1": {
+      "name": "场景1：按日期和类目统计销售额（多表JOIN + 聚合）",
+      "description": "统计指定日期范围内，按一级类目和二级类目分组的销售额。此场景需要JOIN订单表、订单明细表、商品表，然后进行SUM聚合。聚合物化视图已预计算JOIN和聚合结果，查询时只需对预聚合数据进行简单的二次聚合，性能提升显著（10-100倍）。"
+    },
+    "scenario2": {
+      "name": "场景2：按品牌和地区统计销量（多维度聚合）",
+      "description": "统计不同品牌在不同地区的商品销量和销售额。此场景需要JOIN订单、订单明细、商品表，然后按品牌和地区进行聚合。聚合物化视图已预计算JOIN和聚合结果，查询时只需对预聚合数据进行简单的二次聚合，性能提升显著（10-100倍）。"
+    },
+    "scenario3": {
+      "name": "场景3：按时间段和类目统计平均订单金额（复杂聚合）",
+      "description": "统计不同时间段（按月）和一级类目的平均订单金额、订单数量等指标。此场景需要JOIN多个表并进行复杂的聚合计算。聚合物化视图已预计算JOIN和聚合结果，查询时只需对预聚合数据进行简单的二次聚合，性能提升显著（10-100倍）。"
+    },
+    "scenario4": {
+      "name": "场景4：按二级类目和品牌统计销售数据（多维度分析）",
+      "description": "统计不同二级类目和品牌的销售数据，包括订单数、用户数、商品数、销售额等。此场景需要JOIN订单、订单明细、商品表，然后按二级类目和品牌进行聚合。聚合物化视图已预计算JOIN和聚合结果，查询时只需对预聚合数据进行简单的二次聚合，性能提升显著（10-100倍）。"
+    },
+    "scenario5": {
+      "name": "场景5：综合查询（时间+地区+品牌+类目多维度统计）",
+      "description": "综合统计指定时间段内，按地区、品牌、类目等多维度的销售数据。此场景综合了多表JOIN、多条件过滤和复杂聚合统计。聚合物化视图已预计算JOIN和聚合结果，查询时只需对预聚合数据进行简单的二次聚合，性能提升显著（10-100倍）。"
+    }
+  },
+  "sql": {
+    "baseQuery": "查询基本表",
+    "baseQueryDesc": "直接查询基础表，需要执行多表JOIN和聚合操作",
+    "materializedQuery": "查询物化视图",
+    "materializedQueryDesc": "直接查询物化视图，数据已预聚合",
+    "rewriteQuery": "查询改写",
+    "rewriteQueryDesc": "查询基础表，通过 MV_REWRITE hint 指定使用物化视图",
+    "execute": "执行 SQL",
+    "placeholder": "SQL 查询语句",
+    "copy": "复制",
+    "copySuccess": "复制成功",
+    "copyFailed": "复制失败",
+    "expand": "展开",
+    "collapse": "收起",
+    "comment": {
+      "baseTable1": "-- 查询基础表：需要JOIN 3个表后进行聚合统计",
+      "baseTable2": "-- 查询基础表：需要JOIN 3个表后进行多维度聚合",
+      "baseTable3": "-- 查询基础表：需要JOIN 3个表后进行复杂聚合统计",
+      "baseTable5": "-- 查询基础表：复杂的多表JOIN、多条件过滤和聚合统计",
+      "materializedView": "-- 查询聚合物化视图：直接使用预聚合数据，只需二次聚合（JOIN和聚合成本都已消除）",
+      "rewrite": "-- 查询改写：查询基础表，通过 MV_REWRITE hint 指定使用物化视图"
+    }
+  },
+  "results": {
+    "executionTime": "执行时间",
+    "executionResult": "执行结果",
+    "executeFirst": "请先点击执行SQL 按钮",
+    "noData": "暂无数据"
+  },
+  "table": {
+    "structure": "表结构和物化视图结构",
+    "orders": "orders（订单表）",
+    "orderItems": "order_items（订单明细表）",
+    "products": "products（商品表）",
+    "materializedView": "sales_summary_mv（聚合物化视图）",
+    "field": "字段名",
+    "comment": "说明",
+    "type": "类型",
+    "nullable": "可空",
+    "key": "键"
+  },
+  "message": {
+    "apiCallFailed": "API 调用失败:",
+    "networkError": "网络请求失败",
+    "queryFailed": "{type}失败: {error}",
+    "queryCompleted": "场景查询完成，三种查询类型已执行",
+    "queryError": "查询执行失败",
+    "queryExecutionError": "⚠️ 查询执行错误："
+  }
+}
+

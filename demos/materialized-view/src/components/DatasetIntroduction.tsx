@@ -1,26 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Collapse, Button, Space } from "antd";
 import { UpOutlined, TableOutlined } from "@ant-design/icons";
+import { useIntl } from "react-intl";
 import ReactMarkdown from "react-markdown";
 import styles from "./DatasetIntroduction.module.css";
 import TableStructure from "./TableStructure";
 
 const { Panel } = Collapse;
 
-const datasetDescription = `这是一个**电商销售统计数据集**，包含订单、订单明细、商品等多张表。数据集涵盖了**2024年1月至12月**的销售数据，包含订单信息、商品信息、用户信息等多维度数据。
-
-> **核心特性：聚合物化视图优化**
-> 
-> 本演示使用**聚合物化视图**（\`sales_summary_mv\`）来优化查询性能：
-> - ✅ **预计算多表JOIN**：避免每次查询时重复执行多表JOIN操作
-> - ✅ **预聚合数据**：预计算聚合结果，查询时只需简单的二次聚合
-> - ✅ **性能提升显著**：相比直接查询基础表，**性能提升可达10-100倍**
-`;
-
 export default function DatasetIntroduction() {
+  const intl = useIntl();
   const [structureModalOpen, setStructureModalOpen] = useState(false);
+
+  const datasetDescription = useMemo(() => {
+    const desc = intl.formatMessage({ id: "dataset.description" });
+    const featureTitle = intl.formatMessage({ id: "dataset.feature.title" });
+    const precomputeJoin = intl.formatMessage({ id: "dataset.feature.precomputeJoin" });
+    const preaggregate = intl.formatMessage({ id: "dataset.feature.preaggregate" });
+    const performance = intl.formatMessage({ id: "dataset.feature.performance" });
+
+    return `${desc}
+
+> **${featureTitle}**
+> 
+> ${intl.locale === "zh-CN" ? "本演示使用**聚合物化视图**（`sales_summary_mv`）来优化查询性能：" : "This demo uses **aggregation materialized view** (`sales_summary_mv`) to optimize query performance:"}
+> - ✅ ${precomputeJoin}
+> - ✅ ${preaggregate}
+> - ✅ ${performance}
+`;
+  }, [intl]);
 
   return (
     <>
@@ -43,7 +53,7 @@ export default function DatasetIntroduction() {
           <Panel
             header={
               <Space>
-                数据集介绍
+                {intl.formatMessage({ id: "dataset.title" })}
                 <Button
                   type="link"
                   icon={<TableOutlined />}
@@ -53,7 +63,7 @@ export default function DatasetIntroduction() {
                   }}
                   style={{ padding: 0, height: "auto" }}
                 >
-                  查看表结构和物化视图结构
+                  {intl.formatMessage({ id: "dataset.viewTableStructure" })}
                 </Button>
               </Space>
             }

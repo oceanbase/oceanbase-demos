@@ -8,6 +8,7 @@ import {
   LoadingOutlined,
 } from "@ant-design/icons";
 import { useState, useEffect } from "react";
+import { useIntl } from "react-intl";
 import copy from "copy-to-clipboard";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { prism } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -38,6 +39,7 @@ export default function SQLEditor({
   onQueryTypeChange,
   queryTypes = [],
 }: SQLEditorProps) {
+  const intl = useIntl();
   const { message: messageApi } = App.useApp();
   const [sqlValue, setSqlValue] = useState(sql);
   const [expanded, setExpanded] = useState(false);
@@ -50,13 +52,13 @@ export default function SQLEditor({
   const handleCopy = () => {
     const success = copy(sqlValue, {
       debug: false,
-      message: "按 #{key} 复制",
+      message: intl.formatMessage({ id: "sql.copy" }),
     });
 
     if (success) {
-      messageApi.success("复制成功");
+      messageApi.success(intl.formatMessage({ id: "sql.copySuccess" }));
     } else {
-      messageApi.error("复制失败");
+      messageApi.error(intl.formatMessage({ id: "sql.copyFailed" }));
     }
   };
 
@@ -120,7 +122,7 @@ export default function SQLEditor({
           loading={loading}
           className={styles.executeButton}
         >
-          执行 SQL
+          {intl.formatMessage({ id: "sql.execute" })}
         </Button>
       }
     >
@@ -148,7 +150,7 @@ export default function SQLEditor({
             }}
             PreTag="div"
           >
-            {sqlValue || "SQL 查询语句"}
+            {sqlValue || intl.formatMessage({ id: "sql.placeholder" })}
           </SyntaxHighlighter>
         </div>
         <Button
@@ -158,7 +160,7 @@ export default function SQLEditor({
           onClick={handleCopy}
           className={styles.copyButton}
           style={{ position: "absolute", top: 8, right: 8 }}
-          title="复制"
+          title={intl.formatMessage({ id: "sql.copy" })}
         />
         <div
           className={styles.actions}
@@ -181,7 +183,7 @@ export default function SQLEditor({
             onClick={() => setExpanded(!expanded)}
             className={styles.expandButton}
           >
-            {expanded ? "收起" : "展开"}
+            {expanded ? intl.formatMessage({ id: "sql.collapse" }) : intl.formatMessage({ id: "sql.expand" })}
           </Button>
         </div>
       </div>

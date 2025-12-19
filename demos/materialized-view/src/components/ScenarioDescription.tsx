@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useIntl } from "react-intl";
 import styles from "./ScenarioDescription.module.css";
 
 interface ScenarioDescriptionProps {
@@ -10,6 +11,8 @@ interface ScenarioDescriptionProps {
 export default function ScenarioDescription({
   description,
 }: ScenarioDescriptionProps) {
+  const intl = useIntl();
+
   return (
     <div className={styles.container}>
       <Image
@@ -20,7 +23,7 @@ export default function ScenarioDescription({
         style={{ marginTop: -2 }}
       />
       <span className={styles.text}>
-        <span className={styles.label}>场景说明:</span> {description}
+        <span className={styles.label}>{intl.formatMessage({ id: "scenario.label" })}</span> {description}
       </span>
     </div>
   );

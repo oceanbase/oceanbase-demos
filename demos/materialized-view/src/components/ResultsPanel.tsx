@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Radio, Empty } from "antd";
+import { useIntl } from "react-intl";
 import ExecutionTimeChart from "./ExecutionTimeChart";
 import ExecutionResultTable from "./ExecutionResultTable";
 import styles from "./ResultsPanel.module.css";
@@ -22,6 +23,7 @@ export default function ResultsPanel({
   hasExecuted,
   loading = false,
 }: ResultsPanelProps) {
+  const intl = useIntl();
   const [activeTab, setActiveTab] = useState<"time" | "result">("time");
 
   return (
@@ -33,8 +35,8 @@ export default function ResultsPanel({
           className={styles.radioGroup}
           optionType="button"
         >
-          <Radio.Button value="time">执行时间</Radio.Button>
-          <Radio.Button value="result">执行结果</Radio.Button>
+          <Radio.Button value="time">{intl.formatMessage({ id: "results.executionTime" })}</Radio.Button>
+          <Radio.Button value="result">{intl.formatMessage({ id: "results.executionResult" })}</Radio.Button>
         </Radio.Group>
       </div>
 
@@ -55,7 +57,7 @@ export default function ResultsPanel({
                 borderRadius: "4px",
               }}
             >
-              <Empty description="请先点击执行SQL 按钮" />
+              <Empty description={intl.formatMessage({ id: "results.executeFirst" })} />
             </div>
           )
         ) : (

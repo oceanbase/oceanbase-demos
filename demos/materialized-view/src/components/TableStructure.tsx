@@ -1,6 +1,7 @@
 "use client";
 
 import { Modal, Table, Tabs } from "antd";
+import { useIntl } from "react-intl";
 import type { ColumnsType } from "antd/es/table";
 
 interface FieldInfo {
@@ -352,42 +353,44 @@ const mvFields: FieldInfo[] = [
   },
 ];
 
-const columns: ColumnsType<FieldInfo> = [
-  {
-    title: "字段名",
-    dataIndex: "field",
-    key: "field",
-    render: (text: string) => <code style={{ color: "#057cf2" }}>{text}</code>,
-  },
-  {
-    title: "说明",
-    dataIndex: "comment",
-    key: "comment",
-  },
-  {
-    title: "类型",
-    dataIndex: "type",
-    key: "type",
-  },
-  {
-    title: "可空",
-    dataIndex: "nullable",
-    key: "nullable",
-  },
-  {
-    title: "键",
-    dataIndex: "key",
-    key: "key",
-    render: (text: string) =>
-      text ? <span style={{ color: "#52c41a" }}>{text}</span> : "-",
-  },
-];
-
 export default function TableStructure({ open, onClose }: TableStructureProps) {
+  const intl = useIntl();
+  
+  const columns: ColumnsType<FieldInfo> = [
+    {
+      title: intl.formatMessage({ id: "table.field" }),
+      dataIndex: "field",
+      key: "field",
+      render: (text: string) => <code style={{ color: "#057cf2" }}>{text}</code>,
+    },
+    {
+      title: intl.formatMessage({ id: "table.comment" }),
+      dataIndex: "comment",
+      key: "comment",
+    },
+    {
+      title: intl.formatMessage({ id: "table.type" }),
+      dataIndex: "type",
+      key: "type",
+    },
+    {
+      title: intl.formatMessage({ id: "table.nullable" }),
+      dataIndex: "nullable",
+      key: "nullable",
+    },
+    {
+      title: intl.formatMessage({ id: "table.key" }),
+      dataIndex: "key",
+      key: "key",
+      render: (text: string) =>
+        text ? <span style={{ color: "#52c41a" }}>{text}</span> : "-",
+    },
+  ];
+  
   const tabItems = [
     {
       key: "orders",
-      label: "orders（订单表）",
+      label: intl.formatMessage({ id: "table.orders" }),
       children: (
         <Table
           columns={columns}
@@ -400,7 +403,7 @@ export default function TableStructure({ open, onClose }: TableStructureProps) {
     },
     {
       key: "order_items",
-      label: "order_items（订单明细表）",
+      label: intl.formatMessage({ id: "table.orderItems" }),
       children: (
         <Table
           columns={columns}
@@ -413,7 +416,7 @@ export default function TableStructure({ open, onClose }: TableStructureProps) {
     },
     {
       key: "products",
-      label: "products（商品表）",
+      label: intl.formatMessage({ id: "table.products" }),
       children: (
         <Table
           columns={columns}
@@ -439,7 +442,7 @@ export default function TableStructure({ open, onClose }: TableStructureProps) {
     // },
     {
       key: "mv",
-      label: "sales_summary_mv（聚合物化视图）",
+      label: intl.formatMessage({ id: "table.materializedView" }),
       children: (
         <Table
           columns={columns}
@@ -454,7 +457,7 @@ export default function TableStructure({ open, onClose }: TableStructureProps) {
 
   return (
     <Modal
-      title="表结构和物化视图结构"
+      title={intl.formatMessage({ id: "table.structure" })}
       open={open}
       onCancel={onClose}
       footer={null}

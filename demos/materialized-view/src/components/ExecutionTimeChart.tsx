@@ -2,7 +2,8 @@
 
 import { Column } from "@ant-design/charts";
 import { Spin } from "antd";
-import { queryTypes } from "@/data/scenarios";
+import { useIntl } from "react-intl";
+import { useQueryTypes } from "@/hooks/useScenarios";
 
 interface ExecutionTimeChartProps {
   data: Array<{
@@ -16,6 +17,9 @@ export default function ExecutionTimeChart({
   data,
   loading = false,
 }: ExecutionTimeChartProps) {
+  const intl = useIntl();
+  const queryTypes = useQueryTypes();
+  
   // 确保数据格式正确
   const chartData = Array.isArray(data)
     ? data.map((item) => ({
@@ -25,19 +29,14 @@ export default function ExecutionTimeChart({
     : [];
 
   // 获取所有唯一的类型，用于设置颜色映射
-  // 使用 queryTypes 的顺序，确保所有类型都有颜色映射（即使值为 0）
+  // 使用国际化后的 queryTypes 的顺序，确保所有类型都有颜色映射（即使值为 0）
   const allTypes = queryTypes.map((q) => q.label);
 
-  // 根据 type 获取颜色
+  // 根据 type 索引获取颜色（按照 queryTypes 的顺序）
+  const colors = ["#057cf2", "#52c41a", "#fa8c16"]; // 蓝色、绿色、橙色
   const getColorByType = (type: string) => {
-    if (type.includes("基本表")) {
-      return "#057cf2"; // 查询基本表 - 蓝色
-    } else if (type.includes("物化视图")) {
-      return "#52c41a"; // 查询物化视图 - 绿色
-    } else if (type.includes("改写")) {
-      return "#fa8c16"; // 查询改写 - 橙色
-    }
-    return "#057cf2"; // 默认颜色
+    const index = queryTypes.findIndex((q) => q.label === type);
+    return index >= 0 ? colors[index] : "#057cf2";
   };
 
   // 生成颜色数组，按照 queryTypes 的顺序
@@ -58,18 +57,18 @@ export default function ExecutionTimeChart({
         range: colorRange,
       },
       time: {
-        alias: "执行时间",
+        alias: intl.formatMessage({ id: "results.executionTime" }),
       },
       type: {
-        alias: "查询类型",
-        // 确保按照 queryTypes 的顺序显示
-        domain: queryTypes.map((q) => q.label),
+        alias: intl.locale === "zh-CN" ? "查询类型" : "Query Type",
+        // 确保按照国际化后的 queryTypes 的顺序显示
+        domain: allTypes,
       },
     },
     tooltip: {
       items: [
         (d: Record<string, unknown>) => ({
-          name: "执行时间",
+          name: intl.formatMessage({ id: "results.executionTime" }),
           value: `${(d.time as number) || 0}ms`,
         }),
       ],

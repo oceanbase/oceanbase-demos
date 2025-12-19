@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { DataGrid, Column, SortColumn } from "react-data-grid";
 import { Spin, Empty } from "antd";
+import { useIntl } from "react-intl";
 import "react-data-grid/lib/styles.css";
 import styles from "./ExecutionResultTable.module.css";
 
@@ -15,6 +16,7 @@ export default function ExecutionResultTable({
   data,
   loading = false,
 }: ExecutionResultTableProps) {
+  const intl = useIntl();
   const [sortColumns, setSortColumns] = useState<readonly SortColumn[]>([]);
 
   const columns = useMemo<Column<Record<string, string | number>>[]>(() => {
@@ -120,7 +122,7 @@ export default function ExecutionResultTable({
             height: "100%",
           }}
         >
-          <Empty description="暂无数据" />
+          <Empty description={intl.formatMessage({ id: "results.noData" })} />
         </div>
       </div>
     );

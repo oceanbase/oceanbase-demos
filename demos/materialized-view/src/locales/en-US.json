@@ -1,0 +1,90 @@
+{
+  "app": {
+    "title": "Materialized View Demo",
+    "description": "OceanBase Materialized View Demo"
+  },
+  "dataset": {
+    "title": "Dataset Introduction",
+    "viewTableStructure": "View Table and Materialized View Structure",
+    "description": "This is an **e-commerce sales statistics dataset** containing orders, order items, products and other tables. The dataset covers sales data from **January to December 2024**, including order information, product information, user information and other multi-dimensional data.",
+    "feature": {
+      "title": "Core Feature: Aggregation Materialized View Optimization",
+      "precomputeJoin": "**Pre-compute multi-table JOIN**: Avoid repeated multi-table JOIN operations for each query",
+      "preaggregate": "**Pre-aggregate data**: Pre-calculate aggregation results, queries only need simple secondary aggregation",
+      "performance": "**Significant performance improvement**: Compared to querying base tables directly, **performance can improve by 10-100x**"
+    }
+  },
+  "scenario": {
+    "label": "Scenario Description:",
+    "scenario1": {
+      "name": "Scenario 1: Sales Statistics by Date and Category (Multi-table JOIN + Aggregation)",
+      "description": "Statistics of sales amount grouped by level 1 and level 2 categories within a specified date range. This scenario requires JOIN of orders, order items, and products tables, then SUM aggregation. The aggregation materialized view has pre-calculated JOIN and aggregation results, queries only need simple secondary aggregation on pre-aggregated data, with significant performance improvement (10-100x)."
+    },
+    "scenario2": {
+      "name": "Scenario 2: Sales Statistics by Brand and Region (Multi-dimensional Aggregation)",
+      "description": "Statistics of product sales and sales amount for different brands in different regions. This scenario requires JOIN of orders, order items, and products tables, then aggregation by brand and region. The aggregation materialized view has pre-calculated JOIN and aggregation results, queries only need simple secondary aggregation on pre-aggregated data, with significant performance improvement (10-100x)."
+    },
+    "scenario3": {
+      "name": "Scenario 3: Average Order Amount by Time Period and Category (Complex Aggregation)",
+      "description": "Statistics of average order amount, order quantity and other metrics for different time periods (by month) and level 1 categories. This scenario requires JOIN of multiple tables and complex aggregation calculations. The aggregation materialized view has pre-calculated JOIN and aggregation results, queries only need simple secondary aggregation on pre-aggregated data, with significant performance improvement (10-100x)."
+    },
+    "scenario4": {
+      "name": "Scenario 4: Sales Data by Level 2 Category and Brand (Multi-dimensional Analysis)",
+      "description": "Statistics of sales data for different level 2 categories and brands, including order count, user count, item count, sales amount, etc. This scenario requires JOIN of orders, order items, and products tables, then aggregation by level 2 category and brand. The aggregation materialized view has pre-calculated JOIN and aggregation results, queries only need simple secondary aggregation on pre-aggregated data, with significant performance improvement (10-100x)."
+    },
+    "scenario5": {
+      "name": "Scenario 5: Comprehensive Query (Multi-dimensional Statistics by Time + Region + Brand + Category)",
+      "description": "Comprehensive statistics of sales data by region, brand, category and other dimensions within a specified time period. This scenario combines multi-table JOIN, multi-condition filtering and complex aggregation statistics. The aggregation materialized view has pre-calculated JOIN and aggregation results, queries only need simple secondary aggregation on pre-aggregated data, with significant performance improvement (10-100x)."
+    }
+  },
+  "sql": {
+    "baseQuery": "Query Base Table",
+    "baseQueryDesc": "Directly query base tables, requires multi-table JOIN and aggregation operations",
+    "materializedQuery": "Query Materialized View",
+    "materializedQueryDesc": "Directly query materialized view, data is pre-aggregated",
+    "rewriteQuery": "Query Rewrite",
+    "rewriteQueryDesc": "Query base tables, specify using materialized view via MV_REWRITE hint",
+    "execute": "Execute SQL",
+    "placeholder": "SQL Query Statement",
+    "copy": "Copy",
+    "copySuccess": "Copy Success",
+    "copyFailed": "Copy Failed",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "comment": {
+      "baseTable1": "-- Query Base Table: Requires JOIN of 3 tables and aggregation",
+      "baseTable2": "-- Query Base Table: Requires JOIN of 3 tables and multi-dimensional aggregation",
+      "baseTable3": "-- Query Base Table: Requires JOIN of 3 tables and complex aggregation",
+      "baseTable5": "-- Query Base Table: Complex multi-table JOIN, multi-condition filtering and aggregation",
+      "materializedView": "-- Query Materialized View: Directly use pre-aggregated data, only secondary aggregation needed (JOIN and aggregation costs eliminated)",
+      "rewrite": "-- Query Rewrite: Query base tables, use materialized view via MV_REWRITE hint"
+    }
+  },
+  "results": {
+    "executionTime": "Execution Time",
+    "executionResult": "Execution Result",
+    "executeFirst": "Please click Execute SQL button first",
+    "noData": "No Data"
+  },
+  "table": {
+    "structure": "Table and Materialized View Structure",
+    "orders": "orders (Orders Table)",
+    "orderItems": "order_items (Order Items Table)",
+    "products": "products (Products Table)",
+    "materializedView": "sales_summary_mv (Aggregation Materialized View)",
+    "field": "Field Name",
+    "comment": "Description",
+    "type": "Type",
+    "nullable": "Nullable",
+    "key": "Key"
+  },
+  "message": {
+    "apiCallFailed": "API call failed:",
+    "networkError": "Network request failed",
+    "queryFailed": "{type} failed: {error}",
+    "queryCompleted": "Scenario queries completed, all three query types have been executed",
+    "queryError": "Query execution failed",
+    "queryExecutionError": "⚠️ Query Execution Error:"
+  }
+}
+
