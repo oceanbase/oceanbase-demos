@@ -1,118 +1,125 @@
-import { useState, useEffect } from "react";
-import Group327 from "../imports/Group327";
-import Group328 from "../imports/Group328";
-import Group329 from "../imports/Group329";
+import { useState, useEffect, useRef } from 'react'
+import { useIntl } from 'react-intl'
+import Group327 from '../imports/Group327'
+import Group328 from '../imports/Group328'
+import Group329 from '../imports/Group329'
+import { useTextReplacer } from '../hooks/useTextReplacer'
 
-type PrimaryBackupState = "initial" | "afterSwitch" | "final";
+type PrimaryBackupState = 'initial' | 'afterSwitch' | 'final'
 
 interface PrimaryBackupSwitchProps {
-  resetTrigger?: number;
+  resetTrigger?: number
 }
 
 export default function PrimaryBackupSwitch({
   resetTrigger,
 }: PrimaryBackupSwitchProps) {
-  const [state, setState] = useState<PrimaryBackupState>("initial");
+  const intl = useIntl()
+  const [state, setState] = useState<PrimaryBackupState>('initial')
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // 使用文本替换 Hook 来国际化 imports 组件中的文案
+  useTextReplacer(containerRef)
 
   // 当 resetTrigger 改变时，重置状态
   useEffect(() => {
     if (resetTrigger !== undefined) {
-      setState("initial");
+      setState('initial')
     }
-  }, [resetTrigger]);
+  }, [resetTrigger])
 
   // 处理点击事件
   const handleStateChange = (event: React.MouseEvent) => {
-    const target = event.target as HTMLElement;
-    const text = target.textContent || "";
+    const target = event.target as HTMLElement
+    const text = target.textContent || ''
 
     // 检查是否点击了置灰按钮（不可点击按钮）
-    let element: HTMLElement | null = target;
+    let element: HTMLElement | null = target
     while (element) {
-      const classList = element.className || "";
+      const classList = element.className || ''
       // 如果找到置灰按钮的特征类名，直接返回，不执行任何操作
       if (
-        typeof classList === "string" &&
-        (classList.includes("bg-[#f3f6fc]") ||
-          classList.includes("cursor-not-allowed"))
+        typeof classList === 'string' &&
+        (classList.includes('bg-[#f3f6fc]') ||
+          classList.includes('cursor-not-allowed'))
       ) {
-        console.log("主备切换 - Clicked on disabled button, ignoring");
-        return;
+        console.log('主备切换 - Clicked on disabled button, ignoring')
+        return
       }
-      element = element.parentElement;
+      element = element.parentElement
     }
 
     // 检查是否点击了可操作按钮
-    let checkElement: HTMLElement | null = target;
-    let buttonId: string | null = null;
+    let checkElement: HTMLElement | null = target
+    let buttonId: string | null = null
     while (checkElement) {
-      const dataButtonId = checkElement.getAttribute?.("data-button-id");
+      const dataButtonId = checkElement.getAttribute?.('data-button-id')
       if (dataButtonId) {
-        buttonId = dataButtonId;
-        break;
+        buttonId = dataButtonId
+        break
       }
-      checkElement = checkElement.parentElement;
+      checkElement = checkElement.parentElement
     }
 
     if (!buttonId) {
-      return;
+      return
     }
 
     console.log(
-      "主备切换 - Clicked button:",
+      '主备切换 - Clicked button:',
       buttonId,
-      "Current state:",
+      'Current state:',
       state,
-      "Text:",
+      'Text:',
       text
-    );
+    )
 
     // 根据当前状态和点击的按钮决定下一个状态
     // 状态1（initial）的2个按钮 → 跳转到状态2和状态3
-    if (state === "initial") {
-      if (buttonId === "state1-button1") {
-        console.log("主备切换 - State1 Button1: initial → afterSwitch");
-        setState("afterSwitch");
-      } else if (buttonId === "state1-button2") {
-        console.log("主备切换 - State1 Button2: initial → final");
-        setState("final");
+    if (state === 'initial') {
+      if (buttonId === 'state1-button1') {
+        console.log('主备切换 - State1 Button1: initial → afterSwitch')
+        setState('afterSwitch')
+      } else if (buttonId === 'state1-button2') {
+        console.log('主备切换 - State1 Button2: initial → final')
+        setState('final')
       }
-      return;
+      return
     }
 
     // 状态2（afterSwitch）的2个按钮 → 跳转到状态1和状态3
-    if (state === "afterSwitch") {
-      if (buttonId === "state2-button1") {
-        console.log("主备切换 - State2 Button1: afterSwitch → initial");
-        setState("initial");
-      } else if (buttonId === "state2-button2") {
-        console.log("主备切换 - State2 Button2: afterSwitch → final");
-        setState("final");
+    if (state === 'afterSwitch') {
+      if (buttonId === 'state2-button1') {
+        console.log('主备切换 - State2 Button1: afterSwitch → initial')
+        setState('initial')
+      } else if (buttonId === 'state2-button2') {
+        console.log('主备切换 - State2 Button2: afterSwitch → final')
+        setState('final')
       }
-      return;
+      return
     }
 
     // 状态3（final）的2个按钮 → 跳转到状态1和状态2
-    if (state === "final") {
-      if (buttonId === "state3-button1") {
-        console.log("主备切换 - State3 Button1: final → initial");
-        setState("initial");
-      } else if (buttonId === "state3-button2") {
-        console.log("主备切换 - State3 Button2: final → afterSwitch");
-        setState("afterSwitch");
+    if (state === 'final') {
+      if (buttonId === 'state3-button1') {
+        console.log('主备切换 - State3 Button1: final → initial')
+        setState('initial')
+      } else if (buttonId === 'state3-button2') {
+        console.log('主备切换 - State3 Button2: final → afterSwitch')
+        setState('afterSwitch')
       }
-      return;
+      return
     }
-  };
+  }
 
   return (
     <div className="relative">
       {/* 刷新按钮 */}
       <div className="absolute top-2.5 right-2 z-50 flex gap-2 items-center">
         <button
-          onClick={() => setState("initial")}
+          onClick={() => setState('initial')}
           className="bg-white box-border content-stretch flex gap-[8px] items-center justify-center p-[6px] rounded-[6px] size-[32px] border-[#cdd5e4] border border-solid hover:bg-[#f5f7fa] hover:border-[#a0aec0] transition-all overflow-hidden cursor-pointer group"
-          title="重置"
+          title={intl.formatMessage({ id: 'common.reset' })}
         >
           <svg
             className="w-4 h-4"
@@ -129,7 +136,7 @@ export default function PrimaryBackupSwitch({
             />
             <mask
               id="mask0_reset_icon_primary"
-              style={{ maskType: "luminance" }}
+              style={{ maskType: 'luminance' }}
               maskUnits="userSpaceOnUse"
               x="1"
               y="1"
@@ -148,21 +155,25 @@ export default function PrimaryBackupSwitch({
         </button>
       </div>
 
-      <div onClick={handleStateChange}>
+      <div
+        onClick={handleStateChange}
+        ref={containerRef}
+        className="en-scale-container"
+      >
         {/* 响应式容器 */}
         <div
           className="relative w-full"
-          style={{ paddingBottom: "92.55%" /* 870/940 比例 */ }}
+          style={{ paddingBottom: '92.55%' /* 870/940 比例 */ }}
         >
           <div className="absolute inset-0 origin-top-left">
             <div className="w-[940px] h-[870px] scale-[var(--scale)] origin-top-left">
-              {state === "initial" && <Group327 />}
-              {state === "afterSwitch" && <Group328 />}
-              {state === "final" && <Group329 />}
+              {state === 'initial' && <Group327 />}
+              {state === 'afterSwitch' && <Group328 />}
+              {state === 'final' && <Group329 />}
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
